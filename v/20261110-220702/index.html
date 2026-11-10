@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-220338';</script>
+<script>window.GAME_VERSION = '20261110-220702';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -343,6 +343,15 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .hicon{width:26px;height:26px;vertical-align:-5px;margin-right:6px}
 .stat:has(.sicon){grid-template-columns:30px 4.6em 1fr 2.4em}
 .stat .sicon{width:30px;height:30px;object-fit:contain}
+
+.icon:has(img){background:none;border:none;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.icon img{width:100%;height:100%;display:block;border-radius:50%}
+.spells .spell{position:relative;padding-left:64px;min-height:64px}
+.spell .spic{position:absolute;left:8px;top:8px;width:46px;height:46px}
+.spell.lock .spic{filter:grayscale(1) brightness(1.1);opacity:.35}
+.card .spellimg,.card .festimg{width:120px;height:120px;filter:drop-shadow(0 8px 22px rgba(0,0,0,.6))}
+.card .festimg{width:150px;height:150px}
+.quest .qi{width:16px;height:16px;vertical-align:-3px;margin-right:4px;border-radius:50%}
 .spells{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .spell{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;display:flex;flex-direction:column;gap:2px}
 .spell .sp-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -377,12 +386,12 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
   <header class="hud">
     <div class="datebox"><span class="d" id="date">花朝靈院</span><span class="s"><span id="slot">序章</span><span class="coin" id="money"></span><span class="saved" id="saved">已存檔</span></span></div>
     <div class="right">
-      <button class="icon" data-tab="tea" aria-label="花茶攤">茶</button>
-      <button class="icon" data-tab="people" aria-label="人物">緣</button>
-      <button class="icon" data-tab="stats" aria-label="能力">華</button>
-      <button class="icon" data-tab="log" aria-label="日記">記</button>
-      <button class="icon" data-tab="save" aria-label="存檔">存</button>
-      <button class="icon" id="snd" aria-label="聲音" aria-pressed="true">♪</button>
+      <button class="icon" data-tab="tea" aria-label="花茶攤"><img src="img/hud_tea.webp" alt=""></button>
+      <button class="icon" data-tab="people" aria-label="人物"><img src="img/hud_people.webp" alt=""></button>
+      <button class="icon" data-tab="stats" aria-label="能力"><img src="img/hud_stats.webp" alt=""></button>
+      <button class="icon" data-tab="log" aria-label="日記"><img src="img/hud_log.webp" alt=""></button>
+      <button class="icon" data-tab="save" aria-label="存檔"><img src="img/hud_save.webp" alt=""></button>
+      <button class="icon" id="snd" aria-label="聲音" aria-pressed="true"><img src="img/hud_sound.webp" alt=""></button>
     </div>
   </header>
   <div class="quest" id="quest" hidden></div>
@@ -408,8 +417,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-220338"></script>
-<script src="story.js?v=20261110-220338"></script>
+<script src="audio.js?v=20261110-220702"></script>
+<script src="story.js?v=20261110-220702"></script>
 <script>
 (() => {
 const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -670,11 +679,11 @@ function hud(){
 // 第一章之後，任務列輪流提示長期目標
 function lifeGoal(){
   const g = [], dm = domOf(S.day);
-  if (dm < 14) g.push(`再過 ${14 - dm} 日就是「${festName(S.day)}」`);
+  if (dm < 14) g.push(`<img class="qi" src="${festImg(S.day)}" alt="">再過 ${14 - dm} 日就是「${festName(S.day)}」`);
   else if (dm < 25) g.push(`再過 ${25 - dm} 日是本月月考`);
-  else g.push(`下個月的節慶是「${festName(S.day + 28)}」`);
+  else g.push(`<img class="qi" src="${festImg(S.day + 28)}" alt="">下個月的節慶是「${festName(S.day + 28)}」`);
   const sx = S.house && curSpell(S.house);
-  if (sx) g.push(`術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
+  if (sx) g.push(`<img class="qi" src="img/spell_${sx.id}.webp" alt="">術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
   if (S.stall.open){ const nx = TEA.LEVELS[stallLv() + 1]; if (nx) g.push(`茶攤：再 ${nx[0] - S.stall.rep} 名聲升為「${nx[1]}」`); g.push(`配方簿 ${S.known.length}/${TEA.RECIPES.length}`); }
   const evs = Object.values(S.ev).reduce((a, b) => a + b, 0); g.push(`羈絆事件 ${evs}/${EV_TOTAL}`);
   return g[S.day % g.length];
@@ -688,6 +697,7 @@ const monthOf = d => Math.ceil(d / 28), domOf = d => (d - 1) % 28 + 1;
 const yearOf = d => Math.floor((monthOf(d) - 1) / 10) + 1, mInYear = d => (monthOf(d) - 1) % 10 + 1;
 const dateLabel = d => monthOf(d) === 1 ? `一年級・第${cn(d)}日` : `${yearOf(d) > 1 ? cn(yearOf(d)) + '年級・' : ''}${cn(mInYear(d))}月${cn(domOf(d))}日`;
 const festName = d => monthOf(d) === 1 ? '花朝節' : LIFE.FESTS[(monthOf(d) - 2) % LIFE.FESTS.length].n;
+const festImg = d => `img/fest_${monthOf(d) === 1 ? 0 : (monthOf(d) - 2) % LIFE.FESTS.length + 1}.webp`;
 function plan(d){
   if (d <= 1) return ['opening','rest'];
   if (domOf(d) === 14) return ['outing','lunch','festival','rest'];
@@ -1006,7 +1016,7 @@ const spellStat = x => x.stat || HOUSES[S.house].stat;
 const spellReady = x => x && (S.mag[x.id] || 0) >= x.need && S.stats[spellStat(x)] >= x.req;
 async function learnSpell(x){
   S.spells.push(x.id); SND.sfx('magic');
-  await card(`<span class="small">習得咒術・第${cn(x.tier || S.spells.length)}層</span><span class="big">${x.n}</span><span class="small">${MAGIC.FX[x.fx]}</span>`, 2600);
+  await card(`<img class="spellimg" src="img/spell_${x.id}.webp" alt=""><span class="small">習得咒術・第${cn(x.tier || S.spells.length)}層</span><span class="big">${x.n}</span><span class="small">${MAGIC.FX[x.fx]}</span>`, 2600);
   await say('', x.learn);
   note(`習得咒術「${x.n}」。`);
   gain(spellStat(x), 2);
@@ -1032,7 +1042,7 @@ function spellBook(){
   const row = (x, cur) => {
     const got = S.spells.includes(x.id), m = S.mag[x.id] || 0, st = spellStat(x);
     const state = got ? '<span class="tag2 ok">已習得</span>' : cur ? `<span class="tag2">熟練 ${m}/${x.need}</span>` : '<span class="tag2">未解鎖</span>';
-    return `<div class="spell ${got ? 'got' : cur ? 'cur' : 'lock'}"><div class="sp-t"><b>${got || cur ? x.n : '？？？'}</b>${state}</div>
+    return `<div class="spell ${got ? 'got' : cur ? 'cur' : 'lock'}"><img class="spic" src="img/spell_${x.id}.webp" alt=""><div class="sp-t"><b>${got || cur ? x.n : '？？？'}</b>${state}</div>
       ${got || cur ? `<small>${x.d}</small>` : ''}<small class="fx">${MAGIC.FX[x.fx]}${x.req ? `・需${STATS[st][0]} ${x.req}` : ''}</small>
       ${cur ? `<div class="bar"><i style="width:${m / x.need * 100}%"></i></div>` : ''}</div>`;
   };
@@ -1044,9 +1054,9 @@ function spellBook(){
 // ---------- 每月節慶（第二個月起） ----------
 let festBoost = false;
 async function monthFest(){
-  const F = LIFE.FESTS[(monthOf(S.day) - 2) % LIFE.FESTS.length];
+  const fi = (monthOf(S.day) - 2) % LIFE.FESTS.length, F = LIFE.FESTS[fi];
   setScene(F.scene); await sleep(400);
-  await card(`<span class="small">${cn(mInYear(S.day))}月十四日</span><span class="big">${F.n}</span>`, 2000);
+  await card(`<img class="festimg" src="img/fest_${fi + 1}.webp" alt=""><span class="small">${cn(mInYear(S.day))}月十四日</span><span class="big">${F.n}</span>`, 2200);
   for (const t of F.intro) await say('', t);
   const ok = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 20).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
   const id = await choose(ok.length ? `要和誰一起去${F.n}？` : `要和誰一起去${F.n}？（好感達到「熟絡」才能相約）`,
@@ -1257,6 +1267,7 @@ async function rest(){
 async function festival(){
   if (monthOf(S.day) > 1) return monthFest();
   setScene('花朝節'); await sleep(400);
+  await card('<img class="festimg" src="img/fest_0.webp" alt=""><span class="small">第十四日</span><span class="big">花朝節</span>', 2200);
   await say('', '今天是花朝節——百花的生日。整座靈院掛滿了紅綢與花燈。');
   await say('', '按照習俗，大家會把紅綢繫在花枝上，替花神賀壽，這叫「賞紅」。');
   const ok = C.filter(c => (S.aff[c.id] || 0) >= 20).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
@@ -1583,7 +1594,7 @@ document.addEventListener('pointerdown', e => {
   if (b){ b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow'); setTimeout(() => b.classList.remove('glow'), 500); }
 }, true);
 window.__S = () => S;
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free};
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
