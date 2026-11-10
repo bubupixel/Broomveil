@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="花朝靈院">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{touch-action:manipulation;overscroll-behavior:none}
@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-181445';</script>
+<script>window.GAME_VERSION = '20261110-182233';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -26,7 +26,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="花朝靈院">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap">
@@ -229,14 +229,21 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .splash{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:14px;cursor:default;
   background:#1f1a3e url("img/title.jpg") center top / cover no-repeat;padding-bottom:calc(15vh + env(safe-area-inset-bottom,0px));transition:opacity .7s ease}
 .splash.out{opacity:0;pointer-events:none}
-.splash .sp-bar{width:min(240px,62%);height:2px;background:rgba(236,215,162,.22);border-radius:2px;overflow:hidden}
-.splash .sp-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b8924a,#f6e3ae);box-shadow:0 0 10px rgba(246,227,174,.8);transition:width .25s ease}
-.splash .sp-text{font-size:14px;letter-spacing:.4em;color:#f1e3c3;text-shadow:0 0 12px rgba(0,0,0,.6);font-variant-numeric:tabular-nums}
+.splash .sp-load{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(320px,76%)}
+.splash .sp-bar{position:relative;width:100%;height:14px;padding:2px;border-radius:999px;
+  background:linear-gradient(rgba(12,8,20,.75),rgba(30,22,40,.65));box-shadow:inset 0 2px 4px rgba(0,0,0,.65),0 0 0 1px rgba(236,215,162,.28),0 4px 14px rgba(0,0,0,.35)}
+.splash .sp-bar i{position:relative;display:block;height:100%;width:0;min-width:10px;border-radius:999px;transition:width .3s ease;
+  background:linear-gradient(90deg,#962b2a 0%,#c25a2c 30%,#df9a45 62%,#f6dfa6 100%);box-shadow:0 0 12px rgba(246,214,150,.5),inset 0 1px 0 rgba(255,255,255,.35)}
+.splash .sp-bar i::after{content:"";position:absolute;right:-3px;top:50%;width:16px;height:16px;transform:translateY(-50%);border-radius:50%;
+  background:radial-gradient(circle at 38% 34%,#fffdf6 0%,#f4e2b6 45%,#b8924a 100%);box-shadow:0 0 12px rgba(255,238,196,.95),0 0 2px rgba(0,0,0,.5)}
+.splash .sp-row{display:flex;justify-content:space-between;align-items:baseline;width:100%;font-size:16px;font-weight:700;color:#f3e2bd;
+  text-shadow:0 1px 8px rgba(0,0,0,.7);font-variant-numeric:tabular-nums}
+.splash .sp-row #sptext{letter-spacing:.12em}
+.splash .sp-start{font-size:17px;letter-spacing:.45em;color:#fff6dc;text-shadow:0 0 14px rgba(0,0,0,.6);visibility:hidden;margin-top:6px}
 .splash.ready{cursor:pointer}
-.splash.ready .sp-bar{opacity:0;transition:opacity .5s}
-.splash.ready .sp-text{font-size:16px;color:#fff6dc;animation:breathe 2.4s ease-in-out infinite}
-@keyframes breathe{50%{opacity:.45}}
-.splash .sp-tip{font-size:12px;letter-spacing:.15em;color:rgba(241,227,195,.6);min-height:1.2em}
+.splash.ready .sp-start{visibility:visible;animation:breathe 2.4s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.4}}
+.splash .sp-tip{font-size:14px;letter-spacing:.12em;color:rgba(241,227,195,.75);text-shadow:0 1px 6px rgba(0,0,0,.6);min-height:1.2em;text-align:center}
 @media (max-height:700px){.portrait{height:80%}.box{min-height:122px;padding:20px 18px 18px}.line{font-size:16.5px}.choices button{min-height:46px;padding:8px 14px 8px 18px}.place{font-size:22px}}
 @media (min-width:521px){#app{border-left:1px solid rgba(184,146,74,.25);border-right:1px solid rgba(184,146,74,.25)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -273,13 +280,16 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
   <div class="card" id="card" hidden></div>
   <div class="toast" id="toast" role="status"></div>
   <div class="splash" id="splash" role="button" aria-label="開始遊戲">
-    <div class="sp-bar"><i id="spbar"></i></div>
-    <div class="sp-text" id="sptext">載入中</div>
+    <div class="sp-load">
+      <div class="sp-bar"><i id="spbar"></i></div>
+      <div class="sp-row"><span id="sptext">推開院門……</span><span id="sppct">0%</span></div>
+    </div>
+    <div class="sp-start">輕觸畫面開始</div>
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-181445"></script>
-<script src="story.js?v=20261110-181445"></script>
+<script src="audio.js?v=20261110-182233"></script>
+<script src="story.js?v=20261110-182233"></script>
 <script>
 (() => {
 const {HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -976,17 +986,20 @@ function assets(){
 function preload(urls, step){
   return Promise.all(urls.map(u => new Promise(r => { const i = new Image(); i.onload = i.onerror = () => { step(); r(); }; i.src = u; })));
 }
-const TIPS = ['午膳時和同一個人同桌，好感會慢慢累積。','角色名字旁出現「✦」，代表對方有話想說。','每個時段開始時都會自動存檔。','有些心事，要等你的能力夠高，對方才肯說出口。','花糕可以在百靈市集買到，午膳時送給喜歡的人吧。'];
+const TIPS = ['花月湖的燈，正一盞盞亮起……','觀星閣的渾天儀，緩緩轉動……','藥圃的鈴蘭，剛剛醒來……','紫藤迴廊的風，帶著花香……','試煉場的火光，還沒有熄……','午膳時和同一個人同桌，好感會慢慢累積。','角色名字旁出現「✦」，代表對方有話想說。','每個時段開始時都會自動存檔。','有些心事，要等你的能力夠高，對方才肯說出口。','花糕可以在百靈市集買到，午膳時送給喜歡的人吧。'];
 async function boot(){
   const sp = $('splash');
   if (FAST){ sp.remove(); return main(); }
   $('sptip').textContent = pick(TIPS);
   const {core, rest} = assets();
   let done = 0; const total = core.length + 1;
-  const step = () => { done++; const p = Math.round(done / total * 100); $('spbar').style.width = p + '%'; $('sptext').textContent = `載入中・${p}%`; };
+  const PHASE = [[0,'推開院門……'],[30,'點亮花燈……'],[60,'喚醒花靈……'],[100,'即將入學……']];
+  const show = p => { $('spbar').style.width = p + '%'; $('sppct').textContent = p + '%'; let t = PHASE[0][1]; for (const [k, v] of PHASE) if (p >= k) t = v; $('sptext').textContent = t; };
+  const step = () => { done++; show(Math.round(done / total * 100)); };
+  show(0);
   const fonts = (document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 4000))]) : Promise.resolve()).then(step);
   await Promise.race([Promise.all([preload(core, step), fonts]), new Promise(r => setTimeout(r, 20000))]);
-  sp.classList.add('ready'); $('sptext').textContent = '輕觸畫面開始';
+  show(100); sp.classList.add('ready');
   await new Promise(r => { sp.addEventListener('click', r, {once:true}); sp.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') r(); }, {once:true}); });
   SND.sfx('choose'); sp.classList.add('out'); setTimeout(() => sp.remove(), 800);
   preload(rest, () => {});
@@ -999,10 +1012,12 @@ boot();
 <style>
 html,body{height:100%}
 #app{position:fixed;top:0;bottom:0;left:0;right:0;height:auto}
-/* iOS home-screen apps with a translucent status bar report a viewport short by the status bar,
-   leaving a black band at the bottom. In home-screen mode use the whole screen height. */
-@media (display-mode: standalone){ #app{bottom:auto;height:100vh;height:100lvh} }
-html.ios-app #app{bottom:auto;height:100vh;height:100lvh}
+/* iOS home-screen apps with a translucent status bar size the page one status bar short and leave
+   a black band at the bottom. In home-screen mode make the page itself taller by that amount and
+   lay the game over the whole page. Painted navy so any leftover gap matches the title screen. */
+html{background:#1f1a3e}
+html.ios-app,html.ios-app body{height:calc(100% + env(safe-area-inset-top,0px));overflow:hidden}
+html.ios-app #app{position:absolute;top:0;left:0;right:0;bottom:auto;height:100%}
 .hud{padding-top:calc(12px + env(safe-area-inset-top,0px))}
 .quest{top:calc(66px + env(safe-area-inset-top,0px))}
 .place{top:calc(62px + env(safe-area-inset-top,0px))}
@@ -1012,7 +1027,7 @@ html.ios-app #app{bottom:auto;height:100vh;height:100lvh}
 .shade{background:linear-gradient(rgba(14,10,8,.62),rgba(14,10,8,0) calc(17% + env(safe-area-inset-top,0px))),
   linear-gradient(rgba(14,10,8,0) 58%,rgba(14,10,8,.55)),radial-gradient(140% 95% at 50% 42%,transparent 60%,rgba(10,6,4,.5))}
 </style>
-<script>if (navigator.standalone) document.documentElement.classList.add('ios-app');</script>
+<script>if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) document.documentElement.classList.add('ios-app');</script>
 
 <script>
 // 更新：開啟、切回前景、每 15 分鐘檢查 version.json。還在載入畫面就直接跳到新版本；
@@ -1023,7 +1038,7 @@ html.ios-app #app{bottom:auto;height:100vh;height:100lvh}
   const go = v => location.replace('v/' + v + '/');
   const sp = document.getElementById('splash');
   if (sp){ const t = document.createElement('div'); t.id = 'verlabel'; t.textContent = '版本 ' + V;
-    t.style.cssText = 'position:absolute;right:14px;bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.08em;color:rgba(241,227,195,.55)';
+    t.style.cssText = 'font-size:11px;letter-spacing:.08em;color:rgba(241,227,195,.5);margin-top:4px';
     sp.appendChild(t); }
   const say = t => { const n = document.getElementById('vernote'); if (n) n.textContent = t; };
   async function check(manual){
