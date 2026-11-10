@@ -119,7 +119,7 @@ const FACES = {
   su:{laugh:'img/c10_smile.webp', shy:'img/c10_shy.webp', angry:'img/c10_angry.webp', sad:'img/c10_sad.webp'},
   liu:{laugh:'img/c11_smile.webp', shy:'img/c11_shy.webp', angry:'img/c11_angry.webp', sad:'img/c11_sad.webp'},
   ji:{laugh:'img/c12_smile.webp', shy:'img/c12_shy.webp', angry:'img/c12_angry.webp', sad:'img/c12_sad.webp'},
-  bai:{shy:'img/c13_shy.webp', sad:'img/c13_sad.webp'},
+  bai:{laugh:'img/c13_smile.webp', smile:'img/c13_smile.webp', shy:'img/c13_shy.webp', sad:'img/c13_sad.webp', surprised:'img/c13_surprised.webp'},
 };
 
 // ---------- 羈絆事件：每人四段，好感達標後在午膳、探索或晚膳時觸發 ----------
@@ -1936,7 +1936,8 @@ const GOODS = {
     {id:'g_ruan', for:'ruan', n:'花蜜糖', price:30, line:'小白，你看！是花蜜糖！……我、我也可以吃一顆嗎？'},
     {id:'g_su', for:'su', n:'銅製小手鏡', price:50, line:'一面普通的鏡子。……照出來的我，也很普通。我很喜歡。'},
     {id:'g_liu', for:'liu', n:'冰蠶琴弦', price:60, line:'冰蠶絲的琴弦……用它彈的第一首曲子，給你聽。'},
-    {id:'g_ji', for:'ji', n:'礦石顏料', price:50, line:'青金石……這個藍色，我找了好久。我要用它畫你。'}
+    {id:'g_ji', for:'ji', n:'礦石顏料', price:50, line:'青金石……這個藍色，我找了好久。我要用它畫你。'},
+    {id:'g_bai', for:'bai', n:'白玉蘭花簪', price:80, line:'……白玉蘭。二十二年前，我也送過一支一模一樣的簪子給一個學生。……這一支，我會一直戴著。'}
   ],
   // 宿舍佈置：一次買下，長期有效
   DECOR: [
@@ -2055,7 +2056,7 @@ const CH3 = {
     ['','鏡中之門，開了。'],
     ['','門後，一個穿著舊院服的青年，扶著門框，一步一步走了出來。他的手上，纏著一圈早已褪色的繃帶。'],
     ['npc:青年','……這裡是，花月湖？'],
-    ['npc:青年','我叫顧長庚。我好像……睡了很久。'],
+    ['npc:顧長庚','我叫顧長庚。我好像……睡了很久。'],
     ['#ifmet','qin',[['','岸邊傳來急促的腳步聲。秦朔跑到湖邊，停住了。'],['qin','……長庚。','sad'],['qin','我想起來了。你的名字，你笑起來的樣子……全都想起來了。']]],
     ['#ifmet','liu',[['','遠處的水榭裡，琴聲停了。柳縈抱著琴，站在岸邊，眼淚一顆一顆地掉下來。'],['liu','那首曲子……我寫完了。你說過，要第一個聽的。','sad']]],
     ['#ifmet','ye',[['ye','……手上的傷，還沒換藥。笨蛋，一年了。','sad']]],

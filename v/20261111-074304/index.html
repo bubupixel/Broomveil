@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-000323';</script>
+<script>window.GAME_VERSION = '20261111-074304';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -364,6 +364,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .grow small{font-size:12px;color:var(--ink-soft);line-height:1.4}
 .grow em{font-style:normal;font-size:13px;color:var(--house);white-space:nowrap;font-weight:700}
 .grow.own{cursor:default}
+.card .wximg{width:64px;height:64px;margin:0 auto 6px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.datebox .s .wxi{width:17px;height:17px;vertical-align:-4px;margin-left:5px}
+
 .hb{margin:4px 0 6px}
 .hb-top{display:flex;justify-content:space-between;align-items:baseline;margin:6px 0 10px}
 .hb-top b{font-size:18px;letter-spacing:.15em}
@@ -490,8 +493,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-000323"></script>
-<script src="story.js?v=20261111-000323"></script>
+<script src="audio.js?v=20261111-074304"></script>
+<script src="story.js?v=20261111-074304"></script>
 <script>
 (() => {
 const {CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -549,7 +552,7 @@ const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house : g + '0'}.jpg`}; };
 const HUAPO = {id:'huapo', n:'花婆婆', h:'yu', cut:'img/c15.webp'};
-const TOWNS = {'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16_3.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17_3.webp'}};
+const TOWNS = {'npc:青年':{id:'gu', n:'青年', h:'fei', cut:'img/c18.webp'}, 'npc:顧長庚':{id:'gu', n:'顧長庚', h:'fei', cut:'img/c18.webp'}, 'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16_3.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17_3.webp'}};
 const teaImg = id => `img/tea_${id}.webp`, ingImg = k => `img/ing_${k}.webp`;
 function who(id){
   if (!id) return null;
@@ -779,7 +782,7 @@ function hud(){
   else {
     E.date.textContent = dateLabel(S.day);
     const sk = P[Math.min(S.slot, P.length - 1)];
-    E.slot.textContent = `週${WEEK[(S.day - 1) % 7]}・${sk === 'festival' ? festName(S.day) : SLOT_NAME[sk]}${S.wx && S.wx !== 'sun' ? '・' + WX[S.wx].n : ''}`;
+    E.slot.innerHTML = `週${WEEK[(S.day - 1) % 7]}・${sk === 'festival' ? festName(S.day) : SLOT_NAME[sk]}${S.house && S.wx ? `<img class="wxi" src="img/wx_${S.wx}.webp" alt="${WX[S.wx].n}">` : ''}`;
   }
   E.money.innerHTML = `<img class="hi" src="img/ui_stone.webp" alt="靈石"><b>${S.money}</b>${S.house ? `<img class="hi" src="img/ui_hp.webp" alt="體力"><b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
   if (S.house){ E.quest.hidden = false; E.quest.innerHTML = ch3Active() ? `<b>四院花鑰</b><span>${keyGoal()}</span>` : S.flags.ch1 && S.q2 >= 1 && !S.flags.ch2 ? `<b>鏡中來客</b><span>${QUESTS2[S.q2]}</span>` : S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
@@ -796,7 +799,8 @@ function lifeGoal(){
   if (sx) g.push(`<img class="qi" src="img/spell_${sx.id}.webp" alt="">術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
   if (S.stall.open){ const nx = TEA.LEVELS[stallLv() + 1]; if (nx) g.push(`茶攤：再 ${nx[0] - S.stall.rep} 名聲升為「${nx[1]}」`); g.push(`配方簿 ${S.known.length}/${TEA.RECIPES.length}`); }
   const soon = C.filter(c => S.met[c.id] && BDAY[c.id] && BDAY[c.id][0] === mInYear(S.day) && BDAY[c.id][1] > dm && BDAY[c.id][1] - dm <= 7);
-  for (const c of soon) g.push(`<img class="qi" src="${ava(c.img)}" alt="">${c.n}的生日，還有 ${BDAY[c.id][1] - dm} 日`);
+  for (const c of soon) g.push(`<img class="qi" src="img/life_bday.webp" alt="">${c.n}的生日，還有 ${BDAY[c.id][1] - dm} 日`);
+  if (S.promise && BY[S.promise.id]) g.unshift(`<img class="qi" src="img/life_lunch.webp" alt="">${S.promise.day > S.day ? '明天' : '今天'}中午，和${BY[S.promise.id].n}有約`);
   const evs = Object.values(S.ev).reduce((a, b) => a + b, 0); g.push(`羈絆事件 ${evs}/${evTotal()}`);
   return g[S.day % g.length];
 }
@@ -853,7 +857,7 @@ async function meet(c, ctx, where){
     else await say(c.id, c.dateA[0], 'happy');
     aff(c.id, 8, true); note(`和${c.n}共進晚膳。`);
     if (!FAST || Math.random() < .3){
-      const pr = await choose('晚膳快結束了。', [{label:`約${c.n}明天一起吃午膳`, value:true}, {label:'改天再說', value:false}]);
+      const pr = await choose('晚膳快結束了。', [{label:`約${c.n}明天一起吃午膳`, value:true, icon:'img/life_promise.webp'}, {label:'改天再說', value:false}]);
       if (pr){ S.promise = {id:c.id, day:S.day + 1}; await say(c.id, pick(['……好。明天中午，我等你。','說好了。別忘了。','明天見。'])); }
     }
   }
@@ -1426,7 +1430,7 @@ function keyGoal(){
   if (n === 4) return '花鑰 4／4・月圓之夜，到花月湖去';
   const h = KEY_HOUSES.find(h => !S.keys[h] && !keyNeeds(h).length) || KEY_HOUSES.find(h => !S.keys[h]);
   const needs = keyNeeds(h), K = CH3.KEYS[h];
-  return `<img class="qi" src="img/crest_${h}.webp" alt="">花鑰 ${n}／4・` + (needs.length ? `${K.n}：需要${needs[0]}` : `${K.n}在${K.place}等你`);
+  return `<img class="qi" src="img/key_${h}.webp" alt="">花鑰 ${n}／4・` + (needs.length ? `${K.n}：需要${needs[0]}` : `${K.n}在${K.place}等你`);
 }
 async function keyTrial(h){
   const K = CH3.KEYS[h], g = keyGuide(h);
@@ -1436,7 +1440,7 @@ async function keyTrial(h){
   if (r.full || r.score >= 3){
     await run(K.win, {c:g});
     S.keys[h] = true; aff(g.id, 6); gain(HOUSES[h].stat, 2);
-    await card(`<img class="crestimg" src="img/crest_${h}.webp" alt=""><span class="small">四院花鑰・${cn(KEY_HOUSES.filter(x => S.keys[x]).length)}／四</span><span class="big">${K.n}</span>`, 2600);
+    await card(`<img class="crestimg" src="img/key_${h}.webp" alt=""><span class="small">四院花鑰・${cn(KEY_HOUSES.filter(x => S.keys[x]).length)}／四</span><span class="big">${K.n}</span>`, 2600);
     note(`和${g.n}一起，在${K.place}取得了「${K.n}」。`);
   } else await run(K.fail, {c:g});
 }
@@ -1461,11 +1465,11 @@ function handbook(){
     ['羈絆事件', 'img/ui_knot.webp', evs, evTotal()],
     ['回憶', 'img/hud_people.webp', cgGot, 12],
     ['心意禮物', 'img/dec_goods.webp', Object.keys(S.col.gift).length, GOODS.GIFTS.length],
-    ['生日祝福', 'img/ui_cake.webp', Object.keys(S.col.bd).length, Object.keys(BDAY).length],
+    ['生日祝福', 'img/life_bday.webp', Object.keys(S.col.bd).length, Object.keys(BDAY).length],
     ['外婆家書', 'img/dec_parcel.webp', Math.min(S.replies, GOODS.REPLIES.length), GOODS.REPLIES.length],
     ['校園小事', 'img/loc_vine.webp', Object.keys(S.col.inc).length, nInc],
     ['節慶', 'img/fest_0.webp', Object.keys(S.col.fest).length, LIFE.FESTS.length + 1],
-    ['四院花鑰', 'img/crest_yu.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4]
+    ['四院花鑰', 'img/key_fei.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4]
   ];
   const got = items.reduce((a, x) => a + Math.min(x[2], x[3]), 0), all = items.reduce((a, x) => a + x[3], 0);
   return `<div class="hb"><div class="hb-top"><b>花朝手帳</b><span>完成度 ${Math.floor(got / all * 100)}%</span></div>
@@ -1559,7 +1563,7 @@ async function explore(prompt){
   if (p.id === 'lib' && S.quest === 2){ S.met.lu = true; await run(MAIN.lib); gain('bo', 2); return; }
   if (p.id === 'lake' && presentAt('lake').length && !(S.quest === 1 && S.day >= 7)){
     const lk = await choose('花月湖。要做什麼？', [...presentAt('lake').map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'沿著湖邊走走', sub:'風雅・體力 -1', value:'walk'}]);
-    if (lk !== 'walk'){ useHp(2); gain('feng', 1); await meet(BY[lk], 'alt', '花月湖'); return; }
+    if (lk !== 'walk'){ useHp(2); gain('feng', 1); await meet(BY[lk], 'alt', '花月湖'); if (lk === 'bai') await giftMenu(BY.bai); return; }
   }
   if (p.id === 'lake'){
     gain('feng', 2); useHp(1); gather('lake');
@@ -1729,9 +1733,9 @@ async function dayCard(d){
   const m = monthOf(d), dm = domOf(d);
   const sp = dm === 14 ? `<span class="seal">${m === 1 ? '花朝' : '節慶'}</span>` : dm === 25 ? '<span class="seal">月考</span>' : '';
   if (m > 1 && dm === 1) await card(`<span class="small">${cn(yearOf(d))}年級</span><span class="big">${cn(mInYear(d))}月</span><span class="small">新的一個月開始了</span>`, 2000);
-  const wx = S.wx && d > 1 ? `・${WX[S.wx].n}` : '';
-  if (m === 1) await card(`<span class="big">第${cn(d)}日</span><span class="small">一年級・週${WEEK[(d - 1) % 7]}${wx}</span>${sp}`, 1900);
-  else await card(`<span class="big">${cn(dm)}日</span><span class="small">${cn(yearOf(d))}年級・${cn(mInYear(d))}月・週${WEEK[(d - 1) % 7]}${wx}</span>${sp}`, 1900);
+  const wx = S.wx && d > 1 ? `・${WX[S.wx].n}` : '', wxi = S.wx && d > 1 ? `<img class="wximg" src="img/wx_${S.wx}.webp" alt="">` : '';
+  if (m === 1) await card(`${wxi}<span class="big">第${cn(d)}日</span><span class="small">一年級・週${WEEK[(d - 1) % 7]}${wx}</span>${sp}`, 1900);
+  else await card(`${wxi}<span class="big">${cn(dm)}日</span><span class="small">${cn(yearOf(d))}年級・${cn(mInYear(d))}月・週${WEEK[(d - 1) % 7]}${wx}</span>${sp}`, 1900);
 }
 function askName(){
   setSpeaker(null); E.line.textContent = '在故事開始之前，告訴我你是誰。'; E.box.classList.add('wait');
@@ -1800,7 +1804,7 @@ function openTab(t){
     h += C.map(c => {
       const m = S.met[c.id], v = S.aff[c.id] || 0, n = S.ev[c.id] || 0;
       return `<div class="person ${m ? '' : 'unknown'}" style="--c:${HOUSES[c.h].color}"><img src="${ava(c.img)}" alt=""><div>
-        <div class="nm">${m ? c.n : '？？？'}${m && ready(c) ? ' ✦' : ''}</div><div class="meta"><img class="mcrest" src="img/crest_${c.h}.webp" alt="">${HOUSES[c.h].name}・${m ? c.role : '未認識'}</div>${m && HAUNT[c.id] ? `<div class="meta haunt">${HAUNT[c.id][0] === HAUNT[c.id][1] ? `只在${PLACE_N[HAUNT[c.id][0]]}` : `常在${PLACE_N[HAUNT[c.id][0]]}・偶爾在${PLACE_N[HAUNT[c.id][1]]}`}・生日 ${bdLabel(c.id)}</div>` : ''}
+        <div class="nm">${m ? c.n : '？？？'}${m && ready(c) ? ' ✦' : ''}</div><div class="meta"><img class="mcrest" src="img/crest_${c.h}.webp" alt="">${HOUSES[c.h].name}・${m ? c.role : '未認識'}</div>${m && HAUNT[c.id] ? `<div class="meta haunt"><img class="mcrest" src="img/life_pin.webp" alt="">${HAUNT[c.id][0] === HAUNT[c.id][1] ? `只在${PLACE_N[HAUNT[c.id][0]]}` : `常在${PLACE_N[HAUNT[c.id][0]]}・偶爾在${PLACE_N[HAUNT[c.id][1]]}`}・生日 ${bdLabel(c.id)}</div>` : ''}
         <div class="bar"><i style="width:${v}%"></i></div>${m ? `<div class="evs">${'◆'.repeat(n)}${'◇'.repeat(EV[c.id].length - n)}</div>` : ''}</div>
         <span class="tag">${m ? stageOf(v) + ' ' + v : '—'}</span></div>`;
     }).join('');
@@ -2007,7 +2011,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
