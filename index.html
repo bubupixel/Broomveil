@@ -8,6 +8,9 @@
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{touch-action:manipulation;overscroll-behavior:none}
+#upd{position:absolute;left:50%;top:104px;transform:translateX(-50%);z-index:80;
+  padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
+  background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
@@ -269,8 +272,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js"></script>
-<script src="story.js"></script>
+<script src="audio.js?v=20261110-175522"></script>
+<script src="story.js?v=20261110-175522"></script>
 <script>
 (() => {
 const {HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -981,5 +984,38 @@ async function boot(){
   main();
 }
 boot();
+})();
+</script>
+
+<script>
+// 自動更新：開啟、切回前景時檢查 version.json。還在載入畫面就直接更新；遊戲進行中則顯示提示。
+(() => {
+  const V = '20261110-175522';
+  let busy = false;
+  // 同一個版本只自動重新載入一次，避免伺服器未同步時不停重新載入
+  const tried = v => new URLSearchParams(location.search).get('v') === v;
+  const go = v => location.replace(location.pathname + '?v=' + v);
+  async function check(){
+    if (busy) return; busy = true;
+    try {
+      const r = await fetch('version.json?t=' + Date.now(), {cache:'no-store'});
+      const j = await r.json();
+      if (j.v && j.v !== V){
+        if (tried(j.v)) return;
+        if (document.getElementById('splash') && !document.querySelector('.splash.out')) return go(j.v);
+        if (!document.getElementById('upd')){
+          const b = document.createElement('button');
+          b.id = 'upd'; b.type = 'button'; b.textContent = '有新版本・輕觸更新';
+          b.title = '更新後會回到本時段的開頭';
+          b.onclick = e => { e.stopPropagation(); go(j.v); };
+          (document.getElementById('app') || document.body).appendChild(b);
+        }
+      }
+    } catch (e) {} finally { busy = false; }
+  }
+  check();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+  addEventListener('pageshow', check);
+  setInterval(check, 15 * 60 * 1000);
 })();
 </script>
