@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-190435';</script>
+<script>window.GAME_VERSION = '20261110-192001';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -288,8 +288,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-190435"></script>
-<script src="story.js?v=20261110-190435"></script>
+<script src="audio.js?v=20261110-192001"></script>
+<script src="story.js?v=20261110-192001"></script>
 <script>
 (() => {
 const {HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -368,6 +368,8 @@ let showTok = 0;
 function show(ch, o = {}){
   const P = E.portrait;
   if (!ch){ ++showTok; P.classList.remove('show'); P.dataset.k = ''; return; }
+  // iPhone Safari can keep a stale blurred layer when a filter class is removed from the same
+  // <img>, so every new portrait gets a brand-new <img> element.
   const F = FACES[ch.id], fsrc = F && o.face && (F[o.face] || F[FACE_ALIAS[o.face]]);
   const src = fsrc || ch.cut || ch.src;
   const k = src + (o.mystery ? '#m' : '');
@@ -377,10 +379,13 @@ function show(ch, o = {}){
   P.classList.remove('show'); P.dataset.k = k;
   setTimeout(() => {
     if (tok !== showTok) return;
-    P.classList.toggle('framed', !ch.cut && !fsrc);
-    P.classList.toggle('mystery', !!o.mystery);
-    const on = () => { if (tok === showTok) requestAnimationFrame(() => P.classList.add('show')); };
-    P.onload = on; P.alt = ch.n; P.src = src; if (P.complete && P.naturalWidth) on();
+    const N = document.createElement('img');
+    N.id = 'portrait'; N.className = 'portrait' + (!ch.cut && !fsrc ? ' framed' : '') + (o.mystery ? ' mystery' : '');
+    N.alt = ch.n; N.dataset.k = k;
+    const on = () => { if (tok === showTok) requestAnimationFrame(() => requestAnimationFrame(() => N.classList.add('show'))); };
+    N.onload = on; N.src = src;
+    E.portrait.replaceWith(N); E.portrait = N;
+    if (N.complete && N.naturalWidth) on();
   }, had && !FAST ? 220 : 0);
 }
 
