@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-183714';</script>
+<script>window.GAME_VERSION = '20261110-184211';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -104,9 +104,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .choices:empty{display:none}
 .choices.two{grid-template-columns:1fr 1fr}
 .choices button{position:relative;display:flex;align-items:center;gap:12px;min-height:52px;padding:10px 16px 10px 20px;text-align:left;cursor:pointer;font-size:16px;color:var(--ink);
-  background:var(--grain),linear-gradient(#fdf8ee,#f1e6d0);border:1px solid var(--line);border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.4);animation:slip .38s both}
+  background:var(--grain),linear-gradient(rgba(253,248,238,.95),rgba(241,230,208,.95));border:1px solid var(--line);border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.4);animation:slip .38s both}
 .choices button::before{content:"";position:absolute;left:7px;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--c,var(--house))}
-.choices button:active{transform:translateY(1px);background:var(--grain),linear-gradient(#f3e8d2,#e9dcc0)}
+.choices button:active{transform:translateY(1px);background:var(--grain),linear-gradient(rgba(243,232,210,.95),rgba(233,220,192,.95))}
 .choices button:nth-child(2){animation-delay:.05s}.choices button:nth-child(3){animation-delay:.1s}.choices button:nth-child(4){animation-delay:.15s}.choices button:nth-child(5){animation-delay:.2s}.choices button:nth-child(n+6){animation-delay:.25s}
 @keyframes slip{from{opacity:0;transform:translateY(10px)}}
 .choices .t{flex:1;min-width:0;line-height:1.45}
@@ -117,7 +117,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .choices.two .sub{white-space:normal}
 
 .box{position:relative;min-height:140px;padding:24px 22px 22px;cursor:pointer;
-  background:var(--grain),linear-gradient(180deg,rgba(253,249,240,.97),rgba(244,235,217,.97));
+  background:var(--grain),linear-gradient(180deg,rgba(253,249,240,.95),rgba(244,235,217,.95));
   border:1px solid rgba(184,146,74,.85);border-radius:4px;
   box-shadow:0 12px 34px rgba(0,0,0,.5),inset 0 0 0 4px rgba(253,249,240,.55),inset 0 0 0 5px rgba(184,146,74,.4)}
 .box::before,.box::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--gold);pointer-events:none}
@@ -132,7 +132,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .box.wait{cursor:default}
 
 /* name entry */
-.who{display:grid;gap:10px;padding:14px;background:var(--grain),linear-gradient(#fdf8ee,#f1e6d0);border:1px solid var(--line);border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.who{display:grid;gap:10px;padding:14px;background:var(--grain),linear-gradient(rgba(253,248,238,.95),rgba(241,230,208,.95));border:1px solid var(--line);border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .who label{font-size:13px;color:var(--ink-soft)}
 .who input{font:inherit;font-size:18px;padding:10px 12px;border:1px solid var(--line);border-radius:3px;background:#fffdf7;color:var(--ink);width:100%;-webkit-user-select:text;user-select:text}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -288,8 +288,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-183714"></script>
-<script src="story.js?v=20261110-183714"></script>
+<script src="audio.js?v=20261110-184211"></script>
+<script src="story.js?v=20261110-184211"></script>
 <script>
 (() => {
 const {HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
