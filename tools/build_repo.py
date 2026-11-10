@@ -54,6 +54,11 @@ updater = '''
 (() => {
   const V = '%s';
   let busy = false;
+  // 在載入畫面角落顯示版本號，方便確認手機上是否最新版
+  const sp = document.getElementById('splash');
+  if (sp){ const t = document.createElement('div'); t.textContent = '版本 ' + V;
+    t.style.cssText = 'position:absolute;right:14px;bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.08em;color:rgba(241,227,195,.55)';
+    sp.appendChild(t); }
   // 同一個版本只自動重新載入一次，避免伺服器未同步時不停重新載入
   const tried = v => new URLSearchParams(location.search).get('v') === v;
   const go = v => location.replace(location.pathname + '?v=' + v);
