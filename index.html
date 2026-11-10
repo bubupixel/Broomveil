@@ -24,7 +24,7 @@ p{position:fixed;left:0;right:0;bottom:calc(15vh + env(safe-area-inset-bottom,0p
 <script>
 // 入口：讀取最新版本號，再跳到該版本的網址。讀不到時，用上次玩過的版本或這個入口建立時的版本。
 (() => {
-  const FALLBACK = '20261110-225802';
+  const FALLBACK = '20261110-230406';
   const last = () => { try { return localStorage.getItem('huachao-last-v'); } catch (e) { return null; } };
   const go = v => location.replace('v/' + v + '/' + location.hash);
   let done = false;

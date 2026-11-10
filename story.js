@@ -1921,5 +1921,41 @@ const SORT = {
   ]
 };
 
-return {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG};
+// ---------- 雜貨攤：靈石的長期用途 ----------
+const GOODS = {
+  // 每位角色一件心意禮物：送給對的人，好感大增（不受每日上限），並有專屬回應
+  GIFTS: [
+    {id:'g_pei', for:'pei', n:'火紋護腕', price:50, line:'……護腕？哼，還算有眼光。下次試煉，我就戴這個。'},
+    {id:'g_qin', for:'qin', n:'青石磨劍石', price:45, line:'好石頭。……你連我的劍該磨了都看得出來？'},
+    {id:'g_tang', for:'tang', n:'桂花糕禮盒', price:40, line:'一整盒？！你、你最好了！我分你一半……不，三分之一！'},
+    {id:'g_jiang', for:'jiang', n:'星砂小瓶', price:55, line:'這是……北方星河的砂。你知道我會喜歡？'},
+    {id:'g_lu', for:'lu', n:'古籍書籤', price:45, line:'銅製的書籤，還刻了花紋。……我會用在最重要的那本書裡。'},
+    {id:'g_wen', for:'wen', n:'水晶占卜石', price:55, line:'好漂亮！我今天就要用它幫你占一卦——啊，可是我占不出你……'},
+    {id:'g_lin', for:'lin', n:'稀有花種', price:45, line:'這種花，藥圃一直沒有。……謝謝你。它開花的時候，我第一個告訴你。'},
+    {id:'g_ye', for:'ye', n:'百年山參', price:60, line:'百年山參……你知道這有多貴嗎？笨蛋。……我會拿來配一帖最好的藥。給你。'},
+    {id:'g_ruan', for:'ruan', n:'花蜜糖', price:30, line:'小白，你看！是花蜜糖！……我、我也可以吃一顆嗎？'},
+    {id:'g_su', for:'su', n:'銅製小手鏡', price:50, line:'一面普通的鏡子。……照出來的我，也很普通。我很喜歡。'},
+    {id:'g_liu', for:'liu', n:'冰蠶琴弦', price:60, line:'冰蠶絲的琴弦……用它彈的第一首曲子，給你聽。'},
+    {id:'g_ji', for:'ji', n:'礦石顏料', price:50, line:'青金石……這個藍色，我找了好久。我要用它畫你。'}
+  ],
+  // 宿舍佈置：一次買下，長期有效
+  DECOR: [
+    {id:'incense', n:'安神香爐', price:80, d:'每晚多恢復 1 點體力'},
+    {id:'pillow', n:'蕎麥軟枕', price:100, d:'早點休息時，再多恢復 1 點體力'},
+    {id:'shelf', n:'書架', price:120, d:'自修咒術時，熟練多 +1'},
+    {id:'desk', n:'雕花寫字檯', price:150, d:'自由時間練習能力時，效果更好'},
+    {id:'qin', n:'古琴', price:200, d:'自由時間多一個選擇「撫琴」：不耗體力，還能放鬆一下'}
+  ],
+  BOOK: {n:'咒術手札', price:60, pts:5, d:'前人的修習筆記。讀完後，目前修習的咒語熟練 +5'},
+  PARCEL: {n:'寄給外婆的包裹', price:50, d:'每月一次。茶葉、點心和一封信，寄回雲溪鎮'},
+  // 外婆的回信（依序寄來）
+  REPLIES: [
+    ['「包裹收到了。靈院的點心比鎮上的甜，外婆一口氣吃了三塊，王伯笑外婆像個孩子。」','「院子裡的木蘭還開著。你不在，它開得比較慢，像是在等你回來看。」'],
+    ['「阿桃天天跑來問你有沒有寫信。外婆把你的信念給她聽，她聽完就紅了眼睛，說要寄桂花糕給你。」','「天涼了，記得多穿一件。靈院的山上，晚上一定很冷。」'],
+    ['「王伯說他最近在寫一本新書，講一個從雲溪鎮去了會開花的宮殿的孩子。外婆猜，寫的是你。」','「錢別都花在外婆身上。你自己，也要好好的。」'],
+    ['「茶館裡來了個新的熟客，說喝得出這茶是用心泡的。外婆說，是我家那個孩子寄回來的茶葉。」','「外婆很好。只是有時候，會對著木蘭樹說話。它好像都聽得懂。」']
+  ]
+};
+
+return {GOODS,SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG};
 })();
