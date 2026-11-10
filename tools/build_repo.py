@@ -53,10 +53,12 @@ fullbleed = '''
 <style>
 html,body{height:100%}
 #app{position:fixed;top:0;bottom:0;left:0;right:0;height:auto}
-/* iOS home-screen apps with a translucent status bar report a viewport short by the status bar,
-   leaving a black band at the bottom. In home-screen mode use the whole screen height. */
-@media (display-mode: standalone){ #app{bottom:auto;height:100vh;height:100lvh} }
-html.ios-app #app{bottom:auto;height:100vh;height:100lvh}
+/* iOS home-screen apps with a translucent status bar size the page one status bar short and leave
+   a black band at the bottom. In home-screen mode make the page itself taller by that amount and
+   lay the game over the whole page. Painted navy so any leftover gap matches the title screen. */
+html{background:#1f1a3e}
+html.ios-app,html.ios-app body{height:calc(100% + env(safe-area-inset-top,0px));overflow:hidden}
+html.ios-app #app{position:absolute;top:0;left:0;right:0;bottom:auto;height:100%}
 .hud{padding-top:calc(12px + env(safe-area-inset-top,0px))}
 .quest{top:calc(66px + env(safe-area-inset-top,0px))}
 .place{top:calc(62px + env(safe-area-inset-top,0px))}
@@ -66,7 +68,7 @@ html.ios-app #app{bottom:auto;height:100vh;height:100lvh}
 .shade{background:linear-gradient(rgba(14,10,8,.62),rgba(14,10,8,0) calc(17% + env(safe-area-inset-top,0px))),
   linear-gradient(rgba(14,10,8,0) 58%,rgba(14,10,8,.55)),radial-gradient(140% 95% at 50% 42%,transparent 60%,rgba(10,6,4,.5))}
 </style>
-<script>if (navigator.standalone) document.documentElement.classList.add('ios-app');</script>
+<script>if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) document.documentElement.classList.add('ios-app');</script>
 '''
 
 updater = '''
@@ -79,7 +81,7 @@ updater = '''
   const go = v => location.replace('v/' + v + '/');
   const sp = document.getElementById('splash');
   if (sp){ const t = document.createElement('div'); t.id = 'verlabel'; t.textContent = '版本 ' + V;
-    t.style.cssText = 'position:absolute;right:14px;bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.08em;color:rgba(241,227,195,.55)';
+    t.style.cssText = 'font-size:11px;letter-spacing:.08em;color:rgba(241,227,195,.5);margin-top:4px';
     sp.appendChild(t); }
   const say = t => { const n = document.getElementById('vernote'); if (n) n.textContent = t; };
   async function check(manual){
