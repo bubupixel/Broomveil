@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-230406';</script>
+<script>window.GAME_VERSION = '20261110-231254';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -364,6 +364,9 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .grow small{font-size:12px;color:var(--ink-soft);line-height:1.4}
 .grow em{font-style:normal;font-size:13px;color:var(--house);white-space:nowrap;font-weight:700}
 .grow.own{cursor:default}
+.grow img.it{width:44px;height:44px;border-radius:0;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.2))}
+.grow small img.who{width:16px;height:16px;border-radius:50%;vertical-align:-3px;margin-right:4px;object-fit:cover}
+
 .spells{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .spell{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;display:flex;flex-direction:column;gap:2px}
 .spell .sp-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -429,8 +432,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-230406"></script>
-<script src="story.js?v=20261110-230406"></script>
+<script src="audio.js?v=20261110-231254"></script>
+<script src="story.js?v=20261110-231254"></script>
 <script>
 (() => {
 const {GOODS,SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -1012,7 +1015,7 @@ async function giftMenu(c){
   const opts = [];
   if (S.cake) opts.push({label:'花糕', sub:`剩 ${S.cake}`, value:'cake', icon:'img/ui_cake.webp'});
   for (const id of S.known) if (S.cups[id]) opts.push({label:REC[id].n, sub:`剩 ${S.cups[id]} 杯`, value:id, icon:teaImg(id)});
-  for (const g of GOODS.GIFTS) if (S.items[g.id]) opts.unshift({label:g.n, sub:`剩 ${S.items[g.id]}${g.for === c.id ? '・✦ 正是為對方準備的' : ''}`, value:'gift:' + g.id, icon:ava(BY[g.for].img)});
+  for (const g of GOODS.GIFTS) if (S.items[g.id]) opts.unshift({label:g.n, sub:`剩 ${S.items[g.id]}${g.for === c.id ? '・✦ 正是為對方準備的' : ''}`, value:'gift:' + g.id, icon:`img/gift_${g.id}.webp`});
   if (!opts.length) return;
   opts.push({label:'不送了', value:null});
   const g = await choose(`要送點什麼給${c.n}嗎？`, opts);
@@ -1126,17 +1129,17 @@ async function goodsShop(){
   if (FAST){ const d = GOODS.DECOR.find(x => !S.decor[x.id] && S.money >= x.price + 60); if (d){ S.money -= d.price; S.decor[d.id] = true; hud(); } return; }
   await panel('', (el, done) => {
     const row = (id, name, sub, price, off, img, tag) => `<button type="button" class="grow" data-id="${id}" ${off || S.money < price ? 'disabled' : ''}>
-      ${img ? `<img src="${img}" alt="">` : ''}<span class="gt"><b>${name}</b><small>${sub}</small></span><em>${tag || price + ' 靈石'}</em></button>`;
+      ${img ? `<img class="it" src="${img}" alt="">` : ''}<span class="gt"><b>${name}</b><small>${sub}</small></span><em>${tag || price + ' 靈石'}</em></button>`;
     const draw = () => {
       const gifts = GOODS.GIFTS.filter(g => S.met[g.for]);
-      el.querySelector('.tp-in').innerHTML = `<header><h3>雜貨攤</h3><span class="coinline"><img class="hi" src="img/ui_stone.webp" alt="">靈石 <b>${S.money}</b></span></header>
+      el.querySelector('.tp-in').innerHTML = `<header><h3><img class="hicon" src="img/dec_goods.webp" alt="">雜貨攤</h3><span class="coinline"><img class="hi" src="img/ui_stone.webp" alt="">靈石 <b>${S.money}</b></span></header>
         <h4 class="gh">心意禮物<small>午膳時送出。送給對的人，對方會特別高興。</small></h4>
-        <div class="glist">${gifts.map(g => row(g.id, g.n, `給${BY[g.for].n}${S.items[g.id] ? `・已有 ${S.items[g.id]}` : ''}`, g.price, false, ava(BY[g.for].img))).join('') || '<p class="muted">（認識更多同學之後，這裡會有適合他們的禮物。）</p>'}</div>
+        <div class="glist">${gifts.map(g => row(g.id, g.n, `給${BY[g.for].n}${S.items[g.id] ? `・已有 ${S.items[g.id]}` : ''}`, g.price, false, `img/gift_${g.id}.webp`)).join('') || '<p class="muted">（認識更多同學之後，這裡會有適合他們的禮物。）</p>'}</div>
         <h4 class="gh">宿舍佈置<small>一次買下，長期有效。</small></h4>
-        <div class="glist">${GOODS.DECOR.map(x => row(x.id, x.n, x.d, x.price, !!S.decor[x.id], null, S.decor[x.id] ? '已擁有' : '')).join('')}</div>
+        <div class="glist">${GOODS.DECOR.map(x => row(x.id, x.n, x.d, x.price, !!S.decor[x.id], `img/dec_${x.id}.webp`, S.decor[x.id] ? '已擁有' : '')).join('')}</div>
         <h4 class="gh">書冊與家書</h4>
-        <div class="glist">${row('book', GOODS.BOOK.n, books ? `${GOODS.BOOK.d}（已買 ${books} 本）` : GOODS.BOOK.d, GOODS.BOOK.price, !S.house || !curSpell(S.house), 'img/ui_scroll.webp')}
-          ${row('parcel', GOODS.PARCEL.n, parcelOK() ? GOODS.PARCEL.d : '這個月已經寄過了，下個月再寄吧', GOODS.PARCEL.price, !parcelOK(), 'img/ui_cake.webp', parcelOK() ? '' : '已寄出')}</div>
+        <div class="glist">${row('book', GOODS.BOOK.n, books ? `${GOODS.BOOK.d}（已買 ${books} 本）` : GOODS.BOOK.d, GOODS.BOOK.price, !S.house || !curSpell(S.house), 'img/dec_book.webp')}
+          ${row('parcel', GOODS.PARCEL.n, parcelOK() ? GOODS.PARCEL.d : '這個月已經寄過了，下個月再寄吧', GOODS.PARCEL.price, !parcelOK(), 'img/dec_parcel.webp', parcelOK() ? '' : '已寄出')}</div>
         <div class="tp-acts"><button type="button" class="act main" data-x="done">離開</button></div>`;
       el.querySelectorAll('.grow').forEach(b => b.onclick = () => {
         const id = b.dataset.id;
@@ -1169,7 +1172,7 @@ async function grannyReply(){
 }
 function decorList(){
   const own = GOODS.DECOR.filter(x => S.decor[x.id]);
-  return `<h3>宿舍佈置</h3>${own.length ? `<div class="glist">${own.map(x => `<div class="grow own"><span class="gt"><b>${x.n}</b><small>${x.d}</small></span></div>`).join('')}</div>` : '<p class="muted">宿舍還空蕩蕩的。可以到百靈市集的雜貨攤添點東西。</p>'}`;
+  return `<h3>宿舍佈置</h3>${own.length ? `<div class="glist">${own.map(x => `<div class="grow own"><img class="it" src="img/dec_${x.id}.webp" alt=""><span class="gt"><b>${x.n}</b><small>${x.d}</small></span></div>`).join('')}</div>` : '<p class="muted">宿舍還空蕩蕩的。可以到百靈市集的雜貨攤添點東西。</p>'}`;
 }
 
 // ---------- slots ----------
@@ -1278,7 +1281,7 @@ async function market(justOpened){
       {label:'開花茶攤', sub:canBrew() ? hpSub(4, '賺靈石・名聲') : '沒有茶材，先買材料', value:'stall', disabled:!canHp(4) || !canBrew(), icon:'img/tea_osm.webp'},
       {label:'買茶材', sub:`靈石 ${S.money}`, value:'buy', icon:'img/ing_cha.webp'},
       {label:'買一份花糕', sub:'-20 靈石・午膳送人', value:'cake', disabled:S.money < 20, icon:'img/ui_cake.webp'},
-      {label:'逛雜貨攤', sub:'禮物・宿舍佈置・書冊・家書', value:'goods', icon:'img/ui_knot.webp'},
+      {label:'逛雜貨攤', sub:'禮物・宿舍佈置・書冊・家書', value:'goods', icon:'img/dec_goods.webp'},
       {label:'離開市集', value:null}];
     const v = await choose(justOpened ? '要不要現在就試試開攤？' : '百靈市集熱鬧非常。要做什麼？', opts);
     justOpened = false;
@@ -1325,9 +1328,9 @@ async function free(){
       opts.unshift({label:'擺夜攤', sub:canBrew() ? hpSub(3, '賺靈石・名聲') : '沒有茶材', value:'night', disabled:!canHp(3) || !canBrew(), icon:'img/tea_qing.webp'});
     }
     const sk = S.house && [S.house, 'herb', 'craft'].find(k => curSpell(k)), sx = sk && curSpell(sk);
-    if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2), icon:'img/ui_scroll.webp'});
-    if (S.decor.qin) opts.push({label:'撫琴', sub:'不耗體力・風雅・體力 +1', value:'qin', icon:'img/stat_feng.webp'});
-    opts.push({label:'早點休息', sub:`今晚多恢復 ${3 + (S.decor.pillow ? 1 : 0)} 點體力`, value:'sleep', icon:'img/ui_hp.webp'});
+    if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2), icon:S.decor.shelf ? 'img/dec_shelf.webp' : 'img/ui_scroll.webp'});
+    if (S.decor.qin) opts.push({label:'撫琴', sub:'不耗體力・風雅・體力 +1', value:'qin', icon:'img/dec_qin.webp'});
+    opts.push({label:'早點休息', sub:`今晚多恢復 ${3 + (S.decor.pillow ? 1 : 0)} 點體力`, value:'sleep', icon:S.decor.pillow ? 'img/dec_pillow.webp' : 'img/ui_hp.webp'});
     const f = await choose('晚上的自由時間。要做什麼？', opts);
     if (f === 'sleep'){ S.hpBonus = 3 + (S.decor.pillow ? 1 : 0); await say('', '你早早熄了燈。窗外的蟲聲，很快就把你送進夢裡。'); return; }
     if (f === 'qin'){ addHp(1); gain('feng', 1); await say('', pick(['你在窗邊撫琴。琴聲很輕，像怕吵醒窗外的花。','你彈了一首外婆常哼的小調。彈著彈著，心就靜下來了。','你隨手撥了幾個音，竟然連成了一段好聽的旋律。'])); return; }
