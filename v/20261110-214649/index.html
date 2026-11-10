@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-212703';</script>
+<script>window.GAME_VERSION = '20261110-214649';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -330,6 +330,19 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .bookhead h3{margin:0}
 .bookhead small{font-size:12.5px;color:var(--ink-soft)}
 .card .bookimg{width:120px;height:auto;margin:0 auto 14px;display:block;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))}
+
+/* textures & icons */
+:root{--paperimg:url("img/paper.jpg") center/384px repeat}
+.sheet,.sheet header,.tp-in{background:var(--paperimg),var(--paper)}
+.choices img.ic{border:none;border-radius:0;object-fit:contain;width:40px;height:40px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.hi{width:16px;height:16px;vertical-align:-3px;margin:0 2px 0 6px;object-fit:contain}
+.hi:first-child{margin-left:0}
+.crestimg{width:110px;height:110px;filter:drop-shadow(0 8px 22px rgba(0,0,0,.55))}
+.hcrest{width:40px;height:40px;flex:none}
+.person .meta img.mcrest{width:14px;height:14px;vertical-align:-2px;margin-right:3px;border:none;border-radius:0;box-shadow:none;filter:none;display:inline-block}
+.hicon{width:26px;height:26px;vertical-align:-5px;margin-right:6px}
+.stat:has(.sicon){grid-template-columns:30px 4.6em 1fr 2.4em}
+.stat .sicon{width:30px;height:30px;object-fit:contain}
 .spells{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .spell{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;display:flex;flex-direction:column;gap:2px}
 .spell .sp-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -395,8 +408,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-212703"></script>
-<script src="story.js?v=20261110-212703"></script>
+<script src="audio.js?v=20261110-214649"></script>
+<script src="story.js?v=20261110-214649"></script>
 <script>
 (() => {
 const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -449,10 +462,12 @@ const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house : g + '0'}.jpg`}; };
 const HUAPO = {id:'huapo', n:'花婆婆', h:'yu', cut:'img/c15.webp'};
+const TOWNS = {'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17.webp'}};
 const teaImg = id => `img/tea_${id}.webp`, ingImg = k => `img/ing_${k}.webp`;
 function who(id){
   if (!id) return null;
   if (id === 'npc:花婆婆') return HUAPO;
+  if (TOWNS[id]) return TOWNS[id];
   if (id === 'me') return Object.assign(pc(), {me:true});
   if (id.startsWith('npc:')) return {n:id.slice(4), npc:true};
   if (id === 'bai') return S.flags.baiName ? {...BAI, n:'白溯光'} : BAI;
@@ -553,6 +568,7 @@ function choose(prompt, opts){
       if (o.color) b.style.setProperty('--c', o.color);
       if (o.disabled) b.disabled = true;
       if (o.img){ const im = document.createElement('img'); im.src = ava(o.img); im.alt = ''; b.appendChild(im); }
+      else if (o.icon){ const im = document.createElement('img'); im.src = o.icon; im.alt = ''; im.className = 'ic'; b.appendChild(im); }
       const t = document.createElement('span'); t.className = 't'; t.textContent = fmt(o.label); b.appendChild(t);
       if (o.sub){ const s = document.createElement('span'); s.className = 'sub' + (o.hot ? ' hot' : ''); s.textContent = o.sub; b.appendChild(s); }
       b.onclick = () => { SND.sfx('choose'); E.choices.innerHTML = ''; E.scrim.classList.remove('on'); E.box.classList.remove('wait'); res(o.value); };
@@ -646,7 +662,7 @@ function hud(){
     const sk = P[Math.min(S.slot, P.length - 1)];
     E.slot.textContent = `週${WEEK[(S.day - 1) % 7]}・${sk === 'festival' ? festName(S.day) : SLOT_NAME[sk]}`;
   }
-  E.money.innerHTML = `靈石 <b>${S.money}</b>${S.house ? `・體力 <b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
+  E.money.innerHTML = `<img class="hi" src="img/ui_stone.webp" alt="靈石"><b>${S.money}</b>${S.house ? `<img class="hi" src="img/ui_hp.webp" alt="體力"><b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
   if (S.house){ E.quest.hidden = false; E.quest.innerHTML = S.flags.ch1 && S.q2 >= 1 && !S.flags.ch2 ? `<b>鏡中來客</b><span>${QUESTS2[S.q2]}</span>` : S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
   else E.quest.hidden = true;
 }
@@ -966,8 +982,8 @@ function serve(night){
 
 async function giftMenu(c){
   const opts = [];
-  if (S.cake) opts.push({label:'花糕', sub:`剩 ${S.cake}`, value:'cake'});
-  for (const id of S.known) if (S.cups[id]) opts.push({label:REC[id].n, sub:`剩 ${S.cups[id]} 杯`, value:id});
+  if (S.cake) opts.push({label:'花糕', sub:`剩 ${S.cake}`, value:'cake', icon:'img/ui_cake.webp'});
+  for (const id of S.known) if (S.cups[id]) opts.push({label:REC[id].n, sub:`剩 ${S.cups[id]} 杯`, value:id, icon:teaImg(id)});
   if (!opts.length) return;
   opts.push({label:'不送了', value:null});
   const g = await choose(`要送點什麼給${c.n}嗎？`, opts);
@@ -1021,7 +1037,7 @@ function spellBook(){
       ${cur ? `<div class="bar"><i style="width:${m / x.need * 100}%"></i></div>` : ''}</div>`;
   };
   const line = (key, title) => { const c = curSpell(key); return `${MAGIC.HOUSE[key] ? `<div class="bookhead"><img src="img/book_${key}.webp" alt=""><div><h3>${title}</h3><small>已習得 ${lineOf(key).filter(x => S.spells.includes(x.id)).length} / 6 層</small></div></div>` : `<h3>${title}</h3>`}<div class="spells">${lineOf(key).map(x => row(x, x === c)).join('')}</div>`; };
-  return `<p class="muted" style="margin-top:14px">上課和晚上自修都會累積熟練。熟練滿了、能力也達標，就能習得咒語，解鎖下一層。</p>`
+  return `<p class="muted" style="margin-top:14px"><img class="hi" src="img/ui_scroll.webp" alt="">上課和晚上自修都會累積熟練。熟練滿了、能力也達標，就能習得咒語，解鎖下一層。</p>`
     + line(S.house, `《${HOUSES[S.house].name}術譜》`) + line('herb', '藥草學・共修') + line('craft', '器物製作・共修');
 }
 
@@ -1088,7 +1104,7 @@ async function opening(){
   await run(SORT.after);
   S.house = h; hud();
   gain(HOUSES[h].stat, 4);
-  await card(`<span class="small">問花禮</span><span class="big">${HOUSES[h].name}</span><span class="small">${HOUSES[h].magic}</span>`, 2600);
+  await card(`<img class="crestimg" src="img/crest_${h}.webp" alt=""><span class="small">問花禮</span><span class="big">${HOUSES[h].name}</span><span class="small">${HOUSES[h].magic}</span>`, 2600);
   note(`在問花台前回答了十個問題，被分入${HOUSES[h].name}。`);
   setScene(HOUSES[h].name); await sleep(300);
   show(pc());
@@ -1133,8 +1149,8 @@ async function explore(prompt){
   const pid = await choose(prompt, PLACES.map(p => {
     const hot = (p.id === 'vine' && S.q2 === 1) || (p.id === 'star' && S.q2 === 2) || (p.id === 'lib' && S.q2 === 4) || (p.id === 'star' && S.quest === 0) || (p.id === 'lake' && S.quest === 1 && S.day >= 7) || (p.id === 'lib' && S.quest === 2)
       || p.who.some(id => ready(BY[id]));
-    return {label:p.n, sub: hot ? '✦ ' + p.desc : p.desc, hot, value:p.id};
-  }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest'}]));
+    return {label:p.n, sub: hot ? '✦ ' + p.desc : p.desc, hot, value:p.id, icon:`img/loc_${p.id}.webp`};
+  }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest', icon:'img/loc_dorm.webp'}]));
   if (pid === 'rest'){ setScene('宿舍・晨'); await sleep(300); addHp(3); await say('', pick(['你回到宿舍，泡了一壺茶，靠著窗小睡了一會兒。','你在床上躺了一下午。醒來時，覺得整個人輕了許多。'])); return; }
   const p = PLACES.find(x => x.id === pid);
   setScene(p.n); await sleep(300);
@@ -1169,9 +1185,9 @@ async function market(justOpened){
   while (true){
     if (!cgOn) show(HUAPO);
     const opts = [
-      {label:'開花茶攤', sub:canBrew() ? hpSub(4, '賺靈石・名聲') : '沒有茶材，先買材料', value:'stall', disabled:!canHp(4) || !canBrew()},
-      {label:'買茶材', sub:`靈石 ${S.money}`, value:'buy'},
-      {label:'買一份花糕', sub:'-20 靈石・午膳送人', value:'cake', disabled:S.money < 20},
+      {label:'開花茶攤', sub:canBrew() ? hpSub(4, '賺靈石・名聲') : '沒有茶材，先買材料', value:'stall', disabled:!canHp(4) || !canBrew(), icon:'img/tea_osm.webp'},
+      {label:'買茶材', sub:`靈石 ${S.money}`, value:'buy', icon:'img/ing_cha.webp'},
+      {label:'買一份花糕', sub:'-20 靈石・午膳送人', value:'cake', disabled:S.money < 20, icon:'img/ui_cake.webp'},
       {label:'離開市集', value:null}];
     const v = await choose(justOpened ? '要不要現在就試試開攤？' : '百靈市集熱鬧非常。要做什麼？', opts);
     justOpened = false;
@@ -1211,14 +1227,14 @@ async function dinner(){
 async function free(){
   setScene('宿舍・夜'); await sleep(300);
   while (true){
-    const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]}${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2)}));
+    const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]}${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2), icon:`img/stat_${x.k}.webp`}));
     if (S.stall.open){
-      opts.unshift({label:'研發新配方', sub:hpSub(2, '巧藝'), value:'research', disabled:!canHp(2)});
-      opts.unshift({label:'擺夜攤', sub:canBrew() ? hpSub(3, '賺靈石・名聲') : '沒有茶材', value:'night', disabled:!canHp(3) || !canBrew()});
+      opts.unshift({label:'研發新配方', sub:hpSub(2, '巧藝'), value:'research', disabled:!canHp(2), icon:'img/tea_unk.webp'});
+      opts.unshift({label:'擺夜攤', sub:canBrew() ? hpSub(3, '賺靈石・名聲') : '沒有茶材', value:'night', disabled:!canHp(3) || !canBrew(), icon:'img/tea_qing.webp'});
     }
     const sk = S.house && [S.house, 'herb', 'craft'].find(k => curSpell(k)), sx = sk && curSpell(sk);
-    if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2)});
-    opts.push({label:'早點休息', sub:'明天體力 +3', value:'sleep'});
+    if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2), icon:'img/ui_scroll.webp'});
+    opts.push({label:'早點休息', sub:'明天體力 +3', value:'sleep', icon:'img/ui_hp.webp'});
     const f = await choose('晚上的自由時間。要做什麼？', opts);
     if (f === 'sleep'){ S.hpBonus = 3; await say('', '你早早熄了燈。窗外的蟲聲，很快就把你送進夢裡。'); return; }
     if (f === 'study'){ useHp(2); await say('', pick(['你在燈下翻開術譜，一遍又一遍地練習手勢。','你對著窗外的月光，輕聲默念咒文。','宿舍裡很安靜。你閉上眼，把靈力在掌心繞了一圈又一圈。']));
@@ -1359,23 +1375,23 @@ function openTab(t){
   if (t === 'tea') return teaSheet();
   let h = '';
   if (t === 'people'){
-    h = `<header><h2>人物</h2><span class="sub">✦ 表示有話想說</span><button class="close" type="button">返回</button></header>`;
+    h = `<header><h2><img class="hicon" src="img/ui_knot.webp" alt="">人物</h2><span class="sub">✦ 表示有話想說</span><button class="close" type="button">返回</button></header>`;
     h += C.map(c => {
       const m = S.met[c.id], v = S.aff[c.id] || 0, n = S.ev[c.id] || 0;
       return `<div class="person ${m ? '' : 'unknown'}" style="--c:${HOUSES[c.h].color}"><img src="${ava(c.img)}" alt=""><div>
-        <div class="nm">${m ? c.n : '？？？'}${m && ready(c) ? ' ✦' : ''}</div><div class="meta">${HOUSES[c.h].name}・${m ? c.role : '未認識'}</div>
+        <div class="nm">${m ? c.n : '？？？'}${m && ready(c) ? ' ✦' : ''}</div><div class="meta"><img class="mcrest" src="img/crest_${c.h}.webp" alt="">${HOUSES[c.h].name}・${m ? c.role : '未認識'}</div>
         <div class="bar"><i style="width:${v}%"></i></div>${m ? `<div class="evs">${'◆'.repeat(n)}${'◇'.repeat(EV[c.id].length - n)}</div>` : ''}</div>
         <span class="tag">${m ? stageOf(v) + ' ' + v : '—'}</span></div>`;
     }).join('');
-    h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">${S.flags.baiName ? '白溯光' : '？？？'}</div><div class="meta">玉蘭院・${S.flags.baiName ? '院師・在鏡子的另一邊' : S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
+    h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">${S.flags.baiName ? '白溯光' : '？？？'}</div><div class="meta"><img class="mcrest" src="img/crest_yu.webp" alt="">玉蘭院・${S.flags.baiName ? '院師・在鏡子的另一邊' : S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
     const got = C.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]);
     h += `<h3>回憶</h3><p class="sub" style="margin:0;font-size:13px;color:var(--ink-soft)">完成第四段羈絆事件後解鎖。已收集 ${got.length} / 12</p><div class="gallery">` +
       C.map(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]
         ? `<button type="button" data-cg="${c.id}"><img src="${CG['cg_' + c.id]}" alt="${c.n}・${EV[c.id][3].title}" loading="lazy"><span>${c.n}</span></button>`
         : `<button type="button" class="lock" disabled>未解鎖</button>`).join('') + '</div>';
   } else if (t === 'stats'){
-    h = `<header><h2>${S.name || '能力'}</h2><span class="sub">${S.gender === 'm' ? '男' : S.gender === 'f' ? '女' : ''}${S.house ? '・' + HOUSES[S.house].name : ''}</span><button class="close" type="button">返回</button></header>` + hexSVG();
-    h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook();
+    h = `<header>${S.house ? `<img class="hcrest" src="img/crest_${S.house}.webp" alt="">` : ''}<h2>${S.name || '能力'}</h2><span class="sub">${S.gender === 'm' ? '男' : S.gender === 'f' ? '女' : ''}${S.house ? '・' + HOUSES[S.house].name : ''}</span><button class="close" type="button">返回</button></header>` + hexSVG();
+    h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><img class="sicon" src="img/stat_${k}.webp" alt=""><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook();
   } else {
     h = `<header><h2>日記</h2><button class="close" type="button">返回</button></header><ul class="log">` +
       (S.log.length ? S.log.map(l => `<li><b>${l.d ? '第' + cn(l.d) + '日' : '序章'}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>';
@@ -1395,8 +1411,8 @@ function teaSheet(){
   if (!S.stall.open){ h += '<p class="note">在百靈市集找到空攤位之後，就可以開自己的花茶攤。第六日（週六）上午去市集看看吧。</p>'; }
   else {
     const lv = stallLv(), nextT = (TEA.LEVELS[lv + 1] || [])[0];
-    h += `<div class="stat"><span class="k">名聲<small>${stallTitle()}</small></span><div class="bar"><i style="width:${nextT ? Math.min(100, (S.stall.rep - TEA.LEVELS[lv][0]) / (nextT - TEA.LEVELS[lv][0]) * 100) : 100}%;background:var(--house)"></i></div><span class="v">${S.stall.rep}</span></div>
-      <p class="note" style="margin-top:2px">${nextT ? `再 ${nextT - S.stall.rep} 名聲升為「${TEA.LEVELS[lv + 1][1]}」。` : '已經是花朝第一茶攤！'}開攤 ${S.stall.sessions} 次，共賺 ${S.stall.earned} 靈石。售價加成 ${Math.round((priceMul() - 1) * 100)}%。</p>
+    h += `<div class="stat"><img class="sicon" src="img/ui_medal.webp" alt=""><span class="k">名聲<small>${stallTitle()}</small></span><div class="bar"><i style="width:${nextT ? Math.min(100, (S.stall.rep - TEA.LEVELS[lv][0]) / (nextT - TEA.LEVELS[lv][0]) * 100) : 100}%;background:var(--house)"></i></div><span class="v">${S.stall.rep}</span></div>
+      <p class="note" style="margin-top:2px">${nextT ? `再 ${nextT - S.stall.rep} 名聲升為「${TEA.LEVELS[lv + 1][1]}」。` : '已經是最高等級！'}開攤 ${S.stall.sessions} 次，共賺 ${S.stall.earned} 靈石。售價加成 ${Math.round((priceMul() - 1) * 100)}%。</p>
       <h3>材料</h3><div class="invline">${invChips()}</div>
       <h3>剩茶（可在午膳送人）</h3><div class="invline">${S.known.filter(id => S.cups[id]).map(id => `<span class="chip" style="--im:url(${teaImg(id)})">${REC[id].n} ${S.cups[id]}</span>`).join('') || '<span class="muted">（沒有）</span>'}</div>
       <h3>配方簿 ${S.known.length} / ${TEA.RECIPES.length}</h3><div class="recipes">${TEA.RECIPES.map(r => S.known.includes(r.id)
@@ -1490,6 +1506,7 @@ sndBtn.onclick = () => sndBtn.setAttribute('aria-pressed', SND.toggle());
 // ---------- petals ----------
 (function petals(){
   const cv = $('fx'), cx = cv.getContext('2d'); let W = 0, H = 0, ps = [];
+  const PET = {}; for (const k of ['fei','yuan','ling','zi','yu']){ PET[k] = new Image(); PET[k].src = `img/petal_${k}.webp`; }
   const rs = () => { const r = devicePixelRatio || 1; W = E.app.clientWidth; H = E.app.clientHeight; cv.width = W * r; cv.height = H * r; cv.style.width = W + 'px'; cv.style.height = H + 'px'; cx.setTransform(r, 0, 0, r, 0, 0); };
   rs(); addEventListener('resize', rs);
   for (let i = 0; i < 18; i++) ps.push({x:Math.random() * W, y:Math.random() * H, s:3 + Math.random() * 4.5, v:.25 + Math.random() * .55, w:Math.random() * 6, a:.45 + Math.random() * .4});
@@ -1499,7 +1516,9 @@ sndBtn.onclick = () => sndBtn.setAttribute('aria-pressed', SND.toggle());
     for (const p of ps){
       p.y += p.v; p.w += .018; p.x += Math.sin(p.w) * .45;
       if (p.y > H + 10){ p.y = -10; p.x = Math.random() * W; }
-      cx.fillStyle = `rgba(255,232,238,${p.a})`; cx.beginPath(); cx.ellipse(p.x, p.y, p.s, p.s * .55, p.w, 0, Math.PI * 2); cx.fill();
+      const im = PET[(S && S.house) || 'yu'];
+      if (im.complete && im.naturalWidth){ cx.save(); cx.globalAlpha = p.a; cx.translate(p.x, p.y); cx.rotate(p.w); const z = p.s * 3.2; cx.drawImage(im, -z / 2, -z / 2, z, z); cx.restore(); }
+      else { cx.fillStyle = `rgba(255,232,238,${p.a})`; cx.beginPath(); cx.ellipse(p.x, p.y, p.s, p.s * .55, p.w, 0, Math.PI * 2); cx.fill(); }
     }
     requestAnimationFrame(f);
   })();
@@ -1564,7 +1583,7 @@ document.addEventListener('pointerdown', e => {
   if (b){ b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow'); setTimeout(() => b.classList.remove('glow'), 500); }
 }, true);
 window.__S = () => S;
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening};
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
