@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-203048';</script>
+<script>window.GAME_VERSION = '20261110-205104';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -395,13 +395,14 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-203048"></script>
-<script src="story.js?v=20261110-203048"></script>
+<script src="audio.js?v=20261110-205104"></script>
+<script src="story.js?v=20261110-205104"></script>
 <script>
 (() => {
-const {MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
-const FAST = location.hash === '#test';
+const FAST = location.hash.startsWith('#test');
+const TEST_END = location.hash === '#test2' ? 112 : 28;
 const LAST_DAY = 28;
 const WEEK = ['一','二','三','四','五','六','日'];
 const CN = ['〇','一','二','三','四','五','六','七','八','九','十'];
@@ -417,7 +418,7 @@ const slotKey = i => `huachao-v2-s${i}`;
 const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money:50,cake:0,
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
 // 舊存檔補上新系統的欄位
-function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; return v; }
+function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -572,10 +573,32 @@ function card(html, ms = 2200){
 }
 
 // ---------- effects ----------
-function gain(k, v){ S.stats[k] = Math.min(99, S.stats[k] + v); S.today.push(['s', k, v]); SND.sfx('gain'); }
-function aff(id, v){
+// 能力越高，進步越慢；零碎的進步會累積起來
+function gain(k, v){
+  let add = v;
+  if (v > 0){
+    const cur = S.stats[k], x = v * Math.pow(1 - Math.min(cur, 99) / 100, 2) + (S.sfrac[k] || 0);
+    add = Math.floor(x); S.sfrac[k] = x - add;
+    if (cur < 20) add = Math.max(add, 1);
+  }
+  S.stats[k] = Math.max(0, Math.min(99, S.stats[k] + add));
+  if (add) S.today.push(['s', k, add]);
+  SND.sfx('gain'); return add;
+}
+// 好感：越親近，越需要時間；日常相處每人每天最多 +3（事件與節慶不受此限）
+const AFF_DAY = 3;
+function aff(id, v, daily){
   if (v > 0 && S.house && BY[id] && BY[id].h === S.house && hasFx('bond')) v = Math.ceil(v * 1.2);
-  const before = S.aff[id] || 0, after = Math.min(100, before + v);
+  const before = S.aff[id] || 0;
+  if (v > 0){
+    v = Math.max(1, Math.round(v * Math.max(.15, 1 - before / 105)));
+    if (daily){
+      const t = S.affDay[id] && S.affDay[id][0] === S.day ? S.affDay[id][1] : 0;
+      v = Math.min(v, AFF_DAY - t); if (v <= 0) return 0;
+      S.affDay[id] = [S.day, t + v];
+    }
+  }
+  const after = Math.min(100, before + v);
   S.aff[id] = after; S.today.push(['a', id, v]); SND.sfx('aff');
   if (stageOf(after) !== stageOf(before)) toast(`${BY[id].n}・好感「${stageOf(after)}」`, true);
 }
@@ -595,9 +618,11 @@ async function run(seq, ctx = {}){
         case '#flag': S.flags[st[1]] = true; break;
         case '#gain': gain(st[1], st[2]); break;
         case '#aff': aff(st[1], st[2]); break;
+        case '#money': S.money = Math.max(0, S.money + st[1]); hud(); toast(`靈石 ${st[1] > 0 ? '+' : ''}${st[1]}`); break;
+        case '#ing': gainIng(st[1], st[2]); toast(`得到 ${ingName(st[1])} ×${st[2]}`); break;
         case '#choice': {
           const o = await choose(st[1], st[2].map(x => ({label:x.t, value:x})));
-          if (o.aff != null){ if (Array.isArray(o.aff)) aff(o.aff[0], o.aff[1]); else if (ctx.c) aff(ctx.c.id, o.aff); }
+          if (o.aff != null){ const sc = v => Math.max(1, Math.round(v * .6)); if (Array.isArray(o.aff)) aff(o.aff[0], sc(o.aff[1])); else if (ctx.c) aff(ctx.c.id, sc(o.aff)); }
           if (o.gain) gain(o.gain[0], o.gain[1]);
           if (o.flag) S.flags[o.flag] = true;
           if (o.r) await run(o.r, ctx);
@@ -613,22 +638,41 @@ function hud(){
   const P = plan(S.day);
   if (!S.house){ E.date.textContent = S.day ? '一年級・第一日' : '入學前'; E.slot.textContent = S.day ? '入學' : '序章'; }
   else {
-    E.date.textContent = `一年級・第${cn(S.day)}日`;
-    E.slot.textContent = `週${WEEK[(S.day - 1) % 7]}・${SLOT_NAME[P[Math.min(S.slot, P.length - 1)]]}`;
+    E.date.textContent = dateLabel(S.day);
+    const sk = P[Math.min(S.slot, P.length - 1)];
+    E.slot.textContent = `週${WEEK[(S.day - 1) % 7]}・${sk === 'festival' ? festName(S.day) : SLOT_NAME[sk]}`;
   }
   E.money.innerHTML = `靈石 <b>${S.money}</b>${S.house ? `・體力 <b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
-  if (S.house){ E.quest.hidden = false; E.quest.innerHTML = `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
+  if (S.house){ E.quest.hidden = false; E.quest.innerHTML = S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
   else E.quest.hidden = true;
+}
+
+// 第一章之後，任務列輪流提示長期目標
+function lifeGoal(){
+  const g = [], dm = domOf(S.day);
+  if (dm < 14) g.push(`再過 ${14 - dm} 日就是「${festName(S.day)}」`);
+  else if (dm < 25) g.push(`再過 ${25 - dm} 日是本月月考`);
+  else g.push(`下個月的節慶是「${festName(S.day + 28)}」`);
+  const sx = S.house && curSpell(S.house);
+  if (sx) g.push(`術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
+  if (S.stall.open){ const nx = TEA.LEVELS[stallLv() + 1]; if (nx) g.push(`茶攤：再 ${nx[0] - S.stall.rep} 名聲升為「${nx[1]}」`); g.push(`配方簿 ${S.known.length}/${TEA.RECIPES.length}`); }
+  const evs = Object.values(S.ev).reduce((a, b) => a + b, 0); g.push(`羈絆事件 ${evs}/48`);
+  return g[S.day % g.length];
 }
 
 // ---------- calendar ----------
 const SLOT_NAME = {opening:'分院',class:'晨課',exam:'月考',outing:'上午・外出',lunch:'午膳',explore:'午後',festival:'花朝節',dinner:'晚膳',free:'自由時間',rest:'夜'};
 const weekday = d => (d - 1) % 7;
+// 曆法：每月 28 日，十個月一學年
+const monthOf = d => Math.ceil(d / 28), domOf = d => (d - 1) % 28 + 1;
+const yearOf = d => Math.floor((monthOf(d) - 1) / 10) + 1, mInYear = d => (monthOf(d) - 1) % 10 + 1;
+const dateLabel = d => monthOf(d) === 1 ? `一年級・第${cn(d)}日` : `${yearOf(d) > 1 ? cn(yearOf(d)) + '年級・' : ''}${cn(mInYear(d))}月${cn(domOf(d))}日`;
+const festName = d => monthOf(d) === 1 ? '花朝節' : LIFE.FESTS[(monthOf(d) - 2) % LIFE.FESTS.length].n;
 function plan(d){
   if (d <= 1) return ['opening','rest'];
-  if (d === 14) return ['outing','lunch','festival','rest'];
+  if (domOf(d) === 14) return ['outing','lunch','festival','rest'];
   const p = [weekday(d) >= 5 ? 'outing' : 'class','lunch','explore','dinner','free','rest'];
-  if (d === 25) p[0] = 'exam';
+  if (domOf(d) === 25) p[0] = 'exam';
   return p;
 }
 
@@ -658,13 +702,13 @@ async function meet(c, ctx){
     note(e.note); S.ev[c.id] = i + 1; S.evDay[c.id] = S.day;
     return;
   }
-  if (ctx === 'lunch'){ await say(c.id, pick(c.lunch), 'happy'); aff(c.id, 5); }
+  if (ctx === 'lunch'){ await say(c.id, pick(c.lunch), 'happy'); aff(c.id, 5, true); }
   else if (ctx === 'date'){
     if ((S.aff[c.id] || 0) >= 50){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
     else await say(c.id, c.dateA[0], 'happy');
-    aff(c.id, 8); note(`和${c.n}共進晚膳。`);
+    aff(c.id, 8, true); note(`和${c.n}共進晚膳。`);
   }
-  else { await say(c.id, c.meet); aff(c.id, 4); }
+  else { await say(c.id, c.meet); aff(c.id, 4, true); }
   if (st && st.locked){
     const key = c.id + (S.ev[c.id] || 0);
     if (!S.hint[key]){ S.hint[key] = 1; const [k, v] = st.e.stat;
@@ -725,7 +769,7 @@ const canMake = r => Object.entries(r.need).every(([k, v]) => (S.inv[k] || 0) >=
 const maxBatches = r => Math.min(...Object.entries(r.need).map(([k, v]) => Math.floor((S.inv[k] || 0) / v)));
 const stallLv = () => { let l = 0; TEA.LEVELS.forEach(([t], i) => { if (S.stall.rep >= t) l = i; }); return l; };
 const stallTitle = () => TEA.LEVELS[stallLv()][1];
-const cupsPerBatch = () => 3 + (S.stall.ups.ware ? 1 : 0) + fxN('batch');
+const cupsPerBatch = () => 3 + (S.stall.ups.ware ? 1 : 0) + (S.stall.ups.spring ? 1 : 0) + fxN('batch');
 const upCost = u => Math.round(u.cost * (hasFx('cheap') ? .85 : 1));
 const cupCount = () => Object.values(S.cups).reduce((a, b) => a + b, 0);
 function gather(pid){
@@ -842,7 +886,7 @@ async function runStall(night){
   }
   const res = await serve(night);
   S.money += res.money; S.stall.earned += res.money; S.stall.sessions++;
-  const lv0 = stallLv(); S.stall.rep += res.rep; const lv1 = stallLv();
+  const lv0 = stallLv(); if (festBoost) res.rep *= 2; S.stall.rep += res.rep; const lv1 = stallLv();
   gain('feng', 1); gain('qiao', 1); hud();
   await card(`<span class="big">收攤</span><span class="small">${night ? '夜市' : '百靈市集'}・${stallTitle()}</span>
     <div class="sum">招待客人：<b>${res.served} / ${res.total}</b><br>收入：<b>${res.money} 靈石</b>（小費 ${res.tips}）<br>名聲：<b>+${res.rep}</b>（共 ${S.stall.rep}）${res.fans.length ? `<br>熟客：<b>${res.fans.join('、')}</b>` : ''}<br>剩下的茶：<b>${cupCount()} 杯</b>（可以在午膳送人）</div>`, 0);
@@ -851,7 +895,7 @@ async function runStall(night){
   return true;
 }
 const priceMul = () => 1 + .1 * stallLv();
-const custCount = night => 5 + stallLv() + (S.stall.ups.sign ? 1 : 0) + (night ? -1 : 0);
+const custCount = night => 5 + stallLv() + (S.stall.ups.sign ? 1 : 0) + (S.stall.ups.screen ? 1 : 0) + (night ? -1 + (S.stall.ups.lamp ? 2 : 0) : 0) + (festBoost ? 3 : 0);
 
 function serve(night){
   return new Promise(resolve => {
@@ -906,7 +950,7 @@ function serve(night){
       const tip = right ? Math.round(base * .4 * p * tipMul) : 0;
       money += base + tip; tips += tip; rep += Math.round((right ? (p > .5 ? 3 : 2) : 1) * repMul);
       SND.sfx(right ? 'gain' : 'tap');
-      if (right && cur.who.c){ const c = cur.who.c; aff(c.id, 6); fans.push(c.n); msg(`${c.n}：「${pick(TEA.FAN)}」　+${base + tip} 靈石`); }
+      if (right && cur.who.c){ const c = cur.who.c; aff(c.id, 6, true); fans.push(c.n); msg(`${c.n}：「${pick(TEA.FAN)}」　+${base + tip} 靈石`); }
       else msg(right ? `「謝謝！好香。」　+${base}${tip ? ` ＋小費 ${tip}` : ''} 靈石` : `「好吧，就這杯。」　+${base} 靈石`);
       drawCups(); setTimeout(next, FAST ? 0 : 1000);
     };
@@ -923,10 +967,10 @@ async function giftMenu(c){
   opts.push({label:'不送了', value:null});
   const g = await choose(`要送點什麼給${c.n}嗎？`, opts);
   if (!g) return;
-  if (g === 'cake'){ S.cake--; aff(c.id, 8); hud(); await say(c.id, '……給我的？謝謝。我會好好吃完的。', 'happy'); return; }
+  if (g === 'cake'){ S.cake--; aff(c.id, 8, true); hud(); await say(c.id, '……給我的？謝謝。我會好好吃完的。', 'happy'); return; }
   S.cups[g]--;
-  if (REC[g].fans.includes(c.id)){ aff(c.id, 10); await say(c.id, `這是……${REC[g].n}？我最喜歡這個了。`, 'happy'); }
-  else { aff(c.id, 4); await say(c.id, '是你泡的茶？謝謝，我會慢慢喝。'); }
+  if (REC[g].fans.includes(c.id)){ aff(c.id, 10, true); await say(c.id, `這是……${REC[g].n}？我最喜歡這個了。`, 'happy'); }
+  else { aff(c.id, 4, true); await say(c.id, '是你泡的茶？謝謝，我會慢慢喝。'); }
 }
 
 
@@ -976,6 +1020,47 @@ function spellBook(){
     + line(S.house, `《${HOUSES[S.house].name}術譜》`) + line('herb', '藥草學・共修') + line('craft', '器物製作・共修');
 }
 
+// ---------- 每月節慶（第二個月起） ----------
+let festBoost = false;
+async function monthFest(){
+  const F = LIFE.FESTS[(monthOf(S.day) - 2) % LIFE.FESTS.length];
+  setScene(F.scene); await sleep(400);
+  await card(`<span class="small">${cn(mInYear(S.day))}月十四日</span><span class="big">${F.n}</span>`, 2000);
+  for (const t of F.intro) await say('', t);
+  const ok = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 20).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
+  const id = await choose(ok.length ? `要和誰一起去${F.n}？` : `要和誰一起去${F.n}？（好感達到「熟絡」才能相約）`,
+    [...ok.map(c => ({...charOpt(c), sub:stageOf(S.aff[c.id] || 0), hot:false})), {label:'自己去逛逛', value:null}]);
+  const c = id && BY[id];
+  if (c){ show(c); await say(c.id, pick(c.lunch)); }
+  const opts = F.acts.map((a, i) => ({label:a.label, sub:a.sub, value:i}));
+  if (S.stall.open) opts.push({label:'在會場擺花茶攤', sub:canBrew() ? hpSub(3, '客人多・名聲加倍') : '沒有茶材', value:'stall', disabled:!canBrew() || !canHp(3)});
+  const v = await choose('先做什麼？', opts);
+  if (v === 'stall'){ festBoost = true; const done = await runStall(false); festBoost = false; if (done) useHp(3); setScene(F.scene); await sleep(300); }
+  else {
+    const a = F.acts[v];
+    if (a.game){
+      const r = await minigame({title:F.n, n:7, time:10000 + (hasFx('time') ? 2000 : 0), decoy:3});
+      gain(a.k, r.score); const prize = r.full ? 40 : r.next >= 5 ? 20 : 5; S.money += prize; hud();
+      await say('', `${r.full ? '你點亮了最後一片花瓣。' + a.t : '差一點點，還是輸了。'}獎金 ${prize} 靈石。`);
+    } else {
+      gain(a.k, 3);
+      if (a.ing){ const got = {}; a.ing.forEach(k => { const n = 1 + (Math.random() < .5 ? 1 : 0); gainIng(k, n); got[k] = (got[k] || 0) + n; }); toast('得到 ' + Object.entries(got).map(([k, n]) => `${ingName(k)} ×${n}`).join('、')); }
+      if (a.house) C.filter(x => x.h === S.house && S.met[x.id]).forEach(x => aff(x.id, 3));
+      await say('', a.t);
+    }
+  }
+  if (F.night){ setScene(F.night); await sleep(300); }
+  if (c){ show(c); await say('', pick(F.with).replace(/\{c\}/g, c.n)); aff(c.id, 8); note(`${F.n}，和${c.n}一起度過。`); }
+  else note(`參加了${F.n}。`);
+}
+async function incident(pid){
+  const L = LIFE.INCIDENTS[pid]; if (!L) return false;
+  let seen = S.seen[pid] || []; if (seen.length >= L.length) seen = [];
+  const i = pick(L.map((_, k) => k).filter(k => !seen.includes(k)));
+  S.seen[pid] = [...seen, i];
+  await run(L[i]); return true;
+}
+
 // ---------- slots ----------
 async function opening(){
   setScene('花朝正殿');
@@ -1004,22 +1089,24 @@ async function cls(){
   const r = await minigame({title, time:9000 + (hasFx('time') ? 2000 : 0)});
   if (tired) r.score = Math.max(1, Math.floor(r.score / 2));
   const bonus = hasFx('cls') ? 1 : 0;
-  r.score += bonus; gain(stat, r.score);
-  await say('', r.full ? `完成！${STATS[stat][0]} +${r.score}。` : `差一點就完成了。${STATS[stat][0]} +${r.score}。`);
+  r.score += bonus; const got = gain(stat, r.score);
+  const gl = `${STATS[stat][0]} ${got ? '+' + got : '有所累積'}`;
+  await say('', r.full ? `完成！${gl}。` : `差一點就完成了。${gl}。`);
   await practise(w === 1 ? 'herb' : w === 3 ? 'craft' : S.house, r.score + (r.full ? 2 : 0));
 }
 async function exam(){
   setScene('課室'); await sleep(300);
-  await say('', '今天是入學後的第一次月考。四院的新生坐滿了課室，連呼吸聲都聽得見。');
-  await say('npc:監考講師', '七片花瓣，十一息之內，依次點亮。碰到灰色的，算錯。開始。');
+  const m = monthOf(S.day), n = 7 + Math.min(2, Math.floor((m - 1) / 2)), dc = 2 + Math.min(3, m - 1), secs = 11 + (n - 7);
+  await say('', m === 1 ? '今天是入學後的第一次月考。四院的新生坐滿了課室，連呼吸聲都聽得見。' : `第${cn(m)}次月考。考題一次比一次難，課室裡還是安靜得聽得見呼吸聲。`);
+  await say('npc:監考講師', `${cn(n)}片花瓣，${cn(secs)}息之內，依次點亮。碰到灰色的，算錯。開始。`);
   useHp(3);
-  const r = await minigame({title:'月考', n:7, time:11000 + (hasFx('time') ? 2000 : 0), decoy:2});
-  const grade = r.full && r.score >= 6 ? '甲' : r.full ? '乙' : r.next >= 4 ? '丙' : '丁';
+  const r = await minigame({title:m === 1 ? '月考' : `第${cn(m)}次月考`, n, time:secs * 1000 + (hasFx('time') ? 2000 : 0), decoy:dc});
+  const grade = r.full && r.score >= n - 1 ? '甲' : r.full ? '乙' : r.next >= 4 ? '丙' : '丁';
   const prize = {甲:60, 乙:40, 丙:20, 丁:10}[grade];
   S.money += prize; gain(HOUSES[S.house].stat, r.score + 1); hud();
   await say('npc:監考講師', `${S.name}，${grade}等。`);
   await say('', `你領到 ${prize} 枚靈石的獎學金。${grade === '甲' ? '同院的人都向你投來佩服的目光。' : grade === '丁' ? '下個月，一定要更努力。' : ''}`);
-  note(`第一次月考：${grade}等。`);
+  S.grades.push(grade); note(`${m === 1 ? '第一次月考' : `第${cn(m)}次月考`}：${grade}等。`);
 }
 async function explore(prompt){
   setScene('學院地圖'); await sleep(300);
@@ -1036,19 +1123,20 @@ async function explore(prompt){
   if (p.id === 'lake'){
     gain('feng', 2); useHp(1); gather('lake');
     if (S.quest === 1 && S.day >= 7){ await run(MAIN.lake); return; }
-    await say('', pick(['湖邊的風帶著花香。你坐在石欄上，畫了一張速寫。','湖心小亭的倒影，被一尾錦鯉攪碎，又慢慢拼了回去。','你沿著湖岸走了一圈。柳枝拂過肩頭，像有人在輕輕拍你。']));
+    if (Math.random() < .35 && await incident('lake')) return;
+    await say('', pick(['湖邊的風帶著花香。你坐在石欄上，畫了一張速寫。','湖心小亭的倒影，被一尾錦鯉攪碎，又慢慢拼了回去。','你沿著湖岸走了一圈。柳枝拂過肩頭，像有人在輕輕拍你。', ...LIFE.LOOK.lake]));
     return;
   }
   if (p.id === 'market'){ await market(); return; }
   const opts = p.who.map(id => charOpt(BY[id]));
   opts.forEach(o => { if (!canHp(2)){ o.disabled = true; o.sub = '體力不足'; } });
   const mats = (TEA.GATHER[p.id] || []).map(ingName).join('、');
-  opts.push({label:'四處看看', sub: canHp(2) ? `${STATS[p.stat][0]} +2${S.stall.open && mats ? '・採' + mats : ''}・體力 -2` : '體力不足', value:'look', disabled:!canHp(2)});
+  opts.push({label:'四處看看', sub: canHp(2) ? `${STATS[p.stat][0]}${S.stall.open && mats ? '・採' + mats : ''}・體力 -2` : '體力不足', value:'look', disabled:!canHp(2)});
   opts.push({label:'離開', value:null});
   const id = await choose(`${p.n}。要做什麼？`, opts);
   if (!id){ await say('', '你在附近走了走，就回去了。'); return; }
   useHp(2);
-  if (id === 'look'){ gain(p.stat, 2); await say('', LOOK[p.id]); gather(p.id); return; }
+  if (id === 'look'){ gather(p.id); if (Math.random() < .35 && await incident(p.id)) return; gain(p.stat, 2); await say('', pick(LIFE.LOOK[p.id] || [LOOK[p.id]])); return; }
   gain(p.stat, 1);
   await meet(BY[id], 'meet');
 }
@@ -1086,10 +1174,12 @@ async function dinner(){
   setScene('晚膳'); await sleep(300);
   const ok = C.filter(c => (S.aff[c.id] || 0) >= 20).sort((a, b) => (ready(b) - ready(a)) || ((S.aff[b.id] || 0) - (S.aff[a.id] || 0))).slice(0, 4);
   const id = await choose(ok.length ? '傍晚的燈籠亮起來了。要邀請誰共進晚膳？' : '傍晚的燈籠亮起來了。（好感達到「熟絡」，就可以邀請對方晚膳）',
-    [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感 +2・體力 +2', value:null}]);
+    [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感・體力 +2', value:null}]);
   if (!id){
-    C.filter(c => c.h === S.house && S.met[c.id]).forEach(c => aff(c.id, 2)); addHp(2);
-    await say('', `${HOUSES[S.house].name}的長桌上很熱鬧，大家在聊下週的課。`); return;
+    const mates = C.filter(c => c.h === S.house && S.met[c.id]), m = mates.length && pick(mates); addHp(2);
+    await say('', pick([`${HOUSES[S.house].name}的長桌上很熱鬧，大家在聊下週的課。`, '長桌上擺滿了菜，同院的同學你一言我一語，笑聲沒停過。', '大家在爭論哪一位講師的課最難。你聽著，忍不住笑了。']));
+    if (m){ aff(m.id, 2, true); await say('', `${m.n}坐在你旁邊，順手替你添了一碗湯。`); }
+    return;
   }
   useHp(2);
   setScene('花月湖・夜'); await sleep(300);
@@ -1098,7 +1188,7 @@ async function dinner(){
 async function free(){
   setScene('宿舍・夜'); await sleep(300);
   while (true){
-    const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]} +2${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2)}));
+    const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]}${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2)}));
     if (S.stall.open){
       opts.unshift({label:'研發新配方', sub:hpSub(2, '巧藝'), value:'research', disabled:!canHp(2)});
       opts.unshift({label:'擺夜攤', sub:canBrew() ? hpSub(3, '賺靈石・名聲') : '沒有茶材', value:'night', disabled:!canHp(3) || !canBrew()});
@@ -1113,7 +1203,7 @@ async function free(){
     if (f === 'research'){ useHp(2); if (await research()) return; addHp(2); continue; }
     if (f === 'night'){ setScene('夜市・花茶攤'); await sleep(300); if (await runStall(true)){ useHp(3); return; } setScene('宿舍・夜'); continue; }
     useHp(2); gain(f.k, 2); if (f.money){ S.money += f.money; hud(); }
-    await say('', f.t); return;
+    await say('', pick(LIFE.FREE[f.k] || [f.t])); return;
   }
 }
 async function rest(){
@@ -1126,6 +1216,7 @@ async function rest(){
   await checkSpells();
 }
 async function festival(){
+  if (monthOf(S.day) > 1) return monthFest();
   setScene('花朝節'); await sleep(400);
   await say('', '今天是花朝節——百花的生日。整座靈院掛滿了紅綢與花燈。');
   await say('', '按照習俗，大家會把紅綢繫在花枝上，替花神賀壽，這叫「賞紅」。');
@@ -1168,8 +1259,11 @@ async function storyBeat(d, slot){
 const SLOTS = {opening, class:cls, exam, outing:() => explore('今天休假。上午想去哪裡走走？'), lunch, explore:() => explore('下午沒有課。要去哪裡？'), festival, dinner, free, rest};
 
 async function dayCard(d){
-  const sp = d === 14 ? '<span class="seal">花朝</span>' : d === 25 ? '<span class="seal">月考</span>' : '';
-  await card(`<span class="big">第${cn(d)}日</span><span class="small">一年級・週${WEEK[(d - 1) % 7]}</span>${sp}`, 1900);
+  const m = monthOf(d), dm = domOf(d);
+  const sp = dm === 14 ? `<span class="seal">${m === 1 ? '花朝' : '節慶'}</span>` : dm === 25 ? '<span class="seal">月考</span>' : '';
+  if (m > 1 && dm === 1) await card(`<span class="small">${cn(yearOf(d))}年級</span><span class="big">${cn(mInYear(d))}月</span><span class="small">新的一個月開始了</span>`, 2000);
+  if (m === 1) await card(`<span class="big">第${cn(d)}日</span><span class="small">一年級・週${WEEK[(d - 1) % 7]}</span>${sp}`, 1900);
+  else await card(`<span class="big">${cn(dm)}日</span><span class="small">${cn(yearOf(d))}年級・${cn(mInYear(d))}月・週${WEEK[(d - 1) % 7]}</span>${sp}`, 1900);
 }
 function askName(){
   setSpeaker(null); E.line.textContent = '在故事開始之前，告訴我你是誰。'; E.box.classList.add('wait');
@@ -1201,11 +1295,15 @@ async function chapterEnd(){
   await card(`<span class="big">無名花影</span><span class="small">第一章・完</span>
     <div class="sum">最親近的人：<b>${top.map(c => `${c.n}（${stageOf(S.aff[c.id] || 0)}）`).join('、') || '還沒有'}</b><br>
     最擅長：<b>${STATS[st[0]][0]} ${S.stats[st[0]]}</b>、<b>${STATS[st[1]][0]} ${S.stats[st[1]]}</b><br>
-    羈絆事件：<b>${evs} / 48</b><br><br>第二章・鏡中來客，製作中。</div>`, 0);
-  if (FAST){ window.__done = true; return; }
-  const again = await choose('', [{label:'重新入學', value:1},{label:'翻看人物與日記', value:0}]);
-  if (!again){ openTab('people'); await choose('', [{label:'重新入學', value:1}]); }
-  S = fresh(); CK = null; store(KEY, null); main();
+    羈絆事件：<b>${evs} / 48</b><br><br>主線第二章「鏡中來客」製作中。<br>學院的日子，還會繼續。</div>`, 0);
+  S.flags.ch1 = true; note('第一章「無名花影」完。學院的日子還在繼續。');
+  if (FAST) return true;
+  while (true){
+    const v = await choose('接下來——', [{label:'繼續學院生活', sub:'保留所有進度，迎接第二個月', value:'go'},{label:'翻看人物與日記', value:'look'},{label:'重新入學', sub:'從序章重新開始', value:'new'}]);
+    if (v === 'go') return true;
+    if (v === 'look'){ openTab('people'); await new Promise(r => onSheetClose = r); continue; }
+    S = fresh(); CK = null; store(KEY, null); main(); return false;
+  }
 }
 
 // ---------- panels ----------
@@ -1281,7 +1379,7 @@ function describe(v){
   if (!v) return '';
   const P = plan(v.day), k = P[Math.min(v.slot, P.length - 1)];
   const top = C.filter(c => v.met && v.met[c.id]).sort((a, b) => (v.aff[b.id] || 0) - (v.aff[a.id] || 0))[0];
-  const where = v.day ? `第${cn(v.day)}日・${SLOT_LABEL[k] || ''}` : '序章';
+  const where = v.day ? `${monthOf(v.day) === 1 ? `第${cn(v.day)}日` : dateLabel(v.day)}・${k === 'festival' ? festName(v.day) : SLOT_LABEL[k] || ''}` : '序章';
   return `${v.name}・${v.house ? HOUSES[v.house].name : '未分院'}・${where}${top ? `・最親近：${top.n}` : ''}`;
 }
 const when = t => { if (!t) return ''; const d = new Date(t), p = n => String(n).padStart(2, '0'); return `${d.getMonth() + 1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())} 存檔`; };
@@ -1388,7 +1486,8 @@ async function loop(){
       if (!skip) await SLOTS[k]();
       S.slot++; hud();
     }
-    if (S.day >= LAST_DAY){ await chapterEnd(); return; }
+    if (S.day >= LAST_DAY && !S.flags.ch1){ if (!await chapterEnd()) return; }
+    if (FAST && S.day >= TEST_END){ window.__done = true; return; }
     S.day++; S.slot = 0;
   }
 }
@@ -1428,7 +1527,7 @@ document.addEventListener('pointerdown', e => {
   if (b){ b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow'); setTimeout(() => b.classList.remove('glow'), 500); }
 }, true);
 window.__S = () => S;
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet};
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
