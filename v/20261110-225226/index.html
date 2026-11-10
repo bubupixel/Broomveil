@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-224239';</script>
+<script>window.GAME_VERSION = '20261110-225226';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -63,7 +63,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
   transition:opacity .45s ease,transform .5s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 12px 26px rgba(10,6,4,.45));pointer-events:none}
 .portrait.show{opacity:1;transform:translateX(-50%)}
 .portrait.framed{bottom:auto;top:96px;height:auto;width:min(64%,300px);aspect-ratio:380/550;object-fit:cover;object-position:top;border:3px solid #fbf6ea;outline:1px solid var(--gold);border-radius:3px;filter:drop-shadow(0 14px 24px rgba(0,0,0,.5))}
-.portrait.mystery{filter:blur(5px) brightness(1.25) saturate(.4);opacity:.55}
+.portrait.mystery{filter:blur(5px) brightness(1.25) saturate(.4)}
 .portrait.mystery.show{opacity:.6}
 
 /* HUD */
@@ -417,8 +417,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-224239"></script>
-<script src="story.js?v=20261110-224239"></script>
+<script src="audio.js?v=20261110-225226"></script>
+<script src="story.js?v=20261110-225226"></script>
 <script>
 (() => {
 const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -504,7 +504,12 @@ function setScene(name, cg){
 let showTok = 0;
 function show(ch, o = {}){
   const P = E.portrait;
-  if (!ch){ ++showTok; P.classList.remove('show'); P.dataset.k = ''; return; }
+  if (!ch){
+    const tok = ++showTok; P.classList.remove('show'); P.dataset.k = '';
+    // after the fade, swap in a blank element so no blurred layer can linger (iPhone Safari)
+    setTimeout(() => { if (tok !== showTok) return; const N = document.createElement('img'); N.id = 'portrait'; N.className = 'portrait'; N.alt = ''; E.portrait.replaceWith(N); E.portrait = N; }, FAST ? 0 : 450);
+    return;
+  }
   // iPhone Safari can keep a stale blurred layer when a filter class is removed from the same
   // <img>, so every new portrait gets a brand-new <img> element.
   const F = FACES[ch.id], fsrc = F && o.face && (F[o.face] || F[FACE_ALIAS[o.face]]);
