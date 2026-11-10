@@ -37,6 +37,10 @@ fullbleed = '''
 <style>
 html,body{height:100%}
 #app{position:fixed;top:0;bottom:0;left:0;right:0;height:auto}
+/* iOS 主畫面 App（黑色半透明狀態列）會把視窗高度少算一個狀態列，令底部出現黑邊。
+   在主畫面模式下改用整個螢幕高度。 */
+@media (display-mode: standalone){ #app{bottom:auto;height:100vh;height:100lvh} }
+html.ios-app #app{bottom:auto;height:100vh;height:100lvh}
 .hud{padding-top:calc(12px + env(safe-area-inset-top,0px))}
 .quest{top:calc(66px + env(safe-area-inset-top,0px))}
 .place{top:calc(62px + env(safe-area-inset-top,0px))}
@@ -49,6 +53,9 @@ html,body{height:100%}
 '''
 
 updater = '''
+<script>
+if (navigator.standalone) document.documentElement.classList.add('ios-app');
+</script>
 <script>
 // 自動更新：開啟、切回前景時檢查 version.json。還在載入畫面就直接更新；遊戲進行中則顯示提示。
 (() => {
