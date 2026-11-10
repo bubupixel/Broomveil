@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-220702';</script>
+<script>window.GAME_VERSION = '20261110-221732';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -417,8 +417,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-220702"></script>
-<script src="story.js?v=20261110-220702"></script>
+<script src="audio.js?v=20261110-221732"></script>
+<script src="story.js?v=20261110-221732"></script>
 <script>
 (() => {
 const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -559,6 +559,7 @@ async function say(id, text, face){
   E.choices.innerHTML = ''; E.scrim.classList.remove('on'); E.box.classList.remove('wait');
   setSpeaker(w);
   if (w && !w.me && !w.npc && !cgOn) show(w, {face, mystery: w.id === 'bai' && !S.flags.baiName});
+  else if (w && w.npc && !cgOn) show(null);   // 沒有立繪的路人說話時，收起上一位的立繪
   E.more.hidden = true;
   await typeText(fmt(text));
   E.more.hidden = false;
