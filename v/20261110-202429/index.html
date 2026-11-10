@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-200252';</script>
+<script>window.GAME_VERSION = '20261110-202429';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -315,6 +315,21 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .choices button:disabled{opacity:.5;cursor:default}
 .sheet h3{margin:18px 0 4px;font-size:18px;letter-spacing:.15em}
 
+
+.shopitem{padding-right:48px}
+.shopitem .si{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:40px;height:40px;object-fit:contain}
+.chip[style*="--im"]::before{width:20px;height:20px;border-radius:0;background:var(--im) center/contain no-repeat;margin:-3px 0 -3px -4px}
+.rec{position:relative;padding-right:58px;min-height:62px}
+.rec .ri{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:48px;height:48px;object-fit:contain}
+.rec.unk .ri{opacity:.55}
+.cup img{width:46px;height:46px;object-fit:contain;margin:-4px 0 -2px}
+.bubble .bt{display:block;width:64px;height:64px;margin:-46px auto 2px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+.bubble{margin-top:28px;min-width:200px}
+.bookhead{display:flex;align-items:center;gap:12px;margin-top:16px}
+.bookhead img{width:56px;height:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+.bookhead h3{margin:0}
+.bookhead small{font-size:12.5px;color:var(--ink-soft)}
+.card .bookimg{width:120px;height:auto;margin:0 auto 14px;display:block;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))}
 .spells{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .spell{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;display:flex;flex-direction:column;gap:2px}
 .spell .sp-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -371,8 +386,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-200252"></script>
-<script src="story.js?v=20261110-200252"></script>
+<script src="audio.js?v=20261110-202429"></script>
+<script src="story.js?v=20261110-202429"></script>
 <script>
 (() => {
 const {MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -423,8 +438,11 @@ const fmt = t => String(t).replace(/\{n\}/g, S.name).replace(/\{弟妹\}/g, S.ge
 const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house : g + '0'}.jpg`}; };
+const HUAPO = {id:'huapo', n:'花婆婆', h:'yu', cut:'img/c15.webp'};
+const teaImg = id => `img/tea_${id}.webp`, ingImg = k => `img/ing_${k}.webp`;
 function who(id){
   if (!id) return null;
+  if (id === 'npc:花婆婆') return HUAPO;
   if (id === 'me') return Object.assign(pc(), {me:true});
   if (id.startsWith('npc:')) return {n:id.slice(4), npc:true};
   if (id === 'bai') return BAI;
@@ -728,7 +746,7 @@ function panel(html, bind){
     bind(el, done);
   });
 }
-const invChips = () => TEA.SHOP.filter(k => S.inv[k]).map(k => `<span class="chip" style="--d:${ING[k].color}">${ingName(k)} ${S.inv[k]}</span>`).join('') || '<span class="muted">（沒有材料）</span>';
+const invChips = () => TEA.SHOP.filter(k => S.inv[k]).map(k => `<span class="chip" style="--im:url(${ingImg(k)})">${ingName(k)} ${S.inv[k]}</span>`).join('') || '<span class="muted">（沒有材料）</span>';
 
 async function buyIngredients(){
   if (FAST){ for (const k of ['cha','honey','rose']) if (S.money >= ING[k].price){ S.money -= ING[k].price; gainIng(k, ING[k].pack || 1); } hud(); return; }
@@ -736,7 +754,7 @@ async function buyIngredients(){
     const draw = () => {
       el.querySelector('.tp-in').innerHTML = `<header><h3>買材料</h3><span class="coinline">靈石 <b>${S.money}</b></span></header>
         <div class="shop">${TEA.SHOP.map(k => `<button type="button" class="shopitem" data-k="${k}" ${S.money < ING[k].price ? 'disabled' : ''} style="--d:${ING[k].color}">
-          <i></i><span class="nm">${ingName(k)}${ING[k].pack ? ' ×' + ING[k].pack : ''}</span><span class="pr">${ING[k].price} 靈石</span><span class="own">有 ${S.inv[k] || 0}</span></button>`).join('')}</div>
+          <img class="si" src="${ingImg(k)}" alt=""><span class="nm">${ingName(k)}${ING[k].pack ? ' ×' + ING[k].pack : ''}</span><span class="pr">${ING[k].price} 靈石</span><span class="own">有 ${S.inv[k] || 0}</span></button>`).join('')}</div>
         <div class="tp-acts"><button type="button" class="act main" data-x="done">買好了</button></div>`;
       el.querySelectorAll('.shopitem').forEach(b => b.onclick = () => { const k = b.dataset.k; if (S.money < ING[k].price) return; S.money -= ING[k].price; gainIng(k, ING[k].pack || 1); SND.sfx('tap'); hud(); draw(); });
       el.querySelector('[data-x=done]').onclick = () => { SND.sfx('choose'); done(); };
@@ -756,7 +774,7 @@ async function research(){
       el.querySelector('.tp-in').innerHTML = `<header><h3>研發新配方</h3><span class="coinline">已選 ${total} 份</span></header>
         <p class="muted">點選材料（再點一次加到兩份，第三次取消）。試泡會用掉材料；配方完全吻合才會成功。</p>
         <div class="shop">${TEA.SHOP.map(k => `<button type="button" class="shopitem ${sel[k] ? 'on' : ''}" data-k="${k}" ${(S.inv[k] || 0) === 0 ? 'disabled' : ''} style="--d:${ING[k].color}">
-          <i></i><span class="nm">${ingName(k)}${sel[k] ? ' ×' + sel[k] : ''}</span><span class="own">有 ${S.inv[k] || 0}</span></button>`).join('')}</div>
+          <img class="si" src="${ingImg(k)}" alt=""><span class="nm">${ingName(k)}${sel[k] ? ' ×' + sel[k] : ''}</span><span class="own">有 ${S.inv[k] || 0}</span></button>`).join('')}</div>
         <div class="hints"><b>配方簿上的線索</b>${unknown.length ? unknown.map(r => `<span>・${r.hint}</span>`).join('') : '<span>所有配方都已學會。</span>'}</div>
         <div class="tp-acts"><button type="button" class="act" data-x="cancel">算了</button><button type="button" class="act main" data-x="go" ${total ? '' : 'disabled'}>試泡</button></div>`;
       el.querySelectorAll('.shopitem').forEach(b => b.onclick = () => { const k = b.dataset.k, have = S.inv[k] || 0; const n = (sel[k] || 0) + 1; sel[k] = n > Math.min(2, have) ? 0 : n; if (!sel[k]) delete sel[k]; SND.sfx('tap'); draw(); });
@@ -797,7 +815,7 @@ async function runStall(night){
           <div class="bi"><b>${r.n}</b><small>${needText(r)}・${Math.round(r.price * priceMul())} 靈石${S.cups[id] ? `・剩 ${S.cups[id]} 杯` : ''}</small></div>
           <button type="button" class="pm" data-id="${id}" data-d="-1" ${n ? '' : 'disabled'}>－</button><span class="bn">${n}</span>
           <button type="button" class="pm" data-id="${id}" data-d="1" ${can(id) ? '' : 'disabled'}>＋</button></div>`; }).join('')}</div>
-        <div class="invline">${TEA.SHOP.filter(k => S.inv[k]).map(k => `<span class="chip" style="--d:${ING[k].color}">${ingName(k)} ${left(k)}</span>`).join('') || '<span class="muted">（沒有材料，可以先在市集買）</span>'}</div>
+        <div class="invline">${TEA.SHOP.filter(k => S.inv[k]).map(k => `<span class="chip" style="--im:url(${ingImg(k)})">${ingName(k)} ${left(k)}</span>`).join('') || '<span class="muted">（沒有材料，可以先在市集買）</span>'}</div>
         <details class="ups"><summary>攤位改良（靈石 ${S.money}）</summary>${TEA.UPS.map(u => `<div class="urow"><div><b>${u.n}</b><small>${u.d}</small></div>${S.stall.ups[u.id] ? '<span class="tag2">已擁有</span>' : `<button type="button" class="act" data-up="${u.id}" ${S.money < upCost(u) ? 'disabled' : ''}>${upCost(u)} 靈石</button>`}</div>`).join('')}</details>
         <div class="tp-acts"><button type="button" class="act" data-x="cancel">今天不開了</button><button type="button" class="act main" data-x="go" ${cups ? '' : 'disabled'}>開攤（${cups} 杯）</button></div>`;
       el.querySelectorAll('.pm').forEach(b => b.onclick = () => { const id = b.dataset.id; plan[id] = Math.max(0, (plan[id] || 0) + +b.dataset.d); SND.sfx('tap'); draw(); });
@@ -839,7 +857,7 @@ function serve(night){
     const repMul = S.stall.ups.sign ? 1.2 : 1, tipMul = S.stall.ups.shelf ? 1.5 : 1;
     const drawCups = () => {
       const ids = S.known.filter(id => S.cups[id]);
-      g.querySelector('#cups').innerHTML = ids.map(id => `<button type="button" class="cup" data-id="${id}"><b>${REC[id].n}</b><small>${S.cups[id]} 杯</small></button>`).join('') || '<span class="muted">茶都賣完了</span>';
+      g.querySelector('#cups').innerHTML = ids.map(id => `<button type="button" class="cup" data-id="${id}"><img src="${teaImg(id)}" alt=""><b>${REC[id].n}</b><small>${S.cups[id]} 杯</small></button>`).join('') || '<span class="muted">茶都賣完了</span>';
       g.querySelectorAll('.cup').forEach(b => b.onclick = () => give(b.dataset.id));
     };
     const next = () => {
@@ -853,14 +871,15 @@ function serve(night){
         const fav = favs.find(r => S.cups[r.id]) || pick(favs);
         who = {c, n:c.n}; order = fav.id;
       } else {
-        who = {n:pick(TEA.NPC)};
+        const ni = Math.floor(Math.random() * TEA.NPC.length);
+        who = {n:TEA.NPC[ni], img:`img/npc${String(ni + 1).padStart(2, '0')}.jpg`};
         order = Math.random() < .78 && inStock.length ? pick(inStock) : pick(TEA.RECIPES.filter(r => r.id !== 'four')).id;
       }
       cur = {who, order};
       const cav = g.querySelector('#cav');
-      cav.innerHTML = who.c ? `<img src="${ava(who.c.img)}" alt="">` : `<span>${who.n.slice(-2, -1) || who.n[0]}</span>`;
+      cav.innerHTML = who.c ? `<img src="${ava(who.c.img)}" alt="">` : who.img ? `<img src="${who.img}" alt="">` : `<span>${who.n.slice(-2, -1) || who.n[0]}</span>`;
       cav.style.setProperty('--c', who.c ? HOUSES[who.c.h].color : '#7d6a58');
-      g.querySelector('#bubble').innerHTML = `<small>${who.n}</small>一杯<b>${REC[order].n}</b>${S.known.includes(order) ? '' : '<em>（你還不會泡）</em>'}`;
+      g.querySelector('#bubble').innerHTML = `<img class="bt" src="${teaImg(order)}" alt=""><small>${who.n}</small>一杯<b>${REC[order].n}</b>${S.known.includes(order) ? '' : '<em>（你還不會泡）</em>'}`;
       g.querySelector('#cust').classList.remove('in'); void g.offsetWidth; g.querySelector('#cust').classList.add('in');
       drawCups(); t0 = performance.now(); tick();
       if (FAST) setTimeout(() => S.cups[order] ? give(order) : give(Object.keys(S.cups).find(k => S.cups[k])), 0);
@@ -922,6 +941,7 @@ async function practise(key, pts){
   const x = curSpell(key); if (!x) return;
   if (!Object.keys(S.mag).length && MAGIC.HOUSE[key]){
     await say('', `講師發給每位新生一本薄薄的《${HOUSES[S.house].name}術譜》。一共六層，每一層一道咒語。`);
+    await card(`<img class="bookimg" src="img/book_${S.house}.webp" alt=""><span class="small">獲得</span><span class="big">${HOUSES[S.house].name}術譜</span><span class="small">在「華」頁面可以查看</span>`, 2600);
     await say('npc:講師', '咒語不是背出來的。練得夠熟、底子也夠厚，它自然會回應你。');
   }
   const m = S.mag[x.id] = Math.min(x.need, (S.mag[x.id] || 0) + pts);
@@ -942,7 +962,7 @@ function spellBook(){
       ${got || cur ? `<small>${x.d}</small>` : ''}<small class="fx">${MAGIC.FX[x.fx]}${x.req ? `・需${STATS[st][0]} ${x.req}` : ''}</small>
       ${cur ? `<div class="bar"><i style="width:${m / x.need * 100}%"></i></div>` : ''}</div>`;
   };
-  const line = (key, title) => { const c = curSpell(key); return `<h3>${title}</h3><div class="spells">${lineOf(key).map(x => row(x, x === c)).join('')}</div>`; };
+  const line = (key, title) => { const c = curSpell(key); return `${MAGIC.HOUSE[key] ? `<div class="bookhead"><img src="img/book_${key}.webp" alt=""><div><h3>${title}</h3><small>已習得 ${lineOf(key).filter(x => S.spells.includes(x.id)).length} / 6 層</small></div></div>` : `<h3>${title}</h3>`}<div class="spells">${lineOf(key).map(x => row(x, x === c)).join('')}</div>`; };
   return `<p class="muted" style="margin-top:14px">上課和晚上自修都會累積熟練。熟練滿了、能力也達標，就能習得咒語，解鎖下一層。</p>`
     + line(S.house, `《${HOUSES[S.house].name}術譜》`) + line('herb', '藥草學・共修') + line('craft', '器物製作・共修');
 }
@@ -1027,6 +1047,7 @@ async function market(justOpened){
   setScene('百靈市集'); await sleep(200);
   if (!S.stall.open){ await openStall(); justOpened = true; }
   while (true){
+    if (!cgOn) show(HUAPO);
     const opts = [
       {label:'開花茶攤', sub:canBrew() ? hpSub(4, '賺靈石・名聲') : '沒有茶材，先買材料', value:'stall', disabled:!canHp(4) || !canBrew()},
       {label:'買茶材', sub:`靈石 ${S.money}`, value:'buy'},
@@ -1034,7 +1055,7 @@ async function market(justOpened){
       {label:'離開市集', value:null}];
     const v = await choose(justOpened ? '要不要現在就試試開攤？' : '百靈市集熱鬧非常。要做什麼？', opts);
     justOpened = false;
-    if (v === 'buy'){ await buyIngredients(); continue; }
+    if (v === 'buy'){ await say('npc:花婆婆', pick(['今天的貨都新鮮，慢慢挑。','桂花是今早才摘的，香著呢。','小娃娃，又來啦？','要什麼自己拿，婆婆給你算便宜點。'])); await buyIngredients(); continue; }
     if (v === 'cake'){ S.money -= 20; S.cake++; hud(); await say('', '你買了一份還溫熱的花糕，用油紙包好。'); continue; }
     if (v === 'stall'){ setScene('花茶攤'); await sleep(300); if (await runStall(false)){ useHp(4); return; } setScene('百靈市集'); continue; }
     gain('qiao', 1); await say('', '你在攤位間逛了一圈，記下了幾種新茶的名字。'); return;
@@ -1233,10 +1254,10 @@ function teaSheet(){
     h += `<div class="stat"><span class="k">名聲<small>${stallTitle()}</small></span><div class="bar"><i style="width:${nextT ? Math.min(100, (S.stall.rep - TEA.LEVELS[lv][0]) / (nextT - TEA.LEVELS[lv][0]) * 100) : 100}%;background:var(--house)"></i></div><span class="v">${S.stall.rep}</span></div>
       <p class="note" style="margin-top:2px">${nextT ? `再 ${nextT - S.stall.rep} 名聲升為「${TEA.LEVELS[lv + 1][1]}」。` : '已經是花朝第一茶攤！'}開攤 ${S.stall.sessions} 次，共賺 ${S.stall.earned} 靈石。售價加成 ${Math.round((priceMul() - 1) * 100)}%。</p>
       <h3>材料</h3><div class="invline">${invChips()}</div>
-      <h3>剩茶（可在午膳送人）</h3><div class="invline">${S.known.filter(id => S.cups[id]).map(id => `<span class="chip">${REC[id].n} ${S.cups[id]}</span>`).join('') || '<span class="muted">（沒有）</span>'}</div>
+      <h3>剩茶（可在午膳送人）</h3><div class="invline">${S.known.filter(id => S.cups[id]).map(id => `<span class="chip" style="--im:url(${teaImg(id)})">${REC[id].n} ${S.cups[id]}</span>`).join('') || '<span class="muted">（沒有）</span>'}</div>
       <h3>配方簿 ${S.known.length} / ${TEA.RECIPES.length}</h3><div class="recipes">${TEA.RECIPES.map(r => S.known.includes(r.id)
-        ? `<div class="rec"><b>${r.n}</b><span>${needText(r)}</span><small>${r.price} 靈石${r.fans.filter(f => S.met[f]).length ? '・' + (r.fans.length > 6 ? '人人都愛' : r.fans.filter(f => S.met[f]).map(f => BY[f].n).join('、') + ' 喜歡') : ''}</small></div>`
-        : `<div class="rec unk"><b>？？？</b><small>${r.hint}</small></div>`).join('')}</div>
+        ? `<div class="rec"><img class="ri" src="${teaImg(r.id)}" alt=""><b>${r.n}</b><span>${needText(r)}</span><small>${r.price} 靈石${r.fans.filter(f => S.met[f]).length ? '・' + (r.fans.length > 6 ? '人人都愛' : r.fans.filter(f => S.met[f]).map(f => BY[f].n).join('、') + ' 喜歡') : ''}</small></div>`
+        : `<div class="rec unk"><img class="ri" src="${teaImg('unk')}" alt=""><b>？？？</b><small>${r.hint}</small></div>`).join('')}</div>
       <h3>攤位改良</h3>${TEA.UPS.map(u => `<div class="urow"><div><b>${u.n}</b><small>${u.d}</small></div><span class="tag2">${S.stall.ups[u.id] ? '已擁有' : upCost(u) + ' 靈石'}</span></div>`).join('')}
       <p class="note">改良可以在開攤準備時購買。</p>`;
   }
