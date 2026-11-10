@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-205104';</script>
+<script>window.GAME_VERSION = '20261110-211724';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -395,11 +395,11 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-205104"></script>
-<script src="story.js?v=20261110-205104"></script>
+<script src="audio.js?v=20261110-211724"></script>
+<script src="story.js?v=20261110-211724"></script>
 <script>
 (() => {
-const {LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const FAST = location.hash.startsWith('#test');
 const TEST_END = location.hash === '#test2' ? 112 : 28;
@@ -418,7 +418,7 @@ const slotKey = i => `huachao-v2-s${i}`;
 const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money:50,cake:0,
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
 // 舊存檔補上新系統的欄位
-function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; return v; }
+function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; v.q2 ??= 0; return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -455,7 +455,7 @@ function who(id){
   if (id === 'npc:花婆婆') return HUAPO;
   if (id === 'me') return Object.assign(pc(), {me:true});
   if (id.startsWith('npc:')) return {n:id.slice(4), npc:true};
-  if (id === 'bai') return BAI;
+  if (id === 'bai') return S.flags.baiName ? {...BAI, n:'白溯光'} : BAI;
   if (id === 'gran') return GRAN;
   return BY[id] || null;
 }
@@ -534,7 +534,7 @@ async function say(id, text, face){
   const w = who(id);
   E.choices.innerHTML = ''; E.scrim.classList.remove('on'); E.box.classList.remove('wait');
   setSpeaker(w);
-  if (w && !w.me && !w.npc && !cgOn) show(w, {face, mystery: w.id === 'bai'});
+  if (w && !w.me && !w.npc && !cgOn) show(w, {face, mystery: w.id === 'bai' && !S.flags.baiName});
   E.more.hidden = true;
   await typeText(fmt(text));
   E.more.hidden = false;
@@ -587,6 +587,7 @@ function gain(k, v){
 }
 // 好感：越親近，越需要時間；日常相處每人每天最多 +3（事件與節慶不受此限）
 const AFF_DAY = 3;
+const EV_TOTAL = Object.values(EV).reduce((a, l) => a + l.length, 0);
 function aff(id, v, daily){
   if (v > 0 && S.house && BY[id] && BY[id].h === S.house && hasFx('bond')) v = Math.ceil(v * 1.2);
   const before = S.aff[id] || 0;
@@ -611,7 +612,10 @@ async function run(seq, ctx = {}){
     if (typeof op === 'string' && op[0] === '#'){
       switch (op){
         case '#scene': setScene(st[1]); await sleep(350); break;
-        case '#show': show(st[1] === 'me' ? pc() : who(st[1]), {mystery: !!st[2]}); await sleep(250); break;
+        case '#show': show(st[1] === 'me' ? pc() : who(st[1]), {mystery: !!st[2] && !S.flags.baiName}); await sleep(250); break;
+        case '#quest2': S.q2 = st[1]; hud(); E.quest.classList.remove('flash'); void E.quest.offsetWidth; E.quest.classList.add('flash'); toast('主線更新・鏡中來客', true); break;
+        case '#card': await card(`<span class="big">${st[1]}</span><span class="small">${st[2] || ''}</span>`, 2400); break;
+        case '#reveal': S.flags.baiName = true; show(null); await sleep(200); show(who('bai')); await sleep(400); toast('白衣人・白溯光', true); break;
         case '#hide': show(null); break;
         case '#quest': setQuest(st[1]); break;
         case '#note': note(st[1]); break;
@@ -643,7 +647,7 @@ function hud(){
     E.slot.textContent = `週${WEEK[(S.day - 1) % 7]}・${sk === 'festival' ? festName(S.day) : SLOT_NAME[sk]}`;
   }
   E.money.innerHTML = `靈石 <b>${S.money}</b>${S.house ? `・體力 <b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
-  if (S.house){ E.quest.hidden = false; E.quest.innerHTML = S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
+  if (S.house){ E.quest.hidden = false; E.quest.innerHTML = S.flags.ch1 && S.q2 >= 1 && !S.flags.ch2 ? `<b>鏡中來客</b><span>${QUESTS2[S.q2]}</span>` : S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
   else E.quest.hidden = true;
 }
 
@@ -656,7 +660,7 @@ function lifeGoal(){
   const sx = S.house && curSpell(S.house);
   if (sx) g.push(`術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
   if (S.stall.open){ const nx = TEA.LEVELS[stallLv() + 1]; if (nx) g.push(`茶攤：再 ${nx[0] - S.stall.rep} 名聲升為「${nx[1]}」`); g.push(`配方簿 ${S.known.length}/${TEA.RECIPES.length}`); }
-  const evs = Object.values(S.ev).reduce((a, b) => a + b, 0); g.push(`羈絆事件 ${evs}/48`);
+  const evs = Object.values(S.ev).reduce((a, b) => a + b, 0); g.push(`羈絆事件 ${evs}/${EV_TOTAL}`);
   return g[S.day % g.length];
 }
 
@@ -686,6 +690,7 @@ async function meetIfNew(c){
 function evState(c){
   const i = S.ev[c.id] || 0, e = EV[c.id][i];
   if (!e || (S.aff[c.id] || 0) < e.need || S.evDay[c.id] === S.day) return null;
+  if (i >= 4 && S.evDay[c.id] && S.day - S.evDay[c.id] < 7) return null;
   if (e.stat && S.stats[e.stat[0]] < e.stat[1]) return {e, i, locked:true};
   return {e, i};
 }
@@ -1111,7 +1116,7 @@ async function exam(){
 async function explore(prompt){
   setScene('學院地圖'); await sleep(300);
   const pid = await choose(prompt, PLACES.map(p => {
-    const hot = (p.id === 'star' && S.quest === 0) || (p.id === 'lake' && S.quest === 1 && S.day >= 7) || (p.id === 'lib' && S.quest === 2)
+    const hot = (p.id === 'vine' && S.q2 === 1) || (p.id === 'star' && S.q2 === 2) || (p.id === 'lib' && S.q2 === 4) || (p.id === 'star' && S.quest === 0) || (p.id === 'lake' && S.quest === 1 && S.day >= 7) || (p.id === 'lib' && S.quest === 2)
       || p.who.some(id => ready(BY[id]));
     return {label:p.n, sub: hot ? '✦ ' + p.desc : p.desc, hot, value:p.id};
   }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest'}]));
@@ -1119,6 +1124,9 @@ async function explore(prompt){
   const p = PLACES.find(x => x.id === pid);
   setScene(p.n); await sleep(300);
   if (p.id === 'star' && S.quest === 0){ await run(MAIN.star); S.met.jiang || (S.met.jiang = true); gain('bo', 2); return; }
+  if (p.id === 'vine' && S.q2 === 1){ await run(CH2.vine); return; }
+  if (p.id === 'star' && S.q2 === 2){ await run(CH2.star); gain('bo', 2); return; }
+  if (p.id === 'lib' && S.q2 === 4){ await run(CH2.lib); gain('bo', 2); return; }
   if (p.id === 'lib' && S.quest === 2){ S.met.lu = true; await run(MAIN.lib); gain('bo', 2); return; }
   if (p.id === 'lake'){
     gain('feng', 2); useHp(1); gather('lake');
@@ -1248,6 +1256,14 @@ async function storyBeat(d, slot){
   if (d === 6 && slot === 'outing' && !S.stall.open){ setScene('百靈市集'); await sleep(300); await openStall(); await market(true); return true; }
   if (d === 5 && slot === 'class'){ await run(MAIN.history); return true; }
   if (d === 22 && slot === 'class') await run(MAIN.letter);
+  if (S.flags.ch1 && d > 28){
+    if (S.q2 === 0 && d >= 31 && slot === 'rest') await run(CH2.open);
+    else if (S.q2 === 1 && d >= 38 && slot === 'rest') await run([['#scene','宿舍・夜'],['','夜裡，你又夢見了那面鏡子。醒過來時，你已經披著外衣，站在紫藤迴廊了。'], ...CH2.vine]);
+    else if (S.q2 === 2 && d >= 45 && slot === 'rest') await run([['#scene','宿舍・夜'],['','窗邊落下一隻紙鶴。'],['npc:紙鶴','「星圖有變。今夜，觀星閣。——江望舒」'], ...CH2.star]);
+    else if (S.q2 === 3 && d >= 50 && slot === 'class') await run(CH2.letter);
+    else if (S.q2 === 4 && d >= 62 && slot === 'rest') await run([['#scene','宿舍・夜'],['','有人敲門。門外是陸觀瀾，懷裡抱著一卷封著火漆的公文。'],['lu','跟我來。這件事，不能再等了。'], ...CH2.lib]);
+    else if (S.q2 === 5 && d >= 72 && slot === 'rest'){ await run(CH2.lake); await ch2End(); }
+  }
   if (slot === 'rest'){
     if (d >= 3 && d < 12 && S.quest === 0) await run(MAIN.starForced);
     if (d === 12 && S.quest === 1) await run(MAIN.lakeForced);
@@ -1288,6 +1304,12 @@ function askName(){
     if (FAST){ S.name = '沈若'; S.gender = Math.random() < .5 ? 'm' : 'f'; E.choices.innerHTML = ''; r(); }
   });
 }
+async function ch2End(){
+  S.flags.ch2 = true;
+  await card(`<span class="big">鏡中來客</span><span class="small">第二章・完</span><div class="sum">白溯光在鏡子的另一邊等著。<br>四院花鑰，分別藏在四座學院裡。<br><br>第三章「四院花鑰」製作中。<br>學院的日子，還會繼續。</div>`, 0);
+  note('第二章「鏡中來客」完。要找到四院花鑰，才能打開鏡中之門。');
+  hud();
+}
 async function chapterEnd(){
   const top = C.filter(c => S.met[c.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 3);
   const st = STAT_ORDER.slice().sort((a, b) => S.stats[b] - S.stats[a]);
@@ -1295,7 +1317,7 @@ async function chapterEnd(){
   await card(`<span class="big">無名花影</span><span class="small">第一章・完</span>
     <div class="sum">最親近的人：<b>${top.map(c => `${c.n}（${stageOf(S.aff[c.id] || 0)}）`).join('、') || '還沒有'}</b><br>
     最擅長：<b>${STATS[st[0]][0]} ${S.stats[st[0]]}</b>、<b>${STATS[st[1]][0]} ${S.stats[st[1]]}</b><br>
-    羈絆事件：<b>${evs} / 48</b><br><br>主線第二章「鏡中來客」製作中。<br>學院的日子，還會繼續。</div>`, 0);
+    羈絆事件：<b>${evs} / ${EV_TOTAL}</b><br><br>學院的日子，還會繼續。<br>主線第二章「鏡中來客」，將在下個月展開。</div>`, 0);
   S.flags.ch1 = true; note('第一章「無名花影」完。學院的日子還在繼續。');
   if (FAST) return true;
   while (true){
@@ -1327,10 +1349,10 @@ function openTab(t){
       const m = S.met[c.id], v = S.aff[c.id] || 0, n = S.ev[c.id] || 0;
       return `<div class="person ${m ? '' : 'unknown'}" style="--c:${HOUSES[c.h].color}"><img src="${ava(c.img)}" alt=""><div>
         <div class="nm">${m ? c.n : '？？？'}${m && ready(c) ? ' ✦' : ''}</div><div class="meta">${HOUSES[c.h].name}・${m ? c.role : '未認識'}</div>
-        <div class="bar"><i style="width:${v}%"></i></div>${m ? `<div class="evs">${'◆'.repeat(n)}${'◇'.repeat(4 - n)}</div>` : ''}</div>
+        <div class="bar"><i style="width:${v}%"></i></div>${m ? `<div class="evs">${'◆'.repeat(n)}${'◇'.repeat(EV[c.id].length - n)}</div>` : ''}</div>
         <span class="tag">${m ? stageOf(v) + ' ' + v : '—'}</span></div>`;
     }).join('');
-    h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">？？？</div><div class="meta">玉蘭院・${S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
+    h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">${S.flags.baiName ? '白溯光' : '？？？'}</div><div class="meta">玉蘭院・${S.flags.baiName ? '院師・在鏡子的另一邊' : S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
     const got = C.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]);
     h += `<h3>回憶</h3><p class="sub" style="margin:0;font-size:13px;color:var(--ink-soft)">完成第四段羈絆事件後解鎖。已收集 ${got.length} / 12</p><div class="gallery">` +
       C.map(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]
@@ -1527,7 +1549,7 @@ document.addEventListener('pointerdown', e => {
   if (b){ b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow'); setTimeout(() => b.classList.remove('glow'), 500); }
 }, true);
 window.__S = () => S;
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident};
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
