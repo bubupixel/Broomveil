@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-221732';</script>
+<script>window.GAME_VERSION = '20261110-222248';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -417,8 +417,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-221732"></script>
-<script src="story.js?v=20261110-221732"></script>
+<script src="audio.js?v=20261110-222248"></script>
+<script src="story.js?v=20261110-222248"></script>
 <script>
 (() => {
 const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -471,7 +471,7 @@ const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house : g + '0'}.jpg`}; };
 const HUAPO = {id:'huapo', n:'花婆婆', h:'yu', cut:'img/c15.webp'};
-const TOWNS = {'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17.webp'}};
+const TOWNS = {'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16_2.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17_2.webp'}};
 const teaImg = id => `img/tea_${id}.webp`, ingImg = k => `img/ing_${k}.webp`;
 function who(id){
   if (!id) return null;
