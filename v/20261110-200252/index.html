@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-192001';</script>
+<script>window.GAME_VERSION = '20261110-200252';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -72,13 +72,13 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .datebox{display:flex;flex-direction:column;color:#fbf2df;text-shadow:0 1px 8px rgba(0,0,0,.7);min-width:0}
 .datebox .d{font-size:19px;font-weight:700;letter-spacing:.1em;white-space:nowrap}
 .datebox .s{font-size:13px;letter-spacing:.25em;color:var(--gold-hi);margin-top:1px;white-space:nowrap}
-.hud .right{margin-left:auto;display:flex;align-items:center;gap:5px;flex:none}
+.hud .right{margin-left:auto;display:flex;align-items:center;gap:4px;flex:none}
 .coin{margin-left:12px;letter-spacing:.08em;color:#f4e5bd;font-variant-numeric:tabular-nums}
 .coin b{color:var(--gold-hi);font-weight:700}
 .saved{margin-left:10px;color:var(--gold-hi);letter-spacing:.12em;opacity:0;transition:opacity .5s}
 .saved.on{opacity:.95}
 #app.gaming .hud,#app.gaming .quest,#app.gaming .place,#app.gaming .dock{visibility:hidden}
-.icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+.icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
   background:radial-gradient(circle at 35% 30%,rgba(70,50,36,.75),rgba(20,14,10,.75));border:1px solid rgba(236,215,162,.65);
   color:#f6e7c3;font-size:15px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .icon:active{transform:scale(.94)}
@@ -244,6 +244,88 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .splash.ready .sp-start{visibility:visible;animation:breathe 2.4s ease-in-out infinite}
 @keyframes breathe{50%{opacity:.4}}
 .splash .sp-tip{font-size:14px;letter-spacing:.12em;color:rgba(241,227,195,.75);text-shadow:0 1px 6px rgba(0,0,0,.6);min-height:1.2em;text-align:center}
+
+/* tea stall panels */
+.coin b.low{color:#ff9f8a}
+.tpanel{position:absolute;inset:0;z-index:28;display:flex;align-items:flex-end;background:rgba(12,8,6,.45);animation:cardin .25s both}
+.tp-in{width:100%;max-height:88%;overflow-y:auto;overflow-x:hidden;background:var(--grain),var(--paper);border-top:1px solid var(--gold);border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.4);
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:sheet .3s ease both}
+.tp-in header{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.tp-in h3{margin:0;font-size:20px;letter-spacing:.15em}
+.coinline{margin-left:auto;font-size:13px;color:var(--ink-soft)}
+.coinline b{color:var(--house)}
+.muted{font-size:13px;color:var(--ink-soft);line-height:1.6;margin:4px 0 8px}
+.shop{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.shopitem{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;cursor:pointer;text-align:left;min-height:62px;position:relative}
+.shopitem i{position:absolute;right:8px;top:9px;width:10px;height:10px;border-radius:50%;background:var(--d);box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.shopitem .nm{font-size:15px;font-weight:700}
+.shopitem .pr,.shopitem .own{font-size:11.5px;color:var(--ink-soft)}
+.shopitem.on{border-color:var(--house);box-shadow:inset 0 0 0 2px var(--house);background:#fff6ee}
+.shopitem:disabled{opacity:.4;cursor:default}
+.tp-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+.hints{display:flex;flex-direction:column;gap:3px;margin-top:12px;font-size:13px;color:var(--ink-soft);line-height:1.55}
+.hints b{color:var(--ink);font-size:14px;margin-bottom:2px}
+.brew{display:flex;flex-direction:column}
+.brow{display:grid;grid-template-columns:1fr 38px 26px 38px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.brow .bi{min-width:0}
+.brow b{font-size:16px}
+.brow small{display:block;font-size:12px;color:var(--ink-soft);line-height:1.4}
+.pm{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:#fffdf7;font-size:18px;cursor:pointer}
+.pm:disabled{opacity:.3;cursor:default}
+.bn{text-align:center;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.invline{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;padding:3px 10px;border-radius:999px;background:#fffdf7;border:1px solid var(--line)}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--d,var(--gold))}
+.ups{margin-top:10px;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:rgba(255,253,247,.6)}
+.ups summary{cursor:pointer;font-weight:700;font-size:15px}
+.urow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.urow b{font-size:15px}
+.urow small{display:block;font-size:12px;color:var(--ink-soft)}
+.tag2{font-size:12.5px;color:var(--ink-soft);white-space:nowrap}
+.recipes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.rec{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;display:flex;flex-direction:column;gap:2px}
+.rec b{font-size:15px}
+.rec span{font-size:12.5px}
+.rec small{font-size:11.5px;color:var(--ink-soft);line-height:1.45}
+.rec.unk{background:transparent;border-style:dashed}
+/* serving */
+.serve{position:absolute;inset:0;z-index:26;display:flex;flex-direction:column;background:linear-gradient(rgba(14,10,8,.35),rgba(14,10,8,.15) 30%,rgba(14,10,8,.7));animation:cardin .3s both;
+  padding-top:max(12px,env(safe-area-inset-top,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.sv-head{display:flex;justify-content:space-between;align-items:baseline;color:#fbf2df;padding:8px 18px;font-size:14px;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.sv-head b{font-size:19px;letter-spacing:.2em;color:var(--gold-hi)}
+.sv-stage{flex:1;display:grid;place-items:center}
+.cust{display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;transform:translateY(16px)}
+.cust.in{opacity:1;transform:none;transition:all .35s ease}
+.cav{width:96px;height:96px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--c);border:3px solid #fbf6ea;box-shadow:0 8px 20px rgba(0,0,0,.45);color:#fff;font-size:40px;font-weight:700}
+.cav img{width:100%;height:100%;object-fit:cover}
+.bubble{position:relative;max-width:82%;padding:12px 18px;background:rgba(253,249,240,.95);border:1px solid var(--gold);border-radius:12px;text-align:center;font-size:17px;line-height:1.6;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.bubble small{display:block;font-size:12.5px;color:var(--ink-soft)}
+.bubble b{color:var(--house);margin:0 4px}
+.bubble em{display:block;font-style:normal;font-size:12.5px;color:#a33a35}
+.pat{width:180px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
+.pat i{display:block;height:100%;background:linear-gradient(90deg,#c25a2c,#f6dfa6)}
+.sv-msg{min-height:2.6em;margin:0 16px 8px;text-align:center;color:#fbf2df;font-size:15px;line-height:1.5;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.cups{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px}
+.cup{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;min-height:58px;border:1px solid var(--line);border-radius:8px;cursor:pointer;
+  background:var(--grain),linear-gradient(rgba(253,248,238,.95),rgba(241,230,208,.95));box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.cup b{font-size:14.5px}
+.cup small{font-size:11.5px;color:var(--ink-soft)}
+.cup:active{transform:translateY(1px)}
+.cups .muted{grid-column:1/-1;text-align:center;color:#f1e3c3}
+.choices button:disabled{opacity:.5;cursor:default}
+.sheet h3{margin:18px 0 4px;font-size:18px;letter-spacing:.15em}
+
+.spells{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.spell{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fffdf7;display:flex;flex-direction:column;gap:2px}
+.spell .sp-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.spell b{font-size:15.5px;letter-spacing:.08em}
+.spell small{font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+.spell small.fx{color:var(--house)}
+.spell.got{border-color:var(--house);background:linear-gradient(90deg,rgba(255,246,238,1),#fffdf7)}
+.spell.cur{box-shadow:inset 3px 0 0 var(--house)}
+.spell.lock{background:transparent;border-style:dashed;opacity:.75}
+.spell .bar{height:5px;margin-top:4px}
+.tag2.ok{color:var(--house);font-weight:700}
 @media (max-height:700px){.portrait{height:80%}.box{min-height:122px;padding:20px 18px 18px}.line{font-size:16.5px}.choices button{min-height:46px;padding:8px 14px 8px 18px}.place{font-size:22px}}
 @media (min-width:521px){#app{border-left:1px solid rgba(184,146,74,.25);border-right:1px solid rgba(184,146,74,.25)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -258,6 +340,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
   <header class="hud">
     <div class="datebox"><span class="d" id="date">花朝靈院</span><span class="s"><span id="slot">序章</span><span class="coin" id="money"></span><span class="saved" id="saved">已存檔</span></span></div>
     <div class="right">
+      <button class="icon" data-tab="tea" aria-label="花茶攤">茶</button>
       <button class="icon" data-tab="people" aria-label="人物">緣</button>
       <button class="icon" data-tab="stats" aria-label="能力">華</button>
       <button class="icon" data-tab="log" aria-label="日記">記</button>
@@ -288,11 +371,11 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-192001"></script>
-<script src="story.js?v=20261110-192001"></script>
+<script src="audio.js?v=20261110-200252"></script>
+<script src="story.js?v=20261110-200252"></script>
 <script>
 (() => {
-const {HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const FAST = location.hash === '#test';
 const LAST_DAY = 28;
@@ -307,8 +390,10 @@ const stageOf = v => { let s = '相識'; for (const [t, n] of STAGES) if (v >= t
 // ---------- state ----------
 const KEY = 'huachao-v2', BOOT = 'huachao-boot', SLOTS_N = 3;
 const slotKey = i => `huachao-v2-s${i}`;
-const fresh = () => ({v:2,name:'',gender:'',house:null,day:0,slot:0,money:50,cake:0,
+const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money:50,cake:0,
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
+// 舊存檔補上新系統的欄位
+function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -438,13 +523,14 @@ function choose(prompt, opts){
     opts.forEach((o, i) => {
       const b = document.createElement('button'); b.type = 'button'; b.id = 'opt-' + i;
       if (o.color) b.style.setProperty('--c', o.color);
+      if (o.disabled) b.disabled = true;
       if (o.img){ const im = document.createElement('img'); im.src = ava(o.img); im.alt = ''; b.appendChild(im); }
       const t = document.createElement('span'); t.className = 't'; t.textContent = fmt(o.label); b.appendChild(t);
       if (o.sub){ const s = document.createElement('span'); s.className = 'sub' + (o.hot ? ' hot' : ''); s.textContent = o.sub; b.appendChild(s); }
       b.onclick = () => { SND.sfx('choose'); E.choices.innerHTML = ''; E.scrim.classList.remove('on'); E.box.classList.remove('wait'); res(o.value); };
       E.choices.appendChild(b);
     });
-    if (FAST) setTimeout(() => { const bs = E.choices.querySelectorAll('button'); if (bs.length) pick([...bs]).click(); }, 0);
+    if (FAST) setTimeout(() => { const bs = [...E.choices.querySelectorAll('button:not([disabled])')]; if (bs.length) pick(bs).click(); }, 0);
   });
 }
 let toastT;
@@ -454,13 +540,14 @@ function card(html, ms = 2200){
     E.card.innerHTML = `<div class="inner">${html}</div>`; E.card.hidden = false; E.card.classList.remove('out');
     let done = false;
     const end = () => { if (done) return; done = true; E.card.classList.add('out'); setTimeout(() => { E.card.hidden = true; res(); }, FAST ? 0 : 550); };
-    E.card.onclick = end; if (ms) setTimeout(end, FAST ? 0 : ms);
+    E.card.onclick = end; if (ms || FAST) setTimeout(end, FAST ? 0 : ms);
   });
 }
 
 // ---------- effects ----------
 function gain(k, v){ S.stats[k] = Math.min(99, S.stats[k] + v); S.today.push(['s', k, v]); SND.sfx('gain'); }
 function aff(id, v){
+  if (v > 0 && S.house && BY[id] && BY[id].h === S.house && hasFx('bond')) v = Math.ceil(v * 1.2);
   const before = S.aff[id] || 0, after = Math.min(100, before + v);
   S.aff[id] = after; S.today.push(['a', id, v]); SND.sfx('aff');
   if (stageOf(after) !== stageOf(before)) toast(`${BY[id].n}・好感「${stageOf(after)}」`, true);
@@ -502,7 +589,7 @@ function hud(){
     E.date.textContent = `一年級・第${cn(S.day)}日`;
     E.slot.textContent = `週${WEEK[(S.day - 1) % 7]}・${SLOT_NAME[P[Math.min(S.slot, P.length - 1)]]}`;
   }
-  E.money.innerHTML = `靈石 <b>${S.money}</b>${S.cake ? `・花糕 <b>${S.cake}</b>` : ''}`;
+  E.money.innerHTML = `靈石 <b>${S.money}</b>${S.house ? `・體力 <b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
   if (S.house){ E.quest.hidden = false; E.quest.innerHTML = `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
   else E.quest.hidden = true;
 }
@@ -595,6 +682,271 @@ function minigame({title, n = 5, time = 9000, decoy = 0}){
   });
 }
 
+// ---------- 體力 ----------
+const hpMax = () => 10 + (S.stall.ups.chair ? 2 : 0) + fxN('hp');
+function useHp(n){ S.hp = Math.max(0, S.hp - n); hud(); }
+function addHp(n){ S.hp = Math.min(hpMax() + (S.hpBonus || 0), S.hp + n); hud(); }
+const canHp = n => S.hp >= n;
+const hpSub = (n, base) => canHp(n) ? `${base ? base + '・' : ''}體力 -${n}` : '體力不足';
+
+// ---------- 花茶攤 ----------
+const ING = TEA.ING, REC = Object.fromEntries(TEA.RECIPES.map(r => [r.id, r]));
+const ingName = k => ING[k].n;
+const needText = r => Object.entries(r.need).map(([k, v]) => ingName(k) + (v > 1 ? '×' + v : '')).join('＋');
+function gainIng(k, n){ S.inv[k] = (S.inv[k] || 0) + n; }
+const canMake = r => Object.entries(r.need).every(([k, v]) => (S.inv[k] || 0) >= v);
+const maxBatches = r => Math.min(...Object.entries(r.need).map(([k, v]) => Math.floor((S.inv[k] || 0) / v)));
+const stallLv = () => { let l = 0; TEA.LEVELS.forEach(([t], i) => { if (S.stall.rep >= t) l = i; }); return l; };
+const stallTitle = () => TEA.LEVELS[stallLv()][1];
+const cupsPerBatch = () => 3 + (S.stall.ups.ware ? 1 : 0) + fxN('batch');
+const upCost = u => Math.round(u.cost * (hasFx('cheap') ? .85 : 1));
+const cupCount = () => Object.values(S.cups).reduce((a, b) => a + b, 0);
+function gather(pid){
+  const got = [];
+  const ks = TEA.GATHER[pid] || [], extra = {};
+  for (let i = 0; i < fxN('gather') && ks.length; i++){ const k = pick(ks); extra[k] = (extra[k] || 0) + 1; }
+  for (const k of ks){ const n = 1 + (Math.random() < .5 ? 1 : 0) + (extra[k] || 0); gainIng(k, n); got.push(`${ingName(k)} ×${n}`); }
+  if (got.length && S.stall.open) toast('採到 ' + got.join('、'));
+  return got;
+}
+async function openStall(){
+  if (S.stall.open) return;
+  await run(TEA.INTRO);
+  S.stall.open = true;
+  for (const id of TEA.START.known) if (!S.known.includes(id)) S.known.push(id);
+  for (const [k, v] of Object.entries(TEA.START.inv)) gainIng(k, v);
+  toast('花茶攤開張！頂部「茶」可以查看配方與材料', true);
+}
+
+// 一個可以重用的浮層：用來泡茶準備、研發、買材料
+function panel(html, bind){
+  return new Promise(res => {
+    const el = document.createElement('div'); el.className = 'tpanel';
+    el.innerHTML = `<div class="tp-in">${html}</div>`;
+    E.app.appendChild(el); E.app.classList.add('gaming');
+    const done = v => { el.remove(); E.app.classList.remove('gaming'); res(v); };
+    bind(el, done);
+  });
+}
+const invChips = () => TEA.SHOP.filter(k => S.inv[k]).map(k => `<span class="chip" style="--d:${ING[k].color}">${ingName(k)} ${S.inv[k]}</span>`).join('') || '<span class="muted">（沒有材料）</span>';
+
+async function buyIngredients(){
+  if (FAST){ for (const k of ['cha','honey','rose']) if (S.money >= ING[k].price){ S.money -= ING[k].price; gainIng(k, ING[k].pack || 1); } hud(); return; }
+  await panel('', (el, done) => {
+    const draw = () => {
+      el.querySelector('.tp-in').innerHTML = `<header><h3>買材料</h3><span class="coinline">靈石 <b>${S.money}</b></span></header>
+        <div class="shop">${TEA.SHOP.map(k => `<button type="button" class="shopitem" data-k="${k}" ${S.money < ING[k].price ? 'disabled' : ''} style="--d:${ING[k].color}">
+          <i></i><span class="nm">${ingName(k)}${ING[k].pack ? ' ×' + ING[k].pack : ''}</span><span class="pr">${ING[k].price} 靈石</span><span class="own">有 ${S.inv[k] || 0}</span></button>`).join('')}</div>
+        <div class="tp-acts"><button type="button" class="act main" data-x="done">買好了</button></div>`;
+      el.querySelectorAll('.shopitem').forEach(b => b.onclick = () => { const k = b.dataset.k; if (S.money < ING[k].price) return; S.money -= ING[k].price; gainIng(k, ING[k].pack || 1); SND.sfx('tap'); hud(); draw(); });
+      el.querySelector('[data-x=done]').onclick = () => { SND.sfx('choose'); done(); };
+    };
+    draw();
+  });
+}
+
+async function research(){
+  // 選 1 至 5 份材料（同一種最多 2 份）試泡；配方要完全吻合才成功
+  const pickSet = await panel('', (el, done) => {
+    const sel = {};
+    if (FAST){ const r = TEA.RECIPES.find(r => !S.known.includes(r.id) && canMake(r)); return done(r ? {...r.need} : {cha:1}); }
+    const draw = () => {
+      const total = Object.values(sel).reduce((a, b) => a + b, 0);
+      const unknown = TEA.RECIPES.filter(r => !S.known.includes(r.id));
+      el.querySelector('.tp-in').innerHTML = `<header><h3>研發新配方</h3><span class="coinline">已選 ${total} 份</span></header>
+        <p class="muted">點選材料（再點一次加到兩份，第三次取消）。試泡會用掉材料；配方完全吻合才會成功。</p>
+        <div class="shop">${TEA.SHOP.map(k => `<button type="button" class="shopitem ${sel[k] ? 'on' : ''}" data-k="${k}" ${(S.inv[k] || 0) === 0 ? 'disabled' : ''} style="--d:${ING[k].color}">
+          <i></i><span class="nm">${ingName(k)}${sel[k] ? ' ×' + sel[k] : ''}</span><span class="own">有 ${S.inv[k] || 0}</span></button>`).join('')}</div>
+        <div class="hints"><b>配方簿上的線索</b>${unknown.length ? unknown.map(r => `<span>・${r.hint}</span>`).join('') : '<span>所有配方都已學會。</span>'}</div>
+        <div class="tp-acts"><button type="button" class="act" data-x="cancel">算了</button><button type="button" class="act main" data-x="go" ${total ? '' : 'disabled'}>試泡</button></div>`;
+      el.querySelectorAll('.shopitem').forEach(b => b.onclick = () => { const k = b.dataset.k, have = S.inv[k] || 0; const n = (sel[k] || 0) + 1; sel[k] = n > Math.min(2, have) ? 0 : n; if (!sel[k]) delete sel[k]; SND.sfx('tap'); draw(); });
+      el.querySelector('[data-x=cancel]').onclick = () => done(null);
+      el.querySelector('[data-x=go]').onclick = () => done({...sel});
+    };
+    draw();
+  });
+  if (!pickSet) return false;
+  for (const [k, v] of Object.entries(pickSet)) S.inv[k] = Math.max(0, (S.inv[k] || 0) - v);
+  const key = o => Object.keys(o).filter(k => o[k]).sort().map(k => k + o[k]).join(',');
+  const hit = TEA.RECIPES.find(r => key(r.need) === key(pickSet));
+  if (hit && !S.known.includes(hit.id)){
+    S.known.push(hit.id); gain('qiao', 3); SND.sfx('magic');
+    await say('', `茶湯的顏色慢慢變了，香氣滿了整個房間。你學會了「${hit.n}」！（${needText(hit)}，售價 ${hit.price} 靈石）`);
+    note(`研發出新配方「${hit.n}」。`);
+  } else if (hit){ gain('qiao', 1); await say('', `是「${hit.n}」的味道——這個你已經會了。至少泡得更熟練了。`); }
+  else { gain('qiao', 1); await say('', pick(['味道有點怪……你在小本子上記下這次的比例，下次再試。','茶湯苦得皺眉。看來這幾樣東西合不來。','香氣不錯，可惜入口就散了。還差一點什麼。'])); }
+  return true;
+}
+
+// 開攤：準備（泡哪幾種、泡幾份）→ 招待客人 → 結算
+const canBrew = () => cupCount() > 0 || S.known.some(id => maxBatches(REC[id]) > 0);
+async function runStall(night){
+  const prep = await panel('', (el, done) => {
+    const plan = {};
+    if (FAST){ for (const id of S.known){ const m = maxBatches(REC[id]); if (m) plan[id] = Math.min(m, 2); } return done(plan); }
+    const draw = () => {
+      const used = {};
+      for (const [id, n] of Object.entries(plan)) for (const [k, v] of Object.entries(REC[id].need)) used[k] = (used[k] || 0) + v * n;
+      const left = k => (S.inv[k] || 0) - (used[k] || 0);
+      const can = id => Object.entries(REC[id].need).every(([k, v]) => left(k) >= v);
+      const cups = Object.values(plan).reduce((a, b) => a + b, 0) * cupsPerBatch() + cupCount();
+      const lv = stallLv();
+      el.querySelector('.tp-in').innerHTML = `<header><h3>${night ? '夜市・' : ''}花茶攤</h3><span class="coinline">${stallTitle()}・名聲 ${S.stall.rep}</span></header>
+        <p class="muted">每份茶泡 ${cupsPerBatch()} 杯。今天大約會有 ${custCount(night)} 位客人。現有剩茶 ${cupCount()} 杯。</p>
+        <div class="brew">${S.known.map(id => { const r = REC[id], n = plan[id] || 0; return `<div class="brow">
+          <div class="bi"><b>${r.n}</b><small>${needText(r)}・${Math.round(r.price * priceMul())} 靈石${S.cups[id] ? `・剩 ${S.cups[id]} 杯` : ''}</small></div>
+          <button type="button" class="pm" data-id="${id}" data-d="-1" ${n ? '' : 'disabled'}>－</button><span class="bn">${n}</span>
+          <button type="button" class="pm" data-id="${id}" data-d="1" ${can(id) ? '' : 'disabled'}>＋</button></div>`; }).join('')}</div>
+        <div class="invline">${TEA.SHOP.filter(k => S.inv[k]).map(k => `<span class="chip" style="--d:${ING[k].color}">${ingName(k)} ${left(k)}</span>`).join('') || '<span class="muted">（沒有材料，可以先在市集買）</span>'}</div>
+        <details class="ups"><summary>攤位改良（靈石 ${S.money}）</summary>${TEA.UPS.map(u => `<div class="urow"><div><b>${u.n}</b><small>${u.d}</small></div>${S.stall.ups[u.id] ? '<span class="tag2">已擁有</span>' : `<button type="button" class="act" data-up="${u.id}" ${S.money < upCost(u) ? 'disabled' : ''}>${upCost(u)} 靈石</button>`}</div>`).join('')}</details>
+        <div class="tp-acts"><button type="button" class="act" data-x="cancel">今天不開了</button><button type="button" class="act main" data-x="go" ${cups ? '' : 'disabled'}>開攤（${cups} 杯）</button></div>`;
+      el.querySelectorAll('.pm').forEach(b => b.onclick = () => { const id = b.dataset.id; plan[id] = Math.max(0, (plan[id] || 0) + +b.dataset.d); SND.sfx('tap'); draw(); });
+      el.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const u = TEA.UPS.find(x => x.id === b.dataset.up); if (S.money < upCost(u)) return; S.money -= upCost(u); S.stall.ups[u.id] = true; SND.sfx('gain'); hud(); toast(`買下了「${u.n}」`); el.querySelector('details').open = true; draw(); el.querySelector('details').open = true; });
+      el.querySelector('[data-x=cancel]').onclick = () => done(null);
+      el.querySelector('[data-x=go]').onclick = () => done(plan);
+    };
+    draw();
+  });
+  if (!prep) return false;
+  for (const [id, n] of Object.entries(prep)){
+    if (!n) continue;
+    for (const [k, v] of Object.entries(REC[id].need)) S.inv[k] -= v * n;
+    S.cups[id] = (S.cups[id] || 0) + n * cupsPerBatch();
+  }
+  const res = await serve(night);
+  S.money += res.money; S.stall.earned += res.money; S.stall.sessions++;
+  const lv0 = stallLv(); S.stall.rep += res.rep; const lv1 = stallLv();
+  gain('feng', 1); gain('qiao', 1); hud();
+  await card(`<span class="big">收攤</span><span class="small">${night ? '夜市' : '百靈市集'}・${stallTitle()}</span>
+    <div class="sum">招待客人：<b>${res.served} / ${res.total}</b><br>收入：<b>${res.money} 靈石</b>（小費 ${res.tips}）<br>名聲：<b>+${res.rep}</b>（共 ${S.stall.rep}）${res.fans.length ? `<br>熟客：<b>${res.fans.join('、')}</b>` : ''}<br>剩下的茶：<b>${cupCount()} 杯</b>（可以在午膳送人）</div>`, 0);
+  if (lv1 > lv0){ toast(`花茶攤升級：「${stallTitle()}」！`, true); note(`花茶攤升級為「${stallTitle()}」。`); }
+  note(`開攤一次，收入 ${res.money} 靈石。`);
+  return true;
+}
+const priceMul = () => 1 + .1 * stallLv();
+const custCount = night => 5 + stallLv() + (S.stall.ups.sign ? 1 : 0) + (night ? -1 : 0);
+
+function serve(night){
+  return new Promise(resolve => {
+    const total = custCount(night), patience = 7000 + (S.stall.ups.shade ? 2000 : 0) + (hasFx('pat') ? 1500 : 0);
+    const g = document.createElement('div'); g.className = 'serve';
+    g.innerHTML = `<div class="sv-head"><b>${night ? '夜市' : '百靈市集'}・花茶攤</b><span id="svcount"></span></div>
+      <div class="sv-stage"><div class="cust" id="cust"><div class="cav" id="cav"></div><div class="bubble" id="bubble"></div><div class="pat"><i id="pat"></i></div></div></div>
+      <div class="sv-msg" id="svmsg">客人來了！點選客人想要的茶。</div><div class="cups" id="cups"></div>`;
+    E.app.appendChild(g); E.app.classList.add('gaming');
+    const fansAvail = C.filter(c => S.met[c.id]).sort(() => Math.random() - .5);
+    let i = 0, served = 0, money = 0, tips = 0, rep = 0, fans = [], cur = null, t0 = 0, raf = 0, busy = false;
+    const repMul = S.stall.ups.sign ? 1.2 : 1, tipMul = S.stall.ups.shelf ? 1.5 : 1;
+    const drawCups = () => {
+      const ids = S.known.filter(id => S.cups[id]);
+      g.querySelector('#cups').innerHTML = ids.map(id => `<button type="button" class="cup" data-id="${id}"><b>${REC[id].n}</b><small>${S.cups[id]} 杯</small></button>`).join('') || '<span class="muted">茶都賣完了</span>';
+      g.querySelectorAll('.cup').forEach(b => b.onclick = () => give(b.dataset.id));
+    };
+    const next = () => {
+      busy = false;
+      if (i >= total || cupCount() === 0){ return end(); }
+      i++; g.querySelector('#svcount').textContent = `客人 ${i} / ${total}`;
+      let who = null, order;
+      const inStock = S.known.filter(id => S.cups[id]);
+      if (fansAvail.length && Math.random() < .22){
+        const c = fansAvail.shift(); const favs = TEA.RECIPES.filter(r => r.fans.includes(c.id) && r.id !== 'four');
+        const fav = favs.find(r => S.cups[r.id]) || pick(favs);
+        who = {c, n:c.n}; order = fav.id;
+      } else {
+        who = {n:pick(TEA.NPC)};
+        order = Math.random() < .78 && inStock.length ? pick(inStock) : pick(TEA.RECIPES.filter(r => r.id !== 'four')).id;
+      }
+      cur = {who, order};
+      const cav = g.querySelector('#cav');
+      cav.innerHTML = who.c ? `<img src="${ava(who.c.img)}" alt="">` : `<span>${who.n.slice(-2, -1) || who.n[0]}</span>`;
+      cav.style.setProperty('--c', who.c ? HOUSES[who.c.h].color : '#7d6a58');
+      g.querySelector('#bubble').innerHTML = `<small>${who.n}</small>一杯<b>${REC[order].n}</b>${S.known.includes(order) ? '' : '<em>（你還不會泡）</em>'}`;
+      g.querySelector('#cust').classList.remove('in'); void g.offsetWidth; g.querySelector('#cust').classList.add('in');
+      drawCups(); t0 = performance.now(); tick();
+      if (FAST) setTimeout(() => S.cups[order] ? give(order) : give(Object.keys(S.cups).find(k => S.cups[k])), 0);
+    };
+    const tick = () => { cancelAnimationFrame(raf); const run = () => { const p = 1 - (performance.now() - t0) / patience; g.querySelector('#pat').style.width = Math.max(0, p * 100) + '%'; if (p <= 0) leave('客人等不及，走了。'); else raf = requestAnimationFrame(run); }; raf = requestAnimationFrame(run); };
+    const msg = t => g.querySelector('#svmsg').textContent = t;
+    const leave = t => { if (busy) return; busy = true; cancelAnimationFrame(raf); rep = Math.max(0, rep - 1); SND.sfx('wrong'); msg(t); setTimeout(next, FAST ? 0 : 900); };
+    const give = id => {
+      if (busy || !cur || !id || !S.cups[id]) return;
+      const p = Math.max(0, 1 - (performance.now() - t0) / patience), right = id === cur.order;
+      if (!right && Math.random() < .55) return leave(`「我想要的不是這個……」客人搖搖頭走了。`);
+      busy = true; cancelAnimationFrame(raf);
+      S.cups[id]--; served++;
+      const base = Math.round(REC[id].price * priceMul() * (right ? 1 : .7));
+      const tip = right ? Math.round(base * .4 * p * tipMul) : 0;
+      money += base + tip; tips += tip; rep += Math.round((right ? (p > .5 ? 3 : 2) : 1) * repMul);
+      SND.sfx(right ? 'gain' : 'tap');
+      if (right && cur.who.c){ const c = cur.who.c; aff(c.id, 6); fans.push(c.n); msg(`${c.n}：「${pick(TEA.FAN)}」　+${base + tip} 靈石`); }
+      else msg(right ? `「謝謝！好香。」　+${base}${tip ? ` ＋小費 ${tip}` : ''} 靈石` : `「好吧，就這杯。」　+${base} 靈石`);
+      drawCups(); setTimeout(next, FAST ? 0 : 1000);
+    };
+    const end = () => { cancelAnimationFrame(raf); setTimeout(() => { g.remove(); E.app.classList.remove('gaming'); resolve({total, served, money, tips, rep:Math.round(rep), fans}); }, FAST ? 0 : 500); };
+    setTimeout(next, FAST ? 0 : 500);
+  });
+}
+
+async function giftMenu(c){
+  const opts = [];
+  if (S.cake) opts.push({label:'花糕', sub:`剩 ${S.cake}`, value:'cake'});
+  for (const id of S.known) if (S.cups[id]) opts.push({label:REC[id].n, sub:`剩 ${S.cups[id]} 杯`, value:id});
+  if (!opts.length) return;
+  opts.push({label:'不送了', value:null});
+  const g = await choose(`要送點什麼給${c.n}嗎？`, opts);
+  if (!g) return;
+  if (g === 'cake'){ S.cake--; aff(c.id, 8); hud(); await say(c.id, '……給我的？謝謝。我會好好吃完的。', 'happy'); return; }
+  S.cups[g]--;
+  if (REC[g].fans.includes(c.id)){ aff(c.id, 10); await say(c.id, `這是……${REC[g].n}？我最喜歡這個了。`, 'happy'); }
+  else { aff(c.id, 4); await say(c.id, '是你泡的茶？謝謝，我會慢慢喝。'); }
+}
+
+
+// ---------- 咒術修習 ----------
+const SPELL = {};
+for (const L of [...Object.values(MAGIC.HOUSE), ...Object.values(MAGIC.SHARED)]) for (const x of L) SPELL[x.id] = x;
+const fxN = fx => (S.spells || []).filter(id => SPELL[id] && SPELL[id].fx === fx).length;
+const hasFx = fx => fxN(fx) > 0;
+const lineOf = key => MAGIC.HOUSE[key] || MAGIC.SHARED[key] || [];
+const curSpell = key => lineOf(key).find(x => !S.spells.includes(x.id));
+const spellStat = x => x.stat || HOUSES[S.house].stat;
+const spellReady = x => x && (S.mag[x.id] || 0) >= x.need && S.stats[spellStat(x)] >= x.req;
+async function learnSpell(x){
+  S.spells.push(x.id); SND.sfx('magic');
+  await card(`<span class="small">習得咒術・第${cn(x.tier || S.spells.length)}層</span><span class="big">${x.n}</span><span class="small">${MAGIC.FX[x.fx]}</span>`, 2600);
+  await say('', x.learn);
+  note(`習得咒術「${x.n}」。`);
+  gain(spellStat(x), 2);
+}
+async function practise(key, pts){
+  const x = curSpell(key); if (!x) return;
+  if (!Object.keys(S.mag).length && MAGIC.HOUSE[key]){
+    await say('', `講師發給每位新生一本薄薄的《${HOUSES[S.house].name}術譜》。一共六層，每一層一道咒語。`);
+    await say('npc:講師', '咒語不是背出來的。練得夠熟、底子也夠厚，它自然會回應你。');
+  }
+  const m = S.mag[x.id] = Math.min(x.need, (S.mag[x.id] || 0) + pts);
+  if (m < x.need) return toast(`「${x.n}」熟練 ${m} / ${x.need}`);
+  if (!spellReady(x)) return toast(`「${x.n}」已練熟，${STATS[spellStat(x)][0]}還差 ${x.req - S.stats[spellStat(x)]} 才能施展`);
+  await learnSpell(x);
+}
+async function checkSpells(){
+  if (!S.house) return;
+  for (const key of [S.house, 'herb', 'craft']){ const x = curSpell(key); if (spellReady(x)) await learnSpell(x); }
+}
+function spellBook(){
+  if (!S.house) return '';
+  const row = (x, cur) => {
+    const got = S.spells.includes(x.id), m = S.mag[x.id] || 0, st = spellStat(x);
+    const state = got ? '<span class="tag2 ok">已習得</span>' : cur ? `<span class="tag2">熟練 ${m}/${x.need}</span>` : '<span class="tag2">未解鎖</span>';
+    return `<div class="spell ${got ? 'got' : cur ? 'cur' : 'lock'}"><div class="sp-t"><b>${got || cur ? x.n : '？？？'}</b>${state}</div>
+      ${got || cur ? `<small>${x.d}</small>` : ''}<small class="fx">${MAGIC.FX[x.fx]}${x.req ? `・需${STATS[st][0]} ${x.req}` : ''}</small>
+      ${cur ? `<div class="bar"><i style="width:${m / x.need * 100}%"></i></div>` : ''}</div>`;
+  };
+  const line = (key, title) => { const c = curSpell(key); return `<h3>${title}</h3><div class="spells">${lineOf(key).map(x => row(x, x === c)).join('')}</div>`; };
+  return `<p class="muted" style="margin-top:14px">上課和晚上自修都會累積熟練。熟練滿了、能力也達標，就能習得咒語，解鎖下一層。</p>`
+    + line(S.house, `《${HOUSES[S.house].name}術譜》`) + line('herb', '藥草學・共修') + line('craft', '器物製作・共修');
+}
+
 // ---------- slots ----------
 async function opening(){
   setScene('花朝正殿');
@@ -618,15 +970,21 @@ async function cls(){
   else { const H = HOUSES[S.house]; text = CLASS_TEXT[S.house]; stat = H.stat; scene = H.name; title = H.cls; }
   setScene(scene); await sleep(300);
   await say('', text);
-  const r = await minigame({title});
-  gain(stat, r.score);
+  const tired = !canHp(3); useHp(3);
+  if (tired) await say('', '你累得連手都抬不太起來，只能勉強跟上。（體力不足，今天的收穫減半）');
+  const r = await minigame({title, time:9000 + (hasFx('time') ? 2000 : 0)});
+  if (tired) r.score = Math.max(1, Math.floor(r.score / 2));
+  const bonus = hasFx('cls') ? 1 : 0;
+  r.score += bonus; gain(stat, r.score);
   await say('', r.full ? `完成！${STATS[stat][0]} +${r.score}。` : `差一點就完成了。${STATS[stat][0]} +${r.score}。`);
+  await practise(w === 1 ? 'herb' : w === 3 ? 'craft' : S.house, r.score + (r.full ? 2 : 0));
 }
 async function exam(){
   setScene('課室'); await sleep(300);
   await say('', '今天是入學後的第一次月考。四院的新生坐滿了課室，連呼吸聲都聽得見。');
   await say('npc:監考講師', '七片花瓣，十一息之內，依次點亮。碰到灰色的，算錯。開始。');
-  const r = await minigame({title:'月考', n:7, time:11000, decoy:2});
+  useHp(3);
+  const r = await minigame({title:'月考', n:7, time:11000 + (hasFx('time') ? 2000 : 0), decoy:2});
   const grade = r.full && r.score >= 6 ? '甲' : r.full ? '乙' : r.next >= 4 ? '丙' : '丁';
   const prize = {甲:60, 乙:40, 丙:20, 丁:10}[grade];
   S.money += prize; gain(HOUSES[S.house].stat, r.score + 1); hud();
@@ -640,33 +998,51 @@ async function explore(prompt){
     const hot = (p.id === 'star' && S.quest === 0) || (p.id === 'lake' && S.quest === 1 && S.day >= 7) || (p.id === 'lib' && S.quest === 2)
       || p.who.some(id => ready(BY[id]));
     return {label:p.n, sub: hot ? '✦ ' + p.desc : p.desc, hot, value:p.id};
-  }));
+  }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest'}]));
+  if (pid === 'rest'){ setScene('宿舍・晨'); await sleep(300); addHp(3); await say('', pick(['你回到宿舍，泡了一壺茶，靠著窗小睡了一會兒。','你在床上躺了一下午。醒來時，覺得整個人輕了許多。'])); return; }
   const p = PLACES.find(x => x.id === pid);
   setScene(p.n); await sleep(300);
   if (p.id === 'star' && S.quest === 0){ await run(MAIN.star); S.met.jiang || (S.met.jiang = true); gain('bo', 2); return; }
   if (p.id === 'lib' && S.quest === 2){ S.met.lu = true; await run(MAIN.lib); gain('bo', 2); return; }
   if (p.id === 'lake'){
-    gain('feng', 2);
+    gain('feng', 2); useHp(1); gather('lake');
     if (S.quest === 1 && S.day >= 7){ await run(MAIN.lake); return; }
     await say('', pick(['湖邊的風帶著花香。你坐在石欄上，畫了一張速寫。','湖心小亭的倒影，被一尾錦鯉攪碎，又慢慢拼了回去。','你沿著湖岸走了一圈。柳枝拂過肩頭，像有人在輕輕拍你。']));
     return;
   }
-  if (p.id === 'market'){
-    gain('qiao', 1);
-    const buy = await choose(`市集熱鬧非常。花糕一份 20 靈石（你有 ${S.money}）。花糕可以在午膳時送人。`, [{label:'買一份花糕', sub:'-20 靈石', value:1},{label:'只是逛逛', value:0}]);
-    if (buy){ if (S.money >= 20){ S.money -= 20; S.cake++; hud(); await say('', '你買了一份還溫熱的花糕，用油紙包好。'); } else await say('', '靈石不夠。也許可以在晚上縫些香囊來賣。'); }
-    else await say('', '你在攤位間逛了一圈，學會了幾種新的編結手法。');
-    return;
-  }
+  if (p.id === 'market'){ await market(); return; }
   const opts = p.who.map(id => charOpt(BY[id]));
-  opts.push({label:'四處看看', sub:`${STATS[p.stat][0]} +2`, value:null});
-  const id = await choose(`${p.n}。要找誰？`, opts);
-  if (!id){ gain(p.stat, 2); await say('', LOOK[p.id]); return; }
+  opts.forEach(o => { if (!canHp(2)){ o.disabled = true; o.sub = '體力不足'; } });
+  const mats = (TEA.GATHER[p.id] || []).map(ingName).join('、');
+  opts.push({label:'四處看看', sub: canHp(2) ? `${STATS[p.stat][0]} +2${S.stall.open && mats ? '・採' + mats : ''}・體力 -2` : '體力不足', value:'look', disabled:!canHp(2)});
+  opts.push({label:'離開', value:null});
+  const id = await choose(`${p.n}。要做什麼？`, opts);
+  if (!id){ await say('', '你在附近走了走，就回去了。'); return; }
+  useHp(2);
+  if (id === 'look'){ gain(p.stat, 2); await say('', LOOK[p.id]); gather(p.id); return; }
   gain(p.stat, 1);
   await meet(BY[id], 'meet');
 }
+async function market(justOpened){
+  setScene('百靈市集'); await sleep(200);
+  if (!S.stall.open){ await openStall(); justOpened = true; }
+  while (true){
+    const opts = [
+      {label:'開花茶攤', sub:canBrew() ? hpSub(4, '賺靈石・名聲') : '沒有茶材，先買材料', value:'stall', disabled:!canHp(4) || !canBrew()},
+      {label:'買茶材', sub:`靈石 ${S.money}`, value:'buy'},
+      {label:'買一份花糕', sub:'-20 靈石・午膳送人', value:'cake', disabled:S.money < 20},
+      {label:'離開市集', value:null}];
+    const v = await choose(justOpened ? '要不要現在就試試開攤？' : '百靈市集熱鬧非常。要做什麼？', opts);
+    justOpened = false;
+    if (v === 'buy'){ await buyIngredients(); continue; }
+    if (v === 'cake'){ S.money -= 20; S.cake++; hud(); await say('', '你買了一份還溫熱的花糕，用油紙包好。'); continue; }
+    if (v === 'stall'){ setScene('花茶攤'); await sleep(300); if (await runStall(false)){ useHp(4); return; } setScene('百靈市集'); continue; }
+    gain('qiao', 1); await say('', '你在攤位間逛了一圈，記下了幾種新茶的名字。'); return;
+  }
+}
 async function lunch(){
   setScene('膳堂'); await sleep(300);
+  addHp(3);
   const met = C.filter(c => S.met[c.id]);
   const hot = met.filter(ready).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0));
   const pool = [...new Set([...hot.slice(0, 2), ...C.slice().sort(() => Math.random() - .5)])].slice(0, 3);
@@ -674,28 +1050,41 @@ async function lunch(){
   if (!id){ gain('feng', 2); await say('', pick(['你獨自看著窗外的花，慢慢吃完一頓飯。','你一邊吃，一邊在小本子上寫下今天想做的事。'])); return; }
   const c = BY[id];
   await meet(c, 'lunch');
-  if (S.cake){
-    const g = await choose(`要把花糕送給${c.n}嗎？`, [{label:'送出花糕', sub:'好感提升', value:1},{label:'先留著', value:0}]);
-    if (g){ S.cake--; aff(id, 8); hud(); await say(id, '……給我的？謝謝。我會好好吃完的。', 'happy'); }
-  }
+  await giftMenu(c);
 }
 async function dinner(){
   setScene('晚膳'); await sleep(300);
   const ok = C.filter(c => (S.aff[c.id] || 0) >= 20).sort((a, b) => (ready(b) - ready(a)) || ((S.aff[b.id] || 0) - (S.aff[a.id] || 0))).slice(0, 4);
   const id = await choose(ok.length ? '傍晚的燈籠亮起來了。要邀請誰共進晚膳？' : '傍晚的燈籠亮起來了。（好感達到「熟絡」，就可以邀請對方晚膳）',
-    [...ok.map(charOpt), {label:'和同院同學一起吃', sub:'同院好感 +2', value:null}]);
+    [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感 +2・體力 +2', value:null}]);
   if (!id){
-    C.filter(c => c.h === S.house && S.met[c.id]).forEach(c => aff(c.id, 2));
+    C.filter(c => c.h === S.house && S.met[c.id]).forEach(c => aff(c.id, 2)); addHp(2);
     await say('', `${HOUSES[S.house].name}的長桌上很熱鬧，大家在聊下週的課。`); return;
   }
+  useHp(2);
   setScene('花月湖・夜'); await sleep(300);
   await meet(BY[id], 'date');
 }
 async function free(){
   setScene('宿舍・夜'); await sleep(300);
-  const f = await choose('晚上的自由時間。要做什麼？', FREE.map(x => ({label:x.n, sub:`${STATS[x.k][0]} +2${x.money ? `・靈石 +${x.money}` : ''}`, value:x})));
-  gain(f.k, 2); if (f.money){ S.money += f.money; hud(); }
-  await say('', f.t);
+  while (true){
+    const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]} +2${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2)}));
+    if (S.stall.open){
+      opts.unshift({label:'研發新配方', sub:hpSub(2, '巧藝'), value:'research', disabled:!canHp(2)});
+      opts.unshift({label:'擺夜攤', sub:canBrew() ? hpSub(3, '賺靈石・名聲') : '沒有茶材', value:'night', disabled:!canHp(3) || !canBrew()});
+    }
+    const sk = S.house && [S.house, 'herb', 'craft'].find(k => curSpell(k)), sx = sk && curSpell(sk);
+    if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2)});
+    opts.push({label:'早點休息', sub:'明天體力 +3', value:'sleep'});
+    const f = await choose('晚上的自由時間。要做什麼？', opts);
+    if (f === 'sleep'){ S.hpBonus = 3; await say('', '你早早熄了燈。窗外的蟲聲，很快就把你送進夢裡。'); return; }
+    if (f === 'study'){ useHp(2); await say('', pick(['你在燈下翻開術譜，一遍又一遍地練習手勢。','你對著窗外的月光，輕聲默念咒文。','宿舍裡很安靜。你閉上眼，把靈力在掌心繞了一圈又一圈。']));
+      const r = await minigame({title:'自修・' + sx.n, n:4, time:8000 + (hasFx('time') ? 2000 : 0)}); gain(spellStat(sx), 1); await practise(sk, r.score + (r.full ? 1 : 0)); return; }
+    if (f === 'research'){ useHp(2); if (await research()) return; addHp(2); continue; }
+    if (f === 'night'){ setScene('夜市・花茶攤'); await sleep(300); if (await runStall(true)){ useHp(3); return; } setScene('宿舍・夜'); continue; }
+    useHp(2); gain(f.k, 2); if (f.money){ S.money += f.money; hud(); }
+    await say('', f.t); return;
+  }
 }
 async function rest(){
   setScene('宿舍・夜'); await sleep(300);
@@ -703,7 +1092,8 @@ async function rest(){
   for (const [t, k, v] of S.today){ if (t === 's') st[k] = (st[k] || 0) + v; else af[k] = (af[k] || 0) + v; }
   const parts = [...Object.entries(st).map(([k, v]) => `${STATS[k][0]} +${v}`), ...Object.entries(af).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${BY[k].n} +${v}`)];
   await say('', parts.length ? `第${cn(S.day)}日結束。${parts.join('、')}。` : `第${cn(S.day)}日結束。平靜的一天。`);
-  S.today = [];
+  S.today = []; S.hp = hpMax() + (S.hpBonus || 0) + fxN('rest'); S.hpBonus = 0;
+  await checkSpells();
 }
 async function festival(){
   setScene('花朝節'); await sleep(400);
@@ -734,6 +1124,7 @@ async function festival(){
   }
 }
 async function storyBeat(d, slot){
+  if (d === 6 && slot === 'outing' && !S.stall.open){ setScene('百靈市集'); await sleep(300); await openStall(); await market(true); return true; }
   if (d === 5 && slot === 'class'){ await run(MAIN.history); return true; }
   if (d === 22 && slot === 'class') await run(MAIN.letter);
   if (slot === 'rest'){
@@ -800,6 +1191,7 @@ function hexSVG(){
 function openTab(t){
   SND.sfx('page');
   if (t === 'save') return saveSheet();
+  if (t === 'tea') return teaSheet();
   let h = '';
   if (t === 'people'){
     h = `<header><h2>人物</h2><span class="sub">✦ 表示有話想說</span><button class="close" type="button">返回</button></header>`;
@@ -818,7 +1210,7 @@ function openTab(t){
         : `<button type="button" class="lock" disabled>未解鎖</button>`).join('') + '</div>';
   } else if (t === 'stats'){
     h = `<header><h2>${S.name || '能力'}</h2><span class="sub">${S.gender === 'm' ? '男' : S.gender === 'f' ? '女' : ''}${S.house ? '・' + HOUSES[S.house].name : ''}</span><button class="close" type="button">返回</button></header>` + hexSVG();
-    h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('');
+    h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook();
   } else {
     h = `<header><h2>日記</h2><button class="close" type="button">返回</button></header><ul class="log">` +
       (S.log.length ? S.log.map(l => `<li><b>${l.d ? '第' + cn(l.d) + '日' : '序章'}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>';
@@ -831,6 +1223,24 @@ function openTab(t){
     v.innerHTML = `<span>${c.n}・${EV[c.id][3].title}</span>`; v.onclick = () => v.remove();
     E.app.appendChild(v); SND.sfx('page');
   });
+}
+function teaSheet(){
+  SND.sfx('page');
+  let h = `<header><h2>花茶攤</h2><span class="sub">${S.stall.open ? stallTitle() : '未開張'}</span><button class="close" type="button">返回</button></header>`;
+  if (!S.stall.open){ h += '<p class="note">在百靈市集找到空攤位之後，就可以開自己的花茶攤。第六日（週六）上午去市集看看吧。</p>'; }
+  else {
+    const lv = stallLv(), nextT = (TEA.LEVELS[lv + 1] || [])[0];
+    h += `<div class="stat"><span class="k">名聲<small>${stallTitle()}</small></span><div class="bar"><i style="width:${nextT ? Math.min(100, (S.stall.rep - TEA.LEVELS[lv][0]) / (nextT - TEA.LEVELS[lv][0]) * 100) : 100}%;background:var(--house)"></i></div><span class="v">${S.stall.rep}</span></div>
+      <p class="note" style="margin-top:2px">${nextT ? `再 ${nextT - S.stall.rep} 名聲升為「${TEA.LEVELS[lv + 1][1]}」。` : '已經是花朝第一茶攤！'}開攤 ${S.stall.sessions} 次，共賺 ${S.stall.earned} 靈石。售價加成 ${Math.round((priceMul() - 1) * 100)}%。</p>
+      <h3>材料</h3><div class="invline">${invChips()}</div>
+      <h3>剩茶（可在午膳送人）</h3><div class="invline">${S.known.filter(id => S.cups[id]).map(id => `<span class="chip">${REC[id].n} ${S.cups[id]}</span>`).join('') || '<span class="muted">（沒有）</span>'}</div>
+      <h3>配方簿 ${S.known.length} / ${TEA.RECIPES.length}</h3><div class="recipes">${TEA.RECIPES.map(r => S.known.includes(r.id)
+        ? `<div class="rec"><b>${r.n}</b><span>${needText(r)}</span><small>${r.price} 靈石${r.fans.filter(f => S.met[f]).length ? '・' + (r.fans.length > 6 ? '人人都愛' : r.fans.filter(f => S.met[f]).map(f => BY[f].n).join('、') + ' 喜歡') : ''}</small></div>`
+        : `<div class="rec unk"><b>？？？</b><small>${r.hint}</small></div>`).join('')}</div>
+      <h3>攤位改良</h3>${TEA.UPS.map(u => `<div class="urow"><div><b>${u.n}</b><small>${u.d}</small></div><span class="tag2">${S.stall.ups[u.id] ? '已擁有' : upCost(u) + ' 靈石'}</span></div>`).join('')}
+      <p class="note">改良可以在開攤準備時購買。</p>`;
+  }
+  E.sheet.innerHTML = h; E.sheet.hidden = false; E.sheet.scrollTop = 0; bindClose();
 }
 let onSheetClose = null;
 function bindClose(){
@@ -956,7 +1366,7 @@ async function main(){
   const boot = readRaw(BOOT);
   if (boot){
     store(BOOT, null);
-    try { const v = JSON.parse(boot); if (valid(v)){ S = v; hud(); toast('已讀取存檔'); loop(); return; } } catch (e) {}
+    try { const v = JSON.parse(boot); if (valid(v)){ S = migrate(v); hud(); toast('已讀取存檔'); loop(); return; } } catch (e) {}
   }
   setScene('花朝正殿'); hud();
   const auto = readSave(KEY);
@@ -966,7 +1376,7 @@ async function main(){
     if (auto) opts.push({label:'繼續', sub: describe(auto).replace(/^[^・]+・/, ''), value:'go'});
     opts.push({label:'讀取存檔', value:'load'}, {label:'新的入學', value:'new'});
     const v = await choose(auto ? `歡迎回來，${auto.name}。` : '歡迎回來。', opts);
-    if (v === 'go'){ S = auto; hud(); break; }
+    if (v === 'go'){ S = migrate(auto); hud(); break; }
     if (v === 'load'){ CK = null; saveSheet(); await new Promise(r => onSheetClose = r); continue; }
     if (auto){
       const ok = await choose('開始新的入學後，自動存檔會被新進度取代。手動存檔會保留。', [{label:'開始新的入學', value:1},{label:'返回', value:0}]);
@@ -977,6 +1387,7 @@ async function main(){
   hud(); loop();
 }
 window.__S = () => S;
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
