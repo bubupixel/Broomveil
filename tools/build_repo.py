@@ -134,7 +134,7 @@ launcher = '''<!doctype html>
 <link rel="manifest" href="manifest.json">
 <style>
 html,body{height:100%;margin:0;background:#1f1a3e}
-body{background:#1f1a3e url("img/title_v2.jpg") center top / cover no-repeat;color:#f1e3c3;font:14px "Kaiti TC","STKaiti",serif}
+body{background:#1f1a3e url("img/title_v3.jpg") center top / cover no-repeat;color:#f1e3c3;font:14px "Kaiti TC","STKaiti",serif}
 p{position:fixed;left:0;right:0;bottom:calc(15vh + env(safe-area-inset-bottom,0px));margin:0;text-align:center;letter-spacing:.4em}
 </style>
 </head>

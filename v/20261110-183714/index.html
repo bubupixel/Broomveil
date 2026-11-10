@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-183248';</script>
+<script>window.GAME_VERSION = '20261110-183714';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -227,7 +227,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
 .splash{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:14px;cursor:default;
-  background:#1f1a3e url("img/title_v2.jpg") center top / cover no-repeat;padding-bottom:calc(4.5vh + env(safe-area-inset-bottom,0px));transition:opacity .7s ease}
+  background:#1f1a3e url("img/title_v3.jpg") center top / cover no-repeat;padding-bottom:calc(4.5vh + env(safe-area-inset-bottom,0px));transition:opacity .7s ease}
 .splash.out{opacity:0;pointer-events:none}
 .splash .sp-load{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(320px,76%)}
 .splash .sp-bar{position:relative;width:100%;height:14px;padding:2px;border-radius:999px;
@@ -288,8 +288,8 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-183248"></script>
-<script src="story.js?v=20261110-183248"></script>
+<script src="audio.js?v=20261110-183714"></script>
+<script src="story.js?v=20261110-183714"></script>
 <script>
 (() => {
 const {HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -975,7 +975,7 @@ window.__S = () => S;
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
-  const core = ['img/title_v2.jpg', ...['bg_town','bg_tea','bg_yard','bg_room','bg_path','bg_hall','bg_dorm_day'].map(imgURL), 'img/mc0.jpg', 'img/fc0.jpg', GRAN.cut];
+  const core = ['img/title_v3.jpg', ...['bg_town','bg_tea','bg_yard','bg_room','bg_path','bg_hall','bg_dorm_day'].map(imgURL), 'img/mc0.jpg', 'img/fc0.jpg', GRAN.cut];
   const all = new Set([...Object.values(SCENE_IMG).map(imgURL), ...C.map(c => c.cut), BAI.cut,
     ...Object.values(FACES).flatMap(f => Object.values(f)), ...Object.values(CG),
     ...Array.from({length:13}, (_, i) => ava(i + 1)),
