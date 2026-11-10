@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-211724';</script>
+<script>window.GAME_VERSION = '20261110-212703';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -395,11 +395,11 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-211724"></script>
-<script src="story.js?v=20261110-211724"></script>
+<script src="audio.js?v=20261110-212703"></script>
+<script src="story.js?v=20261110-212703"></script>
 <script>
 (() => {
-const {QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 const BY = Object.fromEntries(C.map(c => [c.id, c]));
 const FAST = location.hash.startsWith('#test');
 const TEST_END = location.hash === '#test2' ? 112 : 28;
@@ -1068,17 +1068,32 @@ async function incident(pid){
 
 // ---------- slots ----------
 async function opening(){
-  setScene('花朝正殿');
-  await say('', '花間有靈，萬象皆奇。');
-  await say('', '開學第一日，你站在花朝正殿前。四院的旗幟在風中翻飛，只有一面月白色的旗，始終低垂。');
-  const h = await choose('分院典禮開始了。你走向哪一院的花台？', ['fei','yuan','ling','zi'].map(k => ({label:HOUSES[k].name, sub:HOUSES[k].magic, color:HOUSES[k].color, value:k})));
+  await run(SORT.intro);
+  const score = {fei:0, yuan:0, ling:0, zi:0}; let last = null;
+  for (let i = 0; i < SORT.qs.length; i++){
+    const Q = SORT.qs[i];
+    const opts = Object.entries(Q.o).map(([k, t]) => ({label:t, value:k})).sort(() => Math.random() - .5);
+    const k = await choose(`（${cn(i + 1)}／十）${Q.q}`, opts);
+    score[k] += i === SORT.qs.length - 1 ? 1.5 : 1; last = k;
+    if (!FAST) toast(SORT.glow[k]);
+  }
+  const best = Math.max(...Object.values(score));
+  const tied = Object.keys(score).filter(k => score[k] === best);
+  const h = tied.includes(last) ? last : pick(tied);
+  S.sortScore = score;
+  await say('npc:問花台', '……我聽見了。');
+  await say('', '古樹的四個花苞同時亮了起來。紅、藍、綠、紫的光，在大殿裡交錯，最後，只剩下一種顏色。');
+  await say('', SORT.verdict[h][0]);
+  await say('npc:問花台', SORT.verdict[h][1]);
+  await run(SORT.after);
   S.house = h; hud();
   gain(HOUSES[h].stat, 4);
-  note(`入學，分入${HOUSES[h].name}。`);
+  await card(`<span class="small">問花禮</span><span class="big">${HOUSES[h].name}</span><span class="small">${HOUSES[h].magic}</span>`, 2600);
+  note(`在問花台前回答了十個問題，被分入${HOUSES[h].name}。`);
   setScene(HOUSES[h].name); await sleep(300);
   show(pc());
   await say('', `${HOUSES[h].flower}花瓣落在你肩上。從今天起，${S.name}，你是${HOUSES[h].name}的學生。`);
-  await say('', `你脫下從雲溪鎮穿來的布衣，換上了${HOUSES[h].name}的院服。`);
+  await say('', `你脫下從雲溪鎮穿來的布衣，換上了${HOUSES[h].name}的院服。布衣疊好收進包袱裡，還留著外婆茶館的味道。`);
   for (const c of C.filter(c => c.h === h)){ show(c); await meetIfNew(c); aff(c.id, 5); }
 }
 async function cls(){
@@ -1549,7 +1564,7 @@ document.addEventListener('pointerdown', e => {
   if (b){ b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow'); setTimeout(() => b.classList.remove('glow'), 500); }
 }, true);
 window.__S = () => S;
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run};
+if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
