@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261110-225226';</script>
+<script>window.GAME_VERSION = '20261110-225802';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -417,8 +417,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261110-225226"></script>
-<script src="story.js?v=20261110-225226"></script>
+<script src="audio.js?v=20261110-225802"></script>
+<script src="story.js?v=20261110-225802"></script>
 <script>
 (() => {
 const {SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -1215,7 +1215,7 @@ async function market(justOpened){
 }
 async function lunch(){
   setScene('膳堂'); await sleep(300);
-  addHp(3);
+  addHp(2);
   const met = C.filter(c => S.met[c.id]);
   const hot = met.filter(ready).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0));
   const pool = [...new Set([...hot.slice(0, 2), ...C.slice().sort(() => Math.random() - .5)])].slice(0, 3);
@@ -1229,9 +1229,9 @@ async function dinner(){
   setScene('晚膳'); await sleep(300);
   const ok = C.filter(c => (S.aff[c.id] || 0) >= 20).sort((a, b) => (ready(b) - ready(a)) || ((S.aff[b.id] || 0) - (S.aff[a.id] || 0))).slice(0, 4);
   const id = await choose(ok.length ? '傍晚的燈籠亮起來了。要邀請誰共進晚膳？' : '傍晚的燈籠亮起來了。（好感達到「熟絡」，就可以邀請對方晚膳）',
-    [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感・體力 +2', value:null}]);
+    [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感・體力 +1', value:null}]);
   if (!id){
-    const mates = C.filter(c => c.h === S.house && S.met[c.id]), m = mates.length && pick(mates); addHp(2);
+    const mates = C.filter(c => c.h === S.house && S.met[c.id]), m = mates.length && pick(mates); addHp(1);
     await say('', pick([`${HOUSES[S.house].name}的長桌上很熱鬧，大家在聊下週的課。`, '長桌上擺滿了菜，同院的同學你一言我一語，笑聲沒停過。', '大家在爭論哪一位講師的課最難。你聽著，忍不住笑了。']));
     if (m){ aff(m.id, 2, true); await say('', `${m.n}坐在你旁邊，順手替你添了一碗湯。`); }
     return;
@@ -1250,7 +1250,7 @@ async function free(){
     }
     const sk = S.house && [S.house, 'herb', 'craft'].find(k => curSpell(k)), sx = sk && curSpell(sk);
     if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2), icon:'img/ui_scroll.webp'});
-    opts.push({label:'早點休息', sub:'明天體力 +3', value:'sleep', icon:'img/ui_hp.webp'});
+    opts.push({label:'早點休息', sub:'今晚多恢復 3 點體力', value:'sleep', icon:'img/ui_hp.webp'});
     const f = await choose('晚上的自由時間。要做什麼？', opts);
     if (f === 'sleep'){ S.hpBonus = 3; await say('', '你早早熄了燈。窗外的蟲聲，很快就把你送進夢裡。'); return; }
     if (f === 'study'){ useHp(2); await say('', pick(['你在燈下翻開術譜，一遍又一遍地練習手勢。','你對著窗外的月光，輕聲默念咒文。','宿舍裡很安靜。你閉上眼，把靈力在掌心繞了一圈又一圈。']));
@@ -1266,8 +1266,12 @@ async function rest(){
   const st = {}, af = {};
   for (const [t, k, v] of S.today){ if (t === 's') st[k] = (st[k] || 0) + v; else af[k] = (af[k] || 0) + v; }
   const parts = [...Object.entries(st).map(([k, v]) => `${STATS[k][0]} +${v}`), ...Object.entries(af).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${BY[k].n} +${v}`)];
-  await say('', parts.length ? `第${cn(S.day)}日結束。${parts.join('、')}。` : `第${cn(S.day)}日結束。平靜的一天。`);
-  S.today = []; S.hp = hpMax() + (S.hpBonus || 0) + fxN('rest'); S.hpBonus = 0;
+  // 體力：一晚只恢復 4 點（早點休息、回春露另外加）；週日晚上好好睡一覺，才會完全恢復
+  const before = S.hp, sunday = weekday(S.day) === 6;
+  const after = sunday ? hpMax() + (S.hpBonus || 0) + fxN('rest') : Math.min(hpMax() + (S.hpBonus || 0), S.hp + 4 + (S.hpBonus || 0) + fxN('rest'));
+  const dname = monthOf(S.day) === 1 ? `第${cn(S.day)}日` : `${cn(mInYear(S.day))}月${cn(domOf(S.day))}日`;
+  await say('', `${parts.length ? `${dname}結束。${parts.join('、')}。` : `${dname}結束。平靜的一天。`}${sunday ? '週末好好睡了一覺，' : '睡了一晚，'}體力 ${before} → ${after}。`);
+  S.today = []; S.hp = after; S.hpBonus = 0;
   await checkSpells();
 }
 async function festival(){
