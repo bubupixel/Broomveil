@@ -22,12 +22,29 @@ head = '''<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
 <style>
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{touch-action:manipulation;overscroll-behavior:none}
-#upd{position:absolute;left:50%;top:104px;transform:translateX(-50%);z-index:80;
+#upd{position:absolute;left:50%;top:calc(104px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:80;
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
+</style>
+'''
+
+# Full-bleed on phones: the scene runs under the status bar and home indicator;
+# only the HUD, panels and dialogue keep clear of them. Placed after the game's own
+# stylesheet so these rules win.
+fullbleed = '''
+<style>
+html,body{height:100%}
+#app{position:fixed;top:0;bottom:0;left:0;right:0;height:auto}
+.hud{padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.quest{top:calc(66px + env(safe-area-inset-top,0px))}
+.place{top:calc(62px + env(safe-area-inset-top,0px))}
+.portrait.framed{top:calc(96px + env(safe-area-inset-top,0px))}
+.toast{top:calc(104px + env(safe-area-inset-top,0px))}
+.sheet header{padding-top:calc(16px + env(safe-area-inset-top,0px))}
+.shade{background:linear-gradient(rgba(14,10,8,.62),rgba(14,10,8,0) calc(17% + env(safe-area-inset-top,0px))),
+  linear-gradient(rgba(14,10,8,0) 58%,rgba(14,10,8,.55)),radial-gradient(140% 95% at 50% 42%,transparent 60%,rgba(10,6,4,.5))}
 </style>
 '''
 
@@ -66,7 +83,7 @@ updater = '''
 </script>
 ''' % ver
 
-open(dst, 'w', encoding='utf-8').write(head + body + updater)
+open(dst, 'w', encoding='utf-8').write(head + body + fullbleed + updater)
 open(os.path.join(os.path.dirname(os.path.abspath(dst)), 'version.json'), 'w', encoding='utf-8').write(
     json.dumps({'v': ver, 'notes': notes}, ensure_ascii=False) + '\n')
 print('built version', ver)
