@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-074541';</script>
+<script>window.GAME_VERSION = '20261112-075515';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -574,8 +574,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-074541"></script>
-<script src="story.js?v=20261112-074541"></script>
+<script src="audio.js?v=20261112-075515"></script>
+<script src="story.js?v=20261112-075515"></script>
 <script>
 (() => {
 const {POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -1832,7 +1832,7 @@ async function ch4End(){
 }
 
 // ---------- 主線之後：玉蘭院・首席・委託 ----------
-const BADGE_IMG = 'img/crest_yu.webp', BOARD_IMG = 'img/ui_scroll.webp';
+const BADGE_IMG = 'img/ui_badge.webp', BOARD_IMG = 'img/ui_board.webp';
 function syncPost(){ HAUNT.bai = S.flags.yulanOpen ? ['yulan','lake'] : ['lake','lake']; }
 async function yulan(){
   setScene('玉蘭院'); await sleep(300);
@@ -1840,10 +1840,10 @@ async function yulan(){
   while (true){
     const x = curSpell('yu'), bai = whereIs(BAIC) === 'yulan';
     const opts = [];
-    if (x) opts.push({label:'聽課・溯光譜', sub:hpSub(2, `「${x.n.replace('溯光・', '')}」${S.mag[x.id] || 0}/${x.need}`), value:'lesson', disabled:!canHp(2), icon:x.icon || 'img/crest_yu.webp'});
+    if (x) opts.push({label:'聽課・溯光譜', sub:hpSub(2, `「${x.n.replace('溯光・', '')}」${S.mag[x.id] || 0}/${x.need}`), value:'lesson', disabled:!canHp(2), icon:`img/spell_${x.id}.webp`});
     else opts.push({label:'《溯光譜》已全部習得', sub:'白溯光說：剩下的，要靠你自己去記得了', value:'done', disabled:true});
     if (bai) opts.push(Object.assign(charOpt(BAIC), canHp(2) ? {} : {disabled:true, sub:'體力不足'}));
-    opts.push({label:'敲響玉蘭鐘', sub:S.bellDay === S.day ? '今天已經敲過了' : '每天一次・體力 +1・風雅', value:'bell', disabled:S.bellDay === S.day, icon:'img/crest_yu.webp'});
+    opts.push({label:'敲響玉蘭鐘', sub:S.bellDay === S.day ? '今天已經敲過了' : '每天一次・體力 +1・風雅', value:'bell', disabled:S.bellDay === S.day, icon:'img/spell_x2.webp'});
     opts.push({label:'在院子裡走走', sub:canHp(2) ? '感知・體力 -2' : '體力不足', value:'look', disabled:!canHp(2)});
     opts.push({label:'離開', value:null});
     const v = await choose('玉蘭院。要做什麼？', opts);
@@ -1859,7 +1859,7 @@ async function yulan(){
 async function hueMoment(pid){
   const L = POST.HUE[pid];
   await say('', L[0]);
-  const go = await choose('要用溯光喚回它的顏色嗎？', [{label:'溯光・喚色', sub:'不耗體力', value:1, icon:'img/crest_yu.webp', hot:true}, {label:'讓它安靜待著', value:0}]);
+  const go = await choose('要用溯光喚回它的顏色嗎？', [{label:'溯光・喚色', sub:'不耗體力', value:1, icon:'img/spell_x1.webp', hot:true}, {label:'讓它安靜待著', value:0}]);
   if (!go) return false;
   SND.sfx('magic'); await say('', L[1]);
   gain('gan', 1); gain('sheng', 1); S.col.hue[pid] = 1; note(`在${PLACE_N[pid]}用溯光喚回了一點顏色。`);
@@ -1885,7 +1885,7 @@ async function board(){
   while (true){
     if (!S.comm.length){ await say('', '委託板上空空的。過幾天再來看看吧。'); return; }
     const opts = S.comm.map((a, k) => { const c = POST.COMM[a.i], left = a.due - S.day;
-      return {label:commWho(c), sub:`${c.t.length > 22 ? c.t.slice(0, 22) + '…' : c.t}・${left > 0 ? `還有 ${left} 天` : '今天截止'}${canDeliver(a) ? '・✦ 可以交付' : ''}`, value:k, hot:canDeliver(a), ...(BY[c.who] ? {img:BY[c.who].img, color:HOUSES[BY[c.who].h].color} : {icon:BOARD_IMG})}; });
+      return {label:commWho(c), sub:`${c.t.length > 12 ? c.t.slice(0, 12) + '…' : c.t}・${left > 0 ? `還有 ${left} 天` : '今天截止'}${canDeliver(a) ? '・✦ 可以交付' : ''}`, value:k, hot:canDeliver(a), ...(BY[c.who] ? {img:BY[c.who].img, color:HOUSES[BY[c.who].h].color} : {icon:BOARD_IMG})}; });
     opts.push({label:'離開委託板', value:null});
     const k = await choose(`委託板上貼著 ${S.comm.length} 張紙條。`, opts);
     if (k === null) return;
@@ -1929,7 +1929,7 @@ function handbook(){
     ['節慶', 'img/fest_0.webp', Object.keys(S.col.fest).length, LIFE.FESTS.length + 1],
     ['四院花鑰', 'img/key_fei.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4],
     ...(S.stall.open ? [['茶攤委託', BOARD_IMG, Object.keys(S.col.comm).length, POST.COMM.length]] : []),
-    ...(S.flags.yuBook ? [['溯光喚色', 'img/crest_yu.webp', Object.keys(S.col.hue).length, Object.keys(POST.HUE).length]] : [])
+    ...(S.flags.yuBook ? [['溯光喚色', 'img/spell_x1.webp', Object.keys(S.col.hue).length, Object.keys(POST.HUE).length]] : [])
   ];
   const got = items.reduce((a, x) => a + Math.min(x[2], x[3]), 0), all = items.reduce((a, x) => a + x[3], 0);
   return `<div class="hb"><div class="hb-top"><b>花朝手帳</b><span>完成度 ${Math.floor(got / all * 100)}%</span></div>
@@ -2521,7 +2521,7 @@ function assets(){
     // small art: crests, petals, icons, the weather, keys, items
     ...['fei','yuan','ling','zi','yu'].flatMap(h => [`img/crest_${h}.webp`, `img/petal_${h}.webp`]), ...['fei','yuan','ling','zi'].flatMap(h => [`img/book_${h}.webp`, `img/key_${h}.webp`]),
     ...['sun','rain','fog','wind'].map(k => `img/wx_${k}.webp`), ...['bday','promise','lunch','pin'].map(k => `img/life_${k}.webp`),
-    ...['star','lib','arena','herb','vine','lake','market','dorm'].map(k => `img/loc_${k}.webp`), ...['ling','bo','qiao','sheng','gan','feng'].map(k => `img/stat_${k}.webp`),
+    ...['star','lib','arena','herb','vine','lake','market','dorm','yulan'].map(k => `img/loc_${k}.webp`), 'img/bg_yulan.jpg', 'img/ui_board.webp', 'img/ui_badge.webp', ...[1,2,3,4,5,6].map(i => `img/spell_x${i}.webp`), ...['ling','bo','qiao','sheng','gan','feng'].map(k => `img/stat_${k}.webp`),
     ...['cake','scroll','medal','knot'].map(k => `img/ui_${k}.webp`), ...Array.from({length:6}, (_, i) => `img/fest_${i}.webp`),
     ...Object.keys(TEA.ING).map(k => `img/ing_${k}.webp`), ...TEA.RECIPES.map(r => `img/tea_${r.id}.webp`), 'img/tea_unk.webp',
     ...GOODS.GIFTS.map(g => `img/gift_${g.id}.webp`), ...GOODS.DECOR.map(x => `img/dec_${x.id}.webp`), 'img/dec_book.webp', 'img/dec_parcel.webp', 'img/dec_goods.webp',

@@ -1527,7 +1527,7 @@ const PLACES = [
   {id:'vine',n:'紫藤迴廊',stat:'gan',who:['su','liu','ji'],desc:'感知'},
   {id:'lake',n:'花月湖',stat:'feng',who:[],desc:'風雅'},
   {id:'market',n:'百靈市集',stat:'qiao',who:[],desc:'花茶攤・買材料'},
-  {id:'yulan',n:'玉蘭院',stat:'gan',who:['bai'],desc:'溯光之術・玉蘭鐘',post:true,icon:'img/crest_yu.webp'}
+  {id:'yulan',n:'玉蘭院',stat:'gan',who:['bai'],desc:'溯光之術・玉蘭鐘',post:true}
 ];
 const LOOK = {
   star:'你在渾天儀旁待了一會兒，抄下了幾段星軌的推算。',
@@ -1558,7 +1558,7 @@ const SCENE_IMG = {
   '花朝正殿':'bg_hall','學院地圖':'bg_campus','膳堂':'bg_dining','晚膳':'bg_dining',
   '宿舍・夜':'bg_dorm_night','宿舍・晨':'bg_dorm_day','宿舍':'bg_dorm_night',
   '觀星閣':'bg_star','藏書閣':'bg_lib','課室':'bg_class','試煉場':'bg_arena','鈴蘭藥圃':'bg_herb','紫藤迴廊':'bg_vine',
-  '花月湖':'bg_lake','玉蘭院':'bg_lake','花月湖・夜':'bg_lake_night','百靈市集':'bg_market','花茶攤':'bg_stall','夜市・花茶攤':'bg_stall_night',
+  '花月湖':'bg_lake','玉蘭院':'bg_yulan','花月湖・夜':'bg_lake_night','百靈市集':'bg_market','花茶攤':'bg_stall','夜市・花茶攤':'bg_stall_night',
   '花朝節':'bg_fest','花朝節・夜':'bg_fest_night','夢境':'bg_dream',
   '緋玫院':'bg_arena','鳶尾院':'bg_star','鈴蘭院':'bg_herb','紫藤院':'bg_vine'
 };
@@ -1688,12 +1688,12 @@ const MAGIC = (() => {
   };
   const SHARED = {
     yu: [
-      {id:'x1',n:'溯光・喚色',d:'讓褪了色的小東西，想起自己原本的顏色。玉蘭院的第一課。',learn:'灰白色的花瓣在你掌心慢慢紅了起來，像墨在水裡化開。',need:12,req:0,fx:'hue',stat:'sheng',tier:1,icon:'img/crest_yu.webp'},
-      {id:'x2',n:'溯光・回音',d:'讓說過的話，在對方心裡多停留一會兒。',learn:'你輕聲說了一句「早安」。過了好一會兒，風裡還有它的回音。',need:24,req:30,fx:'echo',stat:'gan',tier:2,icon:'img/crest_yu.webp'},
-      {id:'x3',n:'溯光・映月',d:'在水面映出某個夜晚的月亮。',learn:'石盆的水面上，浮起一輪不屬於今晚的滿月。',need:40,req:40,fx:'moon',stat:'feng',tier:3,icon:'img/crest_yu.webp'},
-      {id:'x4',n:'溯光・留影',d:'讓一段時間走得慢一點。',learn:'沙漏裡落下的不是沙，是一片一片的木蘭花瓣。它們落得很慢、很慢。',need:60,req:50,fx:'still',stat:'bo',tier:4,icon:'img/crest_yu.webp'},
-      {id:'x5',n:'溯光・同憶',d:'讓兩個人，一起想起同一件事。玉蘭鐘的原理。',learn:'五色的絲線在你指間編成一個結。你忽然知道，有人此刻也正想著你。',need:85,req:60,fx:'kin',stat:'ling',tier:5,icon:'img/crest_yu.webp'},
-      {id:'x6',n:'溯光・第五星',d:'玉蘭院秘傳。讓一顆被藏起來的星星，重新亮起來。',learn:'你抬起頭。白天的天空裡，有一顆很小的白色星星，對你眨了一下。',need:120,req:70,fx:'hp',stat:'gan',tier:6,icon:'img/crest_yu.webp'}
+      {id:'x1',n:'溯光・喚色',d:'讓褪了色的小東西，想起自己原本的顏色。玉蘭院的第一課。',learn:'灰白色的花瓣在你掌心慢慢紅了起來，像墨在水裡化開。',need:12,req:0,fx:'hue',stat:'sheng',tier:1},
+      {id:'x2',n:'溯光・回音',d:'讓說過的話，在對方心裡多停留一會兒。',learn:'你輕聲說了一句「早安」。過了好一會兒，風裡還有它的回音。',need:24,req:30,fx:'echo',stat:'gan',tier:2},
+      {id:'x3',n:'溯光・映月',d:'在水面映出某個夜晚的月亮。',learn:'石盆的水面上，浮起一輪不屬於今晚的滿月。',need:40,req:40,fx:'moon',stat:'feng',tier:3},
+      {id:'x4',n:'溯光・留影',d:'讓一段時間走得慢一點。',learn:'沙漏裡落下的不是沙，是一片一片的木蘭花瓣。它們落得很慢、很慢。',need:60,req:50,fx:'still',stat:'bo',tier:4},
+      {id:'x5',n:'溯光・同憶',d:'讓兩個人，一起想起同一件事。玉蘭鐘的原理。',learn:'五色的絲線在你指間編成一個結。你忽然知道，有人此刻也正想著你。',need:85,req:60,fx:'kin',stat:'ling',tier:5},
+      {id:'x6',n:'溯光・第五星',d:'玉蘭院秘傳。讓一顆被藏起來的星星，重新亮起來。',learn:'你抬起頭。白天的天空裡，有一顆很小的白色星星，對你眨了一下。',need:120,req:70,fx:'hp',stat:'gan',tier:6}
     ],
     herb: [
       {id:'h1',n:'喚芽術',d:'讓種子提早發芽。藥草學（四院共修）。',learn:'種子在你掌心裂開一道縫，一根嫩芽探出頭來。',need:10,req:0,fx:'gather',stat:'sheng'},
@@ -2483,8 +2483,8 @@ const TIPS = {
   birthday:{n:'生日', icon:'img/life_bday.webp', t:['每個人都有生日。生日當天第一次遇見對方，會有特別的對話；送心意禮物效果加倍。','頂部會在生日前七天提醒你。']},
   keys:{n:'四院花鑰', icon:'img/key_fei.webp', t:['每把花鑰需要一位那一院的知己（好感 90），以及那一院擅長的能力。自己的學院則要學會術譜第三層。','條件達成後，到那一院的地點就會開始試煉。頂部任務列會告訴你還差什麼。']},
   blight:{n:'蝕痕', icon:'img/ui_scroll.webp', t:['第四章開始後，學院各處會出現「蝕痕」：花草、書本和星盤，都會褪成灰白。','地圖上標著「蝕痕」的地點，可以用溯光之術淨化（體力 -3，會進行一段小遊戲）。蝕痕三天內不淨化就會散去，但之後還會在別處出現。']},
-  comm:{n:'茶攤委託', icon:'img/ui_scroll.webp', t:['百靈市集的委託板上，會貼著大家想喝的茶。委託只寫心情和味道，不會直接寫茶名，要自己想想哪一款最合適。','手上有那杯茶就可以交付；沒有的話，可以用身上的茶材現泡一杯。每張委託都有期限，最多同時兩張。']},
-  yulan:{n:'玉蘭院', icon:'img/crest_yu.webp', t:['第四章完結後，地圖上多了玉蘭院。四院學生都可以去聽白溯光講課，修習《溯光譜》六層。','玉蘭鐘每天可以敲一次，能恢復一點體力。白溯光平時就在這裡，偶爾在花月湖。']},
+  comm:{n:'茶攤委託', icon:'img/ui_board.webp', t:['百靈市集的委託板上，會貼著大家想喝的茶。委託只寫心情和味道，不會直接寫茶名，要自己想想哪一款最合適。','手上有那杯茶就可以交付；沒有的話，可以用身上的茶材現泡一杯。每張委託都有期限，最多同時兩張。']},
+  yulan:{n:'玉蘭院', icon:'img/loc_yulan.webp', t:['第四章完結後，地圖上多了玉蘭院。四院學生都可以去聽白溯光講課，修習《溯光譜》六層。','玉蘭鐘每天可以敲一次，能恢復一點體力。白溯光平時就在這裡，偶爾在花月湖。']},
   tired:{n:'體力不足', icon:'img/ui_hp.webp', t:['體力快用完了。體力不夠時，課堂收穫會減半，有些事也做不了。','可以下午「回宿舍休息」、晚上「早點休息」，或者在午膳和同院晚膳時恢復一點。']}
 };
 
