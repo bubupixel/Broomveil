@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-075515';</script>
+<script>window.GAME_VERSION = '20261112-082328';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -530,6 +530,16 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
 .title-badge{display:flex;align-items:center;gap:10px;margin:6px 0 12px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.55);border:1px solid rgba(170,140,100,.35)}
 .title-badge img{width:40px;height:40px;object-fit:contain}
 .title-badge span{display:flex;flex-direction:column}.title-badge small{color:var(--ink-soft);font-size:12px}
+.yr{display:flex;flex-direction:column;gap:8px}
+.yr-h{display:flex;align-items:center;gap:10px}.yr-h img{width:42px;height:42px;object-fit:contain}.yr-h div{display:flex;flex-direction:column}.yr-h small{color:var(--ink-soft);font-size:12px}
+.yr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.yr-r{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.55);border:1px solid rgba(170,140,100,.3);font-size:13px}
+.yr-r b{font-size:15px;color:var(--house,#7a4b6e)}
+.yr-p{margin:4px 0 0;font-size:13px;color:var(--ink-soft)}
+.yr-top{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.yr-top div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;text-align:center}
+.yr-top img{width:48px;height:48px;border-radius:50%;object-fit:cover}.yr-top .hearts i{width:10px;height:9px}
+.yr-n{margin:2px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink-soft)}
+.yr-d{margin:6px 0;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.45)}.yr-d summary{font-weight:700;cursor:pointer}
 </style>
 
 <div class="backdrop" id="backdrop"></div>
@@ -574,17 +584,19 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-075515"></script>
-<script src="story.js?v=20261112-075515"></script>
+<script src="audio.js?v=20261112-082328"></script>
+<script src="story.js?v=20261112-082328"></script>
 <script>
 (() => {
-const {POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 // 白溯光在第三章之後才加入名單；C 是目前看得見的人
 const C_ALL = [...C12, BAIC];
 let C = C12.slice();
-function refreshC(v){ C = v && v.flags && v.flags.baiFree ? C_ALL : C12; if (v && v.flags) LIFE2.HAUNT.bai = v.flags.yulanOpen ? ['yulan','lake'] : ['lake','lake']; }
+function refreshC(v){ C = v && v.flags && v.flags.baiFree ? C_ALL : C12; applyGrad(v); if (v && v.flags) LIFE2.HAUNT.bai = v.flags.yulanOpen ? ['yulan','lake'] : ['lake','lake']; }
 EV.bai = EV_BAI;
 const BY = Object.fromEntries(C_ALL.map(c => [c.id, c]));
+const ROLE0 = Object.fromEntries(C_ALL.map(c => [c.id, c.role]));
+function applyGrad(v){ for (const c of C_ALL) c.role = v && v.grad && v.grad[c.id] && YEAR.GRADUATE[c.id] ? `已畢業・${YEAR.GRADUATE[c.id].role}` : ROLE0[c.id]; }
 const FAST = location.hash.startsWith('#test');
 const TEST_END = location.hash === '#test2' ? 112 : location.hash === '#test3' ? 150 : location.hash === '#test4' ? (window.__END || 220) : 28;
 const LAST_DAY = 28;
@@ -604,6 +616,7 @@ const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
 // 舊存檔補上新系統的欄位
 function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; v.q2 ??= 0; v.items ??= {}; v.decor ??= {}; v.parcel ??= 0; v.replies ??= 0; v.giftDay ??= {}; v.wx ??= 'sun'; v.bdDone ??= {}; v.promise ??= null; v.broken ??= null; v.keys ??= {}; v.keyHint ??= {}; v.col ??= {}; v.col.gift ??= {}; v.col.inc ??= {}; v.col.fest ??= {}; v.col.bd ??= {}; if (!v.aff2){ v.aff2 = 1; for (const k in (v.aff || {})) v.aff[k] = Math.min(200, v.aff[k] * 2); }
+  v.years ??= []; v.grad ??= {}; v.mentee ??= null; v.finals ??= {};
   v.comm ??= []; v.commDone ??= 0; v.commLast ??= {}; v.col.comm ??= {}; v.col.hue ??= {};
   v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; refreshC(v); return v; }
 let S = fresh();
@@ -617,7 +630,7 @@ let savedT;
 
 // ---------- 新手提示：每個系統第一次出現時說明一次（這部裝置只出現一次） ----------
 const TIP_KEY = 'huachao-tips';
-const TIPSEEN = new Set((() => { try { return JSON.parse(readRaw(TIP_KEY) || '[]'); } catch (e) { return []; } })());
+const TIPSEEN = new Set((() => { try { const v = JSON.parse(readRaw(TIP_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } })());
 async function tip(k){
   if (FAST || TIPSEEN.has(k) || !GUIDE[k]) return;
   TIPSEEN.add(k); store(TIP_KEY, JSON.stringify([...TIPSEEN]));
@@ -639,7 +652,7 @@ const SPEEDS = {slow:[48, '慢'], mid:[28, '中'], fast:[12, '快'], now:[0, '�
 const PREF = Object.assign({speed:'mid', skip:false, auto:false, lowfx:null}, (() => { try { return JSON.parse(readRaw(PREF_KEY) || '{}'); } catch (e) { return {}; } })());
 const savePref = () => store(PREF_KEY, JSON.stringify(PREF));
 // 已讀的句子：只記一個短雜湊，最多兩萬句
-const READ = new Set((() => { try { return JSON.parse(readRaw(READ_KEY) || '[]'); } catch (e) { return []; } })());
+const READ = new Set((() => { try { const v = JSON.parse(readRaw(READ_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } })());
 let readDirty = 0;
 const hashLine = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
 let readT = 0;
@@ -673,7 +686,7 @@ function applyLowFx(){
 // 最近三天的自動備份（每天第一個時段）
 function backupDay(){
   if (FAST || !CK) return;
-  let a = []; try { a = JSON.parse(readRaw(BK_KEY) || '[]'); } catch (e) {}
+  let a = []; try { a = JSON.parse(readRaw(BK_KEY) || '[]'); if (!Array.isArray(a)) a = []; } catch (e) {}
   a = [{d:S.day, v:CK}, ...a.filter(x => x.d !== S.day)].slice(0, 3);
   store(BK_KEY, JSON.stringify(a));
 }
@@ -1102,7 +1115,8 @@ function hud(){
 function lifeGoal(){
   const g = [], dm = domOf(S.day);
   if (dm < 14) g.push(`<img class="qi" src="${festImg(S.day)}" alt="">再過 ${14 - dm} 日就是「${festName(S.day)}」`);
-  else if (dm < 25) g.push(`再過 ${25 - dm} 日是本月月考`);
+  else if (dm < 25) g.push(mInYear(S.day) === 10 ? `再過 ${25 - dm} 日是期末大考` : `再過 ${25 - dm} 日是本月月考`);
+  else if (mInYear(S.day) === 10 && dm < 28) g.push(`再過 ${28 - dm} 日是年終祭・${cn(yearOf(S.day))}年級就要結束了`);
   else g.push(`<img class="qi" src="${festImg(S.day + 28)}" alt="">下個月的節慶是「${festName(S.day + 28)}」`);
   const sx = S.house && curSpell(S.house);
   if (sx) g.push(`<img class="qi" src="img/spell_${sx.id}.webp" alt="">術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
@@ -1115,17 +1129,20 @@ function lifeGoal(){
 }
 
 // ---------- calendar ----------
-const SLOT_NAME = {opening:'分院',class:'晨課',exam:'月考',outing:'上午・外出',lunch:'午膳',explore:'午後',festival:'花朝節',dinner:'晚膳',free:'自由時間',rest:'夜'};
+const SLOT_NAME = {yearend:'年終祭',newyear:'開學典禮',opening:'分院',class:'晨課',exam:'月考',outing:'上午・外出',lunch:'午膳',explore:'午後',festival:'花朝節',dinner:'晚膳',free:'自由時間',rest:'夜'};
 const weekday = d => (d - 1) % 7;
 // 曆法：每月 28 日，十個月一學年
 const monthOf = d => Math.ceil(d / 28), domOf = d => (d - 1) % 28 + 1;
 const yearOf = d => Math.floor((monthOf(d) - 1) / 10) + 1, mInYear = d => (monthOf(d) - 1) % 10 + 1;
 const dateLabel = d => monthOf(d) === 1 ? `一年級・第${cn(d)}日` : `${yearOf(d) > 1 ? cn(yearOf(d)) + '年級・' : ''}${cn(mInYear(d))}月${cn(domOf(d))}日`;
-const festName = d => monthOf(d) === 1 ? '花朝節' : LIFE.FESTS[(monthOf(d) - 2) % LIFE.FESTS.length].n;
-const festImg = d => `img/fest_${monthOf(d) === 1 ? 0 : (monthOf(d) - 2) % LIFE.FESTS.length + 1}.webp`;
+const festName = d => mInYear(d) === 1 ? '花朝節' : LIFE.FESTS[(mInYear(d) - 2) % LIFE.FESTS.length].n;
+const festImg = d => `img/fest_${mInYear(d) === 1 ? 0 : (mInYear(d) - 2) % LIFE.FESTS.length + 1}.webp`;
+const YLEN = 280, isYearEnd = d => mInYear(d) === 10 && domOf(d) === 28, isNewYear = d => d > YLEN && (d - 1) % YLEN === 0;
 function plan(d){
   if (d <= 1) return ['opening','rest'];
   if (domOf(d) === 14) return ['outing','lunch','festival','rest'];
+  if (isYearEnd(d)) return ['class','lunch','yearend','rest'];
+  if (isNewYear(d)) return ['newyear','lunch','explore','dinner','free','rest'];
   const p = [weekday(d) >= 5 ? 'outing' : 'class','lunch','explore','dinner','free','rest'];
   if (domOf(d) === 25) p[0] = 'exam';
   return p;
@@ -1160,7 +1177,7 @@ async function meet(c, ctx, where){
     note(e.note); S.ev[c.id] = i + 1; S.evDay[c.id] = S.day;
     return;
   }
-  if (ctx === 'lunch'){ await say(c.id, S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : pick(c.lunch), 'happy'); aff(c.id, 5, true); }
+  if (ctx === 'lunch'){ const gl = S.grad[c.id] && YEAR.GRADUATE[c.id]; await say(c.id, gl && Math.random() < .5 ? pick(gl.lunch) : S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : pick(c.lunch), 'happy'); aff(c.id, 5, true); }
   else if (ctx === 'date'){
     if ((S.aff[c.id] || 0) >= 100){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
     else await say(c.id, c.dateA[0], 'happy');
@@ -1604,7 +1621,7 @@ function spellBook(){
 // ---------- 每月節慶（第二個月起） ----------
 let festBoost = false;
 async function monthFest(){
-  const fi = (monthOf(S.day) - 2) % LIFE.FESTS.length, F = LIFE.FESTS[fi];
+  const fi = (mInYear(S.day) - 2) % LIFE.FESTS.length, F = LIFE.FESTS[fi];
   setScene(F.scene); await sleep(400);
   await card(`<img class="festimg" src="img/fest_${fi + 1}.webp" alt=""><span class="small">${cn(mInYear(S.day))}月十四日</span><span class="big">${F.n}</span>`, 2200);
   for (const t of F.intro) await say('', t);
@@ -1911,6 +1928,98 @@ async function board(){
   }
 }
 
+// ---------- 學年循環 ----------
+function yearSnap(y){
+  const top = C.filter(c => S.met[c.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 3).map(c => [c.id, S.aff[c.id] || 0]);
+  const chap = S.flags.ch4done ? '玉蘭重開' : ch4Active() ? '玉蘭重開（進行中）' : S.flags.ch3done ? '四院花鑰' : ch3Active() ? '四院花鑰（進行中）' : S.flags.ch2 ? '鏡中來客' : S.flags.ch1 ? '無名花影' : '無名花影（進行中）';
+  return {y, met:C.filter(c => S.met[c.id]).length, ev:Object.values(S.ev).reduce((a, b) => a + b, 0), spells:S.spells.length, known:S.known.length,
+    earned:S.stall.earned || 0, sessions:S.stall.sessions || 0, comm:S.commDone || 0, replies:S.replies || 0, grades:S.grades.slice((y - 1) * 10, y * 10),
+    fin:S.finals[y] || '', top, chap, mentee:S.mentee && S.mentee.y === y ? S.mentee.n : '', grads:(YEAR.GRAD[y] || []).filter(id => S.met[id]),
+    notes:S.log.filter(l => l.d > (y - 1) * YLEN && l.d <= y * YLEN && !/月考|結束/.test(l.t)).slice(-3).map(l => l.t), stats:{...S.stats}};
+}
+function yearHTML(sn){
+  const prev = S.years.find(x => x.y === sn.y - 1) || {ev:0, spells:0, known:0, earned:0, sessions:0, comm:0, replies:0, met:0};
+  const row = (k, v) => `<div class="yr-r"><span>${k}</span><b>${v}</b></div>`;
+  return `<div class="yr">
+    <div class="yr-h"><img src="${S.house ? `img/crest_${S.house}.webp` : 'img/crest_yu.webp'}" alt=""><div><b>${cn(sn.y)}年級・學年回顧</b><small>主線：${sn.chap}</small></div></div>
+    <div class="yr-grid">${row('新認識的人', sn.met - prev.met)}${row('羈絆事件', sn.ev - prev.ev)}${row('習得咒術', sn.spells - prev.spells)}${row('新配方', sn.known - prev.known)}
+      ${row('擺攤次數', sn.sessions - prev.sessions)}${row('茶攤收入', (sn.earned - prev.earned) + ' 靈石')}${row('完成委託', sn.comm - prev.comm)}${row('外婆家書', sn.replies - prev.replies)}</div>
+    ${sn.grades.length ? `<p class="yr-p">月考：${sn.grades.join('・')}${sn.fin ? `　期末大考：<b>${sn.fin}</b>` : ''}</p>` : ''}
+    ${sn.top.length ? `<p class="yr-p">這一年最親近的人</p><div class="yr-top">${sn.top.map(([id, v]) => BY[id] ? `<div><img src="${ava(BY[id].img)}" alt=""><b>${BY[id].n}</b>${heartsHTML(v)}<small>${stageOf(v)}</small></div>` : '').join('')}</div>` : ''}
+    ${sn.mentee ? `<p class="yr-p">帶過的新生：${sn.mentee}</p>` : ''}
+    ${sn.grads.length ? `<p class="yr-p">今年畢業：${sn.grads.map(id => BY[id].n).join('、')}</p>` : ''}
+    ${sn.notes.length ? `<ul class="yr-n">${sn.notes.map(t => `<li>${t}</li>`).join('')}</ul>` : ''}
+  </div>`;
+}
+function yearsList(){
+  if (!S.years.length) return '';
+  return `<h3>學年回顧</h3>${S.years.map(sn => `<details class="yr-d"><summary>${cn(sn.y)}年級</summary>${yearHTML(sn)}</details>`).join('')}`;
+}
+async function yearend(){
+  const y = yearOf(S.day);
+  setScene('花月湖・夜'); await sleep(300);
+  await card(`<img class="festimg" src="img/fest_0.webp" alt=""><span class="small">${cn(y)}年級・十月二十八日</span><span class="big">年終祭</span>`, 2400);
+  await tip('year');
+  for (const t of YEAR.FEST_IN) await say('', t);
+  const ok = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 40).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
+  const id = await choose('要和誰一起放燈？', [...ok.map(c => ({...charOpt(c), sub:stageOf(S.aff[c.id] || 0), hot:false})), {label:'和同院同學一起', value:null}]);
+  const c = id && BY[id];
+  const top = C.filter(x => S.met[x.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0))[0];
+  const mem = [
+    {label:'寫下：入學那天的花徑', sub:'風雅', value:'feng'},
+    top ? {label:`寫下：和${top.n}在一起的日子`, sub:`${top.n}・好感`, value:'top'} : null,
+    S.stall.open ? {label:'寫下：茶攤的第一位客人', sub:'巧藝', value:'qiao'} : null,
+    S.flags.ch4done ? {label:'寫下：玉蘭鐘響起的那一夜', sub:'靈華', value:'ling'} : S.flags.ch2 ? {label:'寫下：湖上那個白衣的人', sub:'感知', value:'gan'} : null
+  ].filter(Boolean);
+  const w = await choose('燈上要寫什麼？', mem);
+  if (w === 'top'){ aff(top.id, 6); } else gain(w, 3);
+  if (c){ show(c); await say('', pick(YEAR.WITH).replace(/\{c\}/g, c.n)); aff(c.id, hasFx('moon') ? 15 : 10); show(null); }
+  else { await say('', YEAR.SOLO); C.filter(x => x.h === S.house && S.met[x.id]).forEach(x => aff(x.id, 4)); }
+  for (const t of YEAR.OUT) await say('', t);
+  note(`${cn(y)}年級的年終祭${c ? `，和${c.n}一起放了燈` : ''}。`);
+  // 畢業
+  const gs = (YEAR.GRAD[y] || []).filter(gid => !S.grad[gid]);
+  if (gs.length){
+    for (const t of YEAR.GRAD_IN) await say('', t);
+    for (const gid of gs){
+      S.grad[gid] = y; const g = YEAR.GRADUATE[gid], gc = BY[gid];
+      if (!S.met[gid]){ await say('', `${gc.n}也在畢業的行列裡。你們還沒說過話，可是你記住了那張臉。`); continue; }
+      show(gc); for (const t of g.bye) await say(gid, t);
+      if ((S.aff[gid] || 0) >= 90) await say(gid, g.high, 'shy');
+      aff(gid, 6); note(`${gc.n}畢業了，留在靈院擔任${g.role}。`); show(null);
+    }
+    applyGrad(S);
+  }
+  // 學年回顧
+  const sn = yearSnap(y); S.years = S.years.filter(x => x.y !== y); S.years.push(sn);
+  SND.sfx('page');
+  if (!FAST) await panel(`${yearHTML(sn)}<button type="button" class="act" data-x="ok" style="width:100%;margin-top:10px">翻到下一頁</button>`,
+    (el, done) => { el.querySelector('[data-x=ok]').onclick = () => { SND.sfx('tap'); done(); }; });
+  await say('', `${cn(y)}年級，結束了。明天起，你就是${cn(y + 1)}年級的學生。`);
+}
+async function newyear(){
+  const y = yearOf(S.day);
+  setScene('花朝正殿'); await sleep(300);
+  await card(`<img class="crestimg" src="img/crest_${S.house}.webp" alt=""><span class="small">新學年</span><span class="big">${cn(y)}年級</span>`, 2400);
+  for (const t of YEAR.NEW) await say('', t);
+  const M = YEAR.MENTEE[S.house];
+  if (!S.mentee || S.mentee.y !== y){
+    S.mentee = {y, n:M.n, step:0, last:S.day};
+    for (const [w, t] of YEAR.MENTEE_MEET) await say(w.replace('{m}', M.n), t.replace(/\{m\}/g, M.n).replace('{d}', M.d));
+    note(`升上${cn(y)}年級。開始帶同院的新生${M.n}。`);
+  }
+  gain(HOUSES[S.house].stat, 2);
+}
+const menteeDue = () => S.mentee && S.mentee.y === yearOf(S.day) && S.mentee.step < YEAR.MEV.length && S.day - S.mentee.last >= 40 + (S.mentee.step === YEAR.MEV.length - 1 ? 0 : 0)
+  && (S.mentee.step < YEAR.MEV.length - 1 || mInYear(S.day) >= 9);
+async function menteeEvent(){
+  const mt = S.mentee, e = YEAR.MEV[mt.step], f = t => t.replace(/\{m\}/g, mt.n);
+  for (const [w, t] of e.seq) await say(f(w), f(t));
+  const o = await choose(f(e.q), e.opts.map((x, i) => ({label:f(x.t), sub:STATS[x.gain[0]][0], value:i})));
+  const x = e.opts[o]; gain(x.gain[0], x.gain[1] + 1); await say('', f(x.r));
+  mt.step++; mt.last = S.day; note(`帶新生${mt.n}：${e.t}。`);
+}
+
 // ---------- 花朝手帳：長期收集 ----------
 function handbook(){
   const nInc = Object.values(LIFE.INCIDENTS).reduce((a, l) => a + l.length, 0);
@@ -1989,16 +2098,19 @@ async function cls(){
 async function exam(){
   setScene('課室'); await sleep(300);
   const m = monthOf(S.day), n = 7 + Math.min(2, Math.floor((m - 1) / 2)), dc = 2 + Math.min(3, m - 1), secs = 11 + (n - 7);
-  await say('', m === 1 ? '今天是入學後的第一次月考。四院的新生坐滿了課室，連呼吸聲都聽得見。' : `第${cn(m)}次月考。考題一次比一次難，課室裡還是安靜得聽得見呼吸聲。`);
+  const fin = mInYear(S.day) === 10, title = fin ? '期末大考' : m === 1 ? '月考' : `第${cn(m)}次月考`;
+  if (fin){ setScene('花朝正殿'); for (const t of YEAR.FINAL) await say('', t); }
+  else await say('', m === 1 ? '今天是入學後的第一次月考。四院的新生坐滿了課室，連呼吸聲都聽得見。' : `第${cn(m)}次月考。考題一次比一次難，課室裡還是安靜得聽得見呼吸聲。`);
   await say('npc:監考講師', `${cn(n)}片花瓣，${cn(secs)}息之內，依次點亮。碰到灰色的，算錯。開始。`);
   useHp(3);
-  const r = await minigame({title:m === 1 ? '月考' : `第${cn(m)}次月考`, n, time:secs * 1000 + (hasFx('time') ? 2000 : 0), decoy:dc});
+  const r = await minigame({title, n:n + (fin ? 1 : 0), time:secs * 1000 + (hasFx('time') ? 2000 : 0), decoy:dc + (fin ? 1 : 0)});
   const grade = r.full && r.score >= n - 1 ? '甲' : r.full ? '乙' : r.next >= 4 ? '丙' : '丁';
-  const prize = {甲:60, 乙:40, 丙:20, 丁:10}[grade];
+  const prize = {甲:60, 乙:40, 丙:20, 丁:10}[grade] * (fin ? 2 : 1);
+  if (fin){ S.finals = S.finals || {}; S.finals[yearOf(S.day)] = grade; STAT_ORDER.forEach(k => gain(k, grade === '甲' ? 2 : 1)); }
   S.money += prize; gain(HOUSES[S.house].stat, r.score + 1); hud();
   await say('npc:監考講師', `${S.name}，${grade}等。`);
   await say('', `你領到 ${prize} 枚靈石的獎學金。${grade === '甲' ? '同院的人都向你投來佩服的目光。' : grade === '丁' ? '下個月，一定要更努力。' : ''}`);
-  S.grades.push(grade); note(`${m === 1 ? '第一次月考' : `第${cn(m)}次月考`}：${grade}等。`);
+  S.grades.push(grade); note(`${fin ? cn(yearOf(S.day)) + '年級期末大考' : m === 1 ? '第一次月考' : `第${cn(m)}次月考`}：${grade}等。`);
 }
 async function explore(prompt){
   setScene('學院地圖'); await sleep(300);
@@ -2083,10 +2195,12 @@ async function lunch(){
   const hot = met.filter(ready).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0));
   const prom = S.promise && S.promise.day === S.day && BY[S.promise.id];
   const pool = [...new Set([...(prom ? [prom] : []), ...hot.slice(0, 2), ...C.filter(c => c.id !== 'bai').sort(() => Math.random() - .5)])].slice(0, 3);
-  const id = await choose('午膳時間。要和誰同桌？', [...pool.map(c => c === prom ? {...charOpt(c), sub:'✦ 約好了今天一起吃', hot:true} : charOpt(c)), {label:'一個人安靜吃飯', sub:'風雅 +2', value:null}]);
+  const mt = menteeDue() && S.mentee;
+  const id = await choose('午膳時間。要和誰同桌？', [...(mt ? [{label:`新生・${mt.n}`, sub:'✦ 好像有事想問你', value:'mentee', hot:true, icon:`img/crest_${S.house}.webp`}] : []), ...pool.map(c => c === prom ? {...charOpt(c), sub:'✦ 約好了今天一起吃', hot:true} : charOpt(c)), {label:'一個人安靜吃飯', sub:'風雅 +2', value:null}]);
   if (prom){ S.promise = null;
     if (id === prom.id){ show(prom); await say(prom.id, pick(LIFE2.KEPT), 'happy'); aff(prom.id, 5); note(`守住了和${prom.n}的午膳之約。`); }
     else { aff(prom.id, -4); S.broken = prom.id; toast(`你忘了和${prom.n}的約定……`); } }
+  if (id === 'mentee'){ await menteeEvent(); return; }
   if (!id){ gain('feng', 2); await say('', pick(['你獨自看著窗外的花，慢慢吃完一頓飯。','你一邊吃，一邊在小本子上寫下今天想做的事。'])); return; }
   const c = BY[id];
   await meet(c, 'lunch');
@@ -2145,9 +2259,10 @@ async function rest(){
   await checkSpells();
 }
 async function festival(){
-  if (monthOf(S.day) > 1) return monthFest();
+  if (mInYear(S.day) > 1) return monthFest();
   setScene('花朝節'); await sleep(400); S.col.fest[0] = 1;
-  await card('<img class="festimg" src="img/fest_0.webp" alt=""><span class="small">第十四日</span><span class="big">花朝節</span>', 2200);
+  await card(`<img class="festimg" src="img/fest_0.webp" alt=""><span class="small">${monthOf(S.day) === 1 ? '第十四日' : cn(yearOf(S.day)) + '年級・一月十四日'}</span><span class="big">花朝節</span>`, 2200);
+  if (yearOf(S.day) > 1) await say('', `又是一年花朝節。${yearOf(S.day) === 2 ? '去年的今天，你才剛入學兩個禮拜。' : '這已經是你在靈院過的第' + cn(yearOf(S.day)) + '個花朝節了。'}`);
   await say('', '今天是花朝節——百花的生日。整座靈院掛滿了紅綢與花燈。');
   await say('', '按照習俗，大家會把紅綢繫在花枝上，替花神賀壽，這叫「賞紅」。');
   const ok = C.filter(c => (S.aff[c.id] || 0) >= 40).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
@@ -2202,7 +2317,7 @@ async function storyBeat(d, slot){
   }
   return false;
 }
-const SLOTS = {opening, class:cls, exam, outing:() => explore('今天休假。上午想去哪裡走走？'), lunch, explore:() => explore('下午沒有課。要去哪裡？'), festival, dinner, free, rest};
+const SLOTS = {opening, class:cls, exam, outing:() => explore('今天休假。上午想去哪裡走走？'), lunch, explore:() => explore('下午沒有課。要去哪裡？'), festival, dinner, free, rest, yearend, newyear};
 
 async function dayCard(d){
   const m = monthOf(d), dm = domOf(d);
@@ -2296,7 +2411,7 @@ function openTab(t){
     h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><img class="sicon" src="img/stat_${k}.webp" alt=""><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook() + (S.house ? decorList() : '');
   } else {
     h = `<header><h2>手帳與日記</h2><button class="close" type="button">返回</button></header>${S.house ? handbook() : ''}<ul class="log">` +
-      (S.log.length ? S.log.map(l => `<li><b>${!l.d ? '序章' : monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>' + tipsList();
+      (S.log.length ? S.log.map(l => `<li><b>${!l.d ? '序章' : monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>' + yearsList() + tipsList();
   }
   E.sheet.innerHTML = h; E.sheet.hidden = false; E.sheet.scrollTop = 0;
   bindClose();
@@ -2329,7 +2444,7 @@ let onSheetClose = null;
 function bindClose(){
   E.sheet.querySelector('.close').onclick = () => { SND.sfx('page'); E.sheet.hidden = true; if (onSheetClose){ const f = onSheetClose; onSheetClose = null; f(); } };
 }
-const SLOT_LABEL = {opening:'分院',class:'晨課',exam:'月考',outing:'上午',lunch:'午膳',explore:'午後',festival:'花朝節',dinner:'晚膳',free:'自由時間',rest:'夜'};
+const SLOT_LABEL = {yearend:'年終祭',newyear:'開學典禮',opening:'分院',class:'晨課',exam:'月考',outing:'上午',lunch:'午膳',explore:'午後',festival:'花朝節',dinner:'晚膳',free:'自由時間',rest:'夜'};
 function describe(v){
   if (!v) return '';
   const P = plan(v.day), k = P[Math.min(v.slot, P.length - 1)];
@@ -2491,7 +2606,7 @@ async function main(){
       const ok = await choose('開始新的入學後，自動存檔會被新進度取代。手動存檔會保留。', [{label:'開始新的入學', value:1},{label:'返回', value:0}]);
       if (!ok) continue;
     }
-    S = fresh(); break;
+    S = migrate(fresh()); break;
   }
   hud(); loop();
 }
@@ -2508,7 +2623,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
