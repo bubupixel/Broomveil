@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-221953';</script>
+<script>window.GAME_VERSION = '20261112-074541';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -527,6 +527,9 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
 @keyframes itemBob{0%,100%{opacity:1;transform:translate(-50%,-50%) rotate(-7deg)}50%{opacity:1;transform:translate(-50%,-57%) rotate(-4deg)}}
 @keyframes itemOut{from{opacity:1;transform:translate(-50%,-50%) rotate(-7deg)}to{opacity:0;transform:translate(-50%,-30%) rotate(-2deg) scale(.85)}}
 html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
+.title-badge{display:flex;align-items:center;gap:10px;margin:6px 0 12px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.55);border:1px solid rgba(170,140,100,.35)}
+.title-badge img{width:40px;height:40px;object-fit:contain}
+.title-badge span{display:flex;flex-direction:column}.title-badge small{color:var(--ink-soft);font-size:12px}
 </style>
 
 <div class="backdrop" id="backdrop"></div>
@@ -571,15 +574,15 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-221953"></script>
-<script src="story.js?v=20261111-221953"></script>
+<script src="audio.js?v=20261112-074541"></script>
+<script src="story.js?v=20261112-074541"></script>
 <script>
 (() => {
-const {QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 // 白溯光在第三章之後才加入名單；C 是目前看得見的人
 const C_ALL = [...C12, BAIC];
 let C = C12.slice();
-function refreshC(v){ C = v && v.flags && v.flags.baiFree ? C_ALL : C12; }
+function refreshC(v){ C = v && v.flags && v.flags.baiFree ? C_ALL : C12; if (v && v.flags) LIFE2.HAUNT.bai = v.flags.yulanOpen ? ['yulan','lake'] : ['lake','lake']; }
 EV.bai = EV_BAI;
 const BY = Object.fromEntries(C_ALL.map(c => [c.id, c]));
 const FAST = location.hash.startsWith('#test');
@@ -601,6 +604,7 @@ const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
 // 舊存檔補上新系統的欄位
 function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; v.q2 ??= 0; v.items ??= {}; v.decor ??= {}; v.parcel ??= 0; v.replies ??= 0; v.giftDay ??= {}; v.wx ??= 'sun'; v.bdDone ??= {}; v.promise ??= null; v.broken ??= null; v.keys ??= {}; v.keyHint ??= {}; v.col ??= {}; v.col.gift ??= {}; v.col.inc ??= {}; v.col.fest ??= {}; v.col.bd ??= {}; if (!v.aff2){ v.aff2 = 1; for (const k in (v.aff || {})) v.aff[k] = Math.min(200, v.aff[k] * 2); }
+  v.comm ??= []; v.commDone ??= 0; v.commLast ??= {}; v.col.comm ??= {}; v.col.hue ??= {};
   v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; refreshC(v); return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
@@ -1017,7 +1021,7 @@ function aff(id, v, daily){
     v = Math.max(1, Math.round(v * Math.max(.12, 1 - before / 215)));
     if (daily){
       const t = S.affDay[id] && S.affDay[id][0] === S.day ? S.affDay[id][1] : 0;
-      v = Math.min(v, AFF_DAY - t); if (v <= 0) return 0;
+      v = Math.min(v, AFF_DAY + (hasFx('echo') ? 1 : 0) - t); if (v <= 0) return 0;
       S.affDay[id] = [S.day, t + v];
     }
   }
@@ -1053,6 +1057,8 @@ async function run(seq, ctx = {}){
         case '#q4': S.q4 = st[1]; S.q4Day = S.day; hud(); E.quest.classList.remove('flash'); void E.quest.offsetWidth; E.quest.classList.add('flash'); toast('主線更新・玉蘭重開', true); break;
         case '#game': { const r = await playGame(st[1] === 'own' ? S.house : st[1], {title:st[2], short:true}); await run(r.full || r.score >= 3 ? st[3] : st[4], ctx); break; }
         case '#allies': await allies(); break;
+        case '#badge': S.flags.shouxi = true; SND.sfx('magic'); await card(`<img class="crestimg" src="${BADGE_IMG}" alt=""><span class="small">獲得</span><span class="big">玉蘭院首席襟章</span><span class="small">二十二年來，第一位玉蘭院首席</span>`, 2800); break;
+        case '#book': S.flags.yuBook = true; await card(`<img class="crestimg" src="img/crest_yu.webp" alt=""><span class="small">獲得</span><span class="big">溯光譜</span><span class="small">玉蘭院・六層・四院共修</span>`, 2400); await tip('yulan'); break;
         case '#money': S.money = Math.max(0, S.money + st[1]); hud(); toast(`靈石 ${st[1] > 0 ? '+' : ''}${st[1]}`); break;
         case '#ing': gainIng(st[1], st[2]); toast(`得到 ${ingName(st[1])} ×${st[2]}`); break;
         case '#choice': {
@@ -1154,7 +1160,7 @@ async function meet(c, ctx, where){
     note(e.note); S.ev[c.id] = i + 1; S.evDay[c.id] = S.day;
     return;
   }
-  if (ctx === 'lunch'){ await say(c.id, pick(c.lunch), 'happy'); aff(c.id, 5, true); }
+  if (ctx === 'lunch'){ await say(c.id, S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : pick(c.lunch), 'happy'); aff(c.id, 5, true); }
   else if (ctx === 'date'){
     if ((S.aff[c.id] || 0) >= 100){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
     else await say(c.id, c.dateA[0], 'happy');
@@ -1535,7 +1541,7 @@ async function giftMenu(c){
   if (!g) return;
   if (g.startsWith('gift:')){
     const gf = GIFT[g.slice(5)]; S.items[gf.id]--;
-    if (gf.for === c.id && (isBday(c) || !(S.giftDay[c.id] && S.day - S.giftDay[c.id] < 7))){ S.giftDay[c.id] = S.day; S.col.gift[gf.id] = 1; aff(c.id, isBday(c) ? 22 : 12); await say(c.id, gf.line, 'happy'); note(`送給${c.n}「${gf.n}」。`); }
+    if (gf.for === c.id && (isBday(c) || !(S.giftDay[c.id] && S.day - S.giftDay[c.id] < 7))){ S.giftDay[c.id] = S.day; S.col.gift[gf.id] = 1; aff(c.id, (isBday(c) ? 22 : 12) + (hasFx('kin') ? 3 : 0)); await say(c.id, gf.line, 'happy'); note(`送給${c.n}「${gf.n}」。`); }
     else if (gf.for === c.id){ aff(c.id, 3, true); await say(c.id, '又送我？……謝謝。不過，不用每次都這麼破費。', 'shy'); }
     else if (isBday(c)){ aff(c.id, 8); await say(c.id, '生日禮物？……謝謝你記得。', 'happy'); }
     else { aff(c.id, 3, true); await say(c.id, '……送我的？謝謝你。'); }
@@ -1559,7 +1565,7 @@ const spellStat = x => x.stat || HOUSES[S.house].stat;
 const spellReady = x => x && (S.mag[x.id] || 0) >= x.need && S.stats[spellStat(x)] >= x.req;
 async function learnSpell(x){
   S.spells.push(x.id); SND.sfx('magic');
-  await card(`<img class="spellimg" src="img/spell_${x.id}.webp" alt=""><span class="small">習得咒術・第${cn(x.tier || S.spells.length)}層</span><span class="big">${x.n}</span><span class="small">${MAGIC.FX[x.fx]}</span>`, 2600);
+  await card(`<img class="spellimg" src="${x.icon || `img/spell_${x.id}.webp`}" alt=""><span class="small">習得咒術・第${cn(x.tier || S.spells.length)}層</span><span class="big">${x.n}</span><span class="small">${MAGIC.FX[x.fx]}</span>`, 2600);
   await say('', x.learn);
   note(`習得咒術「${x.n}」。`);
   gain(spellStat(x), 2);
@@ -1579,20 +1585,20 @@ async function practise(key, pts){
 }
 async function checkSpells(){
   if (!S.house) return;
-  for (const key of [S.house, 'herb', 'craft']){ const x = curSpell(key); if (spellReady(x)) await learnSpell(x); }
+  for (const key of [S.house, 'herb', 'craft', ...(S.flags.yuBook ? ['yu'] : [])]){ const x = curSpell(key); if (spellReady(x)) await learnSpell(x); }
 }
 function spellBook(){
   if (!S.house) return '';
   const row = (x, cur) => {
     const got = S.spells.includes(x.id), m = S.mag[x.id] || 0, st = spellStat(x);
     const state = got ? '<span class="tag2 ok">已習得</span>' : cur ? `<span class="tag2">熟練 ${m}/${x.need}</span>` : '<span class="tag2">未解鎖</span>';
-    return `<div class="spell ${got ? 'got' : cur ? 'cur' : 'lock'}"><img class="spic" src="img/spell_${x.id}.webp" alt=""><div class="sp-t"><b>${got || cur ? x.n : '？？？'}</b>${state}</div>
+    return `<div class="spell ${got ? 'got' : cur ? 'cur' : 'lock'}"><img class="spic" src="${x.icon || `img/spell_${x.id}.webp`}" alt=""><div class="sp-t"><b>${got || cur ? x.n : '？？？'}</b>${state}</div>
       ${got || cur ? `<small>${x.d}</small>` : ''}<small class="fx">${MAGIC.FX[x.fx]}${x.req ? `・需${STATS[st][0]} ${x.req}` : ''}</small>
       ${cur ? `<div class="bar"><i style="width:${m / x.need * 100}%"></i></div>` : ''}</div>`;
   };
   const line = (key, title) => { const c = curSpell(key); return `${MAGIC.HOUSE[key] ? `<div class="bookhead"><img src="img/book_${key}.webp" alt=""><div><h3>${title}</h3><small>已習得 ${lineOf(key).filter(x => S.spells.includes(x.id)).length} / 6 層</small></div></div>` : `<h3>${title}</h3>`}<div class="spells">${lineOf(key).map(x => row(x, x === c)).join('')}</div>`; };
   return `<p class="muted" style="margin-top:14px"><img class="hi" src="img/ui_scroll.webp" alt="">上課和晚上自修都會累積熟練。熟練滿了、能力也達標，就能習得咒語，解鎖下一層。</p>`
-    + line(S.house, `《${HOUSES[S.house].name}術譜》`) + line('herb', '藥草學・共修') + line('craft', '器物製作・共修');
+    + line(S.house, `《${HOUSES[S.house].name}術譜》`) + line('herb', '藥草學・共修') + line('craft', '器物製作・共修') + (S.flags.yuBook ? line('yu', '《溯光譜》・玉蘭院') : '');
 }
 
 // ---------- 每月節慶（第二個月起） ----------
@@ -1626,7 +1632,7 @@ async function monthFest(){
   }
   S.col.fest[fi + 1] = 1;
   if (F.night){ setScene(F.night); await sleep(300); }
-  if (c){ show(c); await say('', pick(F.with).replace(/\{c\}/g, c.n)); aff(c.id, 8); note(`${F.n}，和${c.n}一起度過。`); }
+  if (c){ show(c); await say('', pick(F.with).replace(/\{c\}/g, c.n)); aff(c.id, hasFx('moon') ? 12 : 8); note(`${F.n}，和${c.n}一起度過。`); }
   else note(`參加了${F.n}。`);
 }
 async function incident(pid){
@@ -1818,17 +1824,97 @@ async function allies(){
   show(null);
 }
 async function ch4End(){
-  S.q4 = 7; S.flags.ch4done = true; S.blight = null;
+  S.q4 = 7; S.flags.ch4done = true; S.blight = null; S.ch4Day = S.day;
   ['ling','gan','feng'].forEach(k => gain(k, 2));
-  await card(`<img class="crestimg" src="img/crest_yu.webp" alt=""><span class="big">玉蘭重開</span><span class="small">第四章・完</span><div class="sum">玉蘭院的鐘聲響了。蝕沉入了湖底。<br>白色的學院，回到了花月湖的對岸。<br><br>外婆來信說，花朝節那天，她想來靈院看看。<br>主線第五章，製作中。</div>`, 0);
+  await card(`<img class="crestimg" src="img/crest_yu.webp" alt=""><span class="big">玉蘭重開</span><span class="small">第四章・完</span><div class="sum">玉蘭院的鐘聲響了。蝕沉入了湖底。<br>白色的學院，回到了花月湖的對岸。<br><br>外婆來信說，花朝節那天，她想來靈院看看。<br>明天早上，正殿前有一場大典。<br>主線第五章，製作中。</div>`, 0);
   note('第四章「玉蘭重開」完。玉蘭院回到了花月湖的對岸。');
   hud();
+}
+
+// ---------- 主線之後：玉蘭院・首席・委託 ----------
+const BADGE_IMG = 'img/crest_yu.webp', BOARD_IMG = 'img/ui_scroll.webp';
+function syncPost(){ HAUNT.bai = S.flags.yulanOpen ? ['yulan','lake'] : ['lake','lake']; }
+async function yulan(){
+  setScene('玉蘭院'); await sleep(300);
+  if (!S.flags.yuBook){ await run(POST.first); }
+  while (true){
+    const x = curSpell('yu'), bai = whereIs(BAIC) === 'yulan';
+    const opts = [];
+    if (x) opts.push({label:'聽課・溯光譜', sub:hpSub(2, `「${x.n.replace('溯光・', '')}」${S.mag[x.id] || 0}/${x.need}`), value:'lesson', disabled:!canHp(2), icon:x.icon || 'img/crest_yu.webp'});
+    else opts.push({label:'《溯光譜》已全部習得', sub:'白溯光說：剩下的，要靠你自己去記得了', value:'done', disabled:true});
+    if (bai) opts.push(Object.assign(charOpt(BAIC), canHp(2) ? {} : {disabled:true, sub:'體力不足'}));
+    opts.push({label:'敲響玉蘭鐘', sub:S.bellDay === S.day ? '今天已經敲過了' : '每天一次・體力 +1・風雅', value:'bell', disabled:S.bellDay === S.day, icon:'img/crest_yu.webp'});
+    opts.push({label:'在院子裡走走', sub:canHp(2) ? '感知・體力 -2' : '體力不足', value:'look', disabled:!canHp(2)});
+    opts.push({label:'離開', value:null});
+    const v = await choose('玉蘭院。要做什麼？', opts);
+    if (!v){ await say('', '你走過石橋。回頭時，木蘭還在風裡輕輕搖著。'); return; }
+    if (v === 'bell'){ S.bellDay = S.day; addHp(1); gain('feng', 1); SND.sfx('star'); await say('', pick(POST.BELL)); continue; }
+    if (v === 'look'){ useHp(2); gain('gan', 2); await say('', pick(POST.LOOK)); return; }
+    if (v === 'lesson'){ useHp(2); await say('', pick(POST.LESSON));
+      const r = await playGame(S.house, {title:'溯光・' + x.n.replace('溯光・', ''), short:true, time:8000});
+      gain(spellStat(x), 1); await practise('yu', r.score + (r.full ? 2 : 0)); return; }
+    useHp(2); gain('gan', 1); await meet(BAIC, 'meet', '玉蘭院'); return;
+  }
+}
+async function hueMoment(pid){
+  const L = POST.HUE[pid];
+  await say('', L[0]);
+  const go = await choose('要用溯光喚回它的顏色嗎？', [{label:'溯光・喚色', sub:'不耗體力', value:1, icon:'img/crest_yu.webp', hot:true}, {label:'讓它安靜待著', value:0}]);
+  if (!go) return false;
+  SND.sfx('magic'); await say('', L[1]);
+  gain('gan', 1); gain('sheng', 1); S.col.hue[pid] = 1; note(`在${PLACE_N[pid]}用溯光喚回了一點顏色。`);
+  return true;
+}
+// 茶攤委託
+const commWho = c => c.who.startsWith('npc:') ? c.who.slice(4) : (BY[c.who] ? BY[c.who].n : c.who);
+const canDeliver = a => POST.COMM[a.i].want.some(g => S.cups[g]);
+function spawnComm(){
+  if (!S.stall || !S.stall.open) return;
+  const keep = S.comm.filter(a => S.day <= a.due);
+  if (keep.length < S.comm.length) S.commLate = true;
+  S.comm = keep;
+  if (S.comm.length >= 2 || Math.random() > .4) return;
+  const pool = POST.COMM.map((c, i) => i).filter(i => !S.comm.some(a => a.i === i) && !(S.commLast[i] && S.day - S.commLast[i] < 20)
+    && (POST.COMM[i].who.startsWith('npc:') || S.met[POST.COMM[i].who]));
+  if (!pool.length) return;
+  const i = pick(pool);
+  S.comm.push({i, d:S.day, due:S.day + 5 + (hasFx('still') ? 2 : 0)}); S.commNew = true;
+}
+async function board(){
+  await tip('comm');
+  while (true){
+    if (!S.comm.length){ await say('', '委託板上空空的。過幾天再來看看吧。'); return; }
+    const opts = S.comm.map((a, k) => { const c = POST.COMM[a.i], left = a.due - S.day;
+      return {label:commWho(c), sub:`${c.t.length > 22 ? c.t.slice(0, 22) + '…' : c.t}・${left > 0 ? `還有 ${left} 天` : '今天截止'}${canDeliver(a) ? '・✦ 可以交付' : ''}`, value:k, hot:canDeliver(a), ...(BY[c.who] ? {img:BY[c.who].img, color:HOUSES[BY[c.who].h].color} : {icon:BOARD_IMG})}; });
+    opts.push({label:'離開委託板', value:null});
+    const k = await choose(`委託板上貼著 ${S.comm.length} 張紙條。`, opts);
+    if (k === null) return;
+    const a = S.comm[k], c = POST.COMM[a.i];
+    await say(c.who.startsWith('npc:') ? c.who : c.who, c.t);
+    show(null);
+    const have = c.want.filter(g => S.cups[g]);
+    const brew = S.known.filter(g => !S.cups[g] && Object.entries(REC[g].need).every(([ing, n]) => (S.inv[ing] || 0) >= n));
+    const o2 = [...S.known.filter(g => S.cups[g]).map(g => ({label:`交付一杯${REC[g].n}`, sub:`剩 ${S.cups[g]} 杯`, value:'give:' + g, icon:teaImg(g)})),
+      ...brew.map(g => ({label:`現泡一杯${REC[g].n}`, sub:'用身上的茶材', value:'brew:' + g, icon:teaImg(g)})), {label:'再想想', value:null}];
+    const v = await choose('要交付哪一杯？', o2);
+    if (!v) continue;
+    const g = v.slice(5);
+    if (v.startsWith('brew:')){ for (const [ing, n] of Object.entries(REC[g].need)) S.inv[ing] -= n; S.cups[g] = (S.cups[g] || 0) + 1; gain('qiao', 1); await say('', `你借了花婆婆的小爐子，泡了一杯${REC[g].n}。`); }
+    S.cups[g]--;
+    if (!c.want.includes(g)){ await say('', `你把${REC[g].n}放在委託板旁。過了一會兒，紙條上多了一行小字：「謝謝，不過……好像不是我想要的那種。」`); gain('qiao', 1); continue; }
+    S.comm.splice(k, 1); S.commLast[a.i] = S.day; S.commDone++; S.col.comm[a.i] = 1;
+    const pay = REC[g].price * 3; S.money += pay; S.stall.rep += 4; gain('qiao', 1); gain('gan', 1); hud(); SND.sfx('gain');
+    if (BY[c.who]){ show(BY[c.who]); await say(c.who, c.thanks, 'happy'); aff(c.who, 8); show(null); }
+    else await say(c.who, c.thanks);
+    toast(`委託完成・靈石 +${pay}・名聲 +4`, true);
+    note(`完成了${commWho(c)}的委託（${REC[g].n}）。`);
+  }
 }
 
 // ---------- 花朝手帳：長期收集 ----------
 function handbook(){
   const nInc = Object.values(LIFE.INCIDENTS).reduce((a, l) => a + l.length, 0);
-  const myLines = S.house ? [...MAGIC.HOUSE[S.house], ...MAGIC.SHARED.herb, ...MAGIC.SHARED.craft] : [];
+  const myLines = S.house ? [...MAGIC.HOUSE[S.house], ...MAGIC.SHARED.herb, ...MAGIC.SHARED.craft, ...(S.flags.yuBook ? MAGIC.SHARED.yu : [])] : [];
   const cgGot = C12.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]).length + ((S.ev.bai || 0) >= 8 ? 1 : 0);
   const evs = Object.values(S.ev).reduce((a, b) => a + b, 0);
   const items = [
@@ -1841,7 +1927,9 @@ function handbook(){
     ['外婆家書', 'img/dec_parcel.webp', Math.min(S.replies, GOODS.REPLIES.length), GOODS.REPLIES.length],
     ['校園小事', 'img/loc_vine.webp', Object.keys(S.col.inc).length, nInc],
     ['節慶', 'img/fest_0.webp', Object.keys(S.col.fest).length, LIFE.FESTS.length + 1],
-    ['四院花鑰', 'img/key_fei.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4]
+    ['四院花鑰', 'img/key_fei.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4],
+    ...(S.stall.open ? [['茶攤委託', BOARD_IMG, Object.keys(S.col.comm).length, POST.COMM.length]] : []),
+    ...(S.flags.yuBook ? [['溯光喚色', 'img/crest_yu.webp', Object.keys(S.col.hue).length, Object.keys(POST.HUE).length]] : [])
   ];
   const got = items.reduce((a, x) => a + Math.min(x[2], x[3]), 0), all = items.reduce((a, x) => a + x[3], 0);
   return `<div class="hb"><div class="hb-top"><b>花朝手帳</b><span>完成度 ${Math.floor(got / all * 100)}%</span></div>
@@ -1916,13 +2004,13 @@ async function explore(prompt){
   setScene('學院地圖'); await sleep(300);
   await wxLine();
   await tip('map');
-  const pid = await choose(prompt, PLACES.map(p => {
+  const pid = await choose(prompt, PLACES.filter(p => !p.post || S.flags.yulanOpen).map(p => {
     const bl = S.blight && S.blight.p === p.id && blightOn(), q4h = (p.id === 'herb' && S.q4 === 1) || (p.id === 'lib' && S.q4 === 4);
     const hot = bl || q4h || (KEYPLACE[p.id] && keyReady(KEYPLACE[p.id])) || (p.id === 'vine' && S.q2 === 1) || (p.id === 'star' && S.q2 === 2) || (p.id === 'lib' && S.q2 === 4) || (p.id === 'star' && S.quest === 0) || (p.id === 'lake' && S.quest === 1 && S.day >= 7) || (p.id === 'lib' && S.quest === 2)
       || presentAt(p.id).some(ready);
     const here = presentAt(p.id).filter(c => S.met[c.id]).map(c => c.n);
     const desc = (bl ? '蝕痕・' : '') + p.desc + (here.length ? '・' + here.join('、') : '');
-    return {label:p.n, sub: hot ? '✦ ' + desc : desc, hot, value:p.id, icon:`img/loc_${p.id}.webp`};
+    return {label:p.n, sub: hot ? '✦ ' + desc : desc, hot, value:p.id, icon:p.icon || `img/loc_${p.id}.webp`};
   }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest', icon:'img/loc_dorm.webp'}]));
   if (pid === 'rest'){ setScene('宿舍・晨'); await sleep(300); addHp(3); await say('', pick(['你回到宿舍，泡了一壺茶，靠著窗小睡了一會兒。','你在床上躺了一下午。醒來時，覺得整個人輕了許多。'])); return; }
   const p = PLACES.find(x => x.id === pid);
@@ -1953,6 +2041,7 @@ async function explore(prompt){
     return;
   }
   if (p.id === 'market'){ await market(); return; }
+  if (p.id === 'yulan'){ await yulan(); return; }
   const opts = presentAt(p.id).map(charOpt);
   opts.forEach(o => { if (!canHp(2)){ o.disabled = true; o.sub = '體力不足'; } });
   const mats = (TEA.GATHER[p.id] || []).map(ingName).join('、');
@@ -1961,7 +2050,7 @@ async function explore(prompt){
   const id = await choose(`${p.n}。要做什麼？`, opts);
   if (!id){ await say('', '你在附近走了走，就回去了。'); return; }
   useHp(2);
-  if (id === 'look'){ gather(p.id); if (Math.random() < (S.wx === 'fog' && p.id === 'vine' ? .6 : .35) && await incident(p.id)) return; gain(p.stat, 2); await say('', pick(LIFE.LOOK[p.id] || [LOOK[p.id]])); return; }
+  if (id === 'look'){ gather(p.id); if (hasFx('hue') && POST.HUE[p.id] && Math.random() < .3 && await hueMoment(p.id)) return; if (Math.random() < (S.wx === 'fog' && p.id === 'vine' ? .6 : .35) && await incident(p.id)) return; gain(p.stat, 2); await say('', pick(LIFE.LOOK[p.id] || [LOOK[p.id]])); return; }
   gain(p.stat, 1);
   await meet(BY[id], HAUNT[id] && HAUNT[id][0] === p.id ? 'meet' : 'alt', p.n);
 }
@@ -1975,10 +2064,12 @@ async function market(justOpened){
       {label:'買茶材', sub:`靈石 ${S.money}`, value:'buy', icon:'img/ing_cha.webp'},
       {label:'買一份花糕', sub:'-20 靈石・午膳送人', value:'cake', disabled:S.money < 20, icon:'img/ui_cake.webp'},
       {label:'逛雜貨攤', sub:'禮物・宿舍佈置・書冊・家書', value:'goods', icon:'img/dec_goods.webp'},
+      {label:'委託板', sub:S.comm.length ? `${S.comm.length} 張委託${S.comm.some(canDeliver) ? '・✦ 可以交付' : ''}` : '今天沒有新的委託', value:'board', hot:S.comm.some(canDeliver), icon:BOARD_IMG},
       {label:'離開市集', value:null}];
     const v = await choose(justOpened ? '要不要現在就試試開攤？' : '百靈市集熱鬧非常。要做什麼？', opts);
     justOpened = false;
     if (v === 'goods'){ await goodsShop(); continue; }
+    if (v === 'board'){ await board(); continue; }
     if (v === 'buy'){ await say('npc:花婆婆', pick(['今天的貨都新鮮，慢慢挑。','桂花是今早才摘的，香著呢。','小娃娃，又來啦？','要什麼自己拿，婆婆給你算便宜點。'])); await buyIngredients(); continue; }
     if (v === 'cake'){ S.money -= 20; S.cake++; hud(); await say('', '你買了一份還溫熱的花糕，用油紙包好。'); continue; }
     if (v === 'stall'){ setScene('花茶攤'); await sleep(300); if (await runStall(false)){ useHp(4); return; } setScene('百靈市集'); continue; }
@@ -2073,7 +2164,7 @@ async function festival(){
   setScene('花朝節・夜'); await sleep(400);
   await say('', '天黑以後，所有人來到花月湖畔，把寫著願望的花燈放進水裡。');
   await say('', '千百盞花燈慢慢漂向湖心，把整片湖面照成了一條星河。');
-  if (c){ await say(c.id, c.fest); aff(c.id, 12); note(`花朝節，和${c.n}一起放了花燈。`); }
+  if (c){ await say(c.id, c.fest); aff(c.id, hasFx('moon') ? 18 : 12); note(`花朝節，和${c.n}一起放了花燈。`); }
   else { C.filter(x => x.h === S.house && S.met[x.id]).forEach(x => aff(x.id, 4)); note('花朝節，和同院同學一起放了花燈。'); }
   if (S.quest >= 1){
     await say('', '燈海之中，你忽然看見一盞白色的花燈，逆著水流，獨自往湖心漂去。');
@@ -2094,6 +2185,7 @@ async function storyBeat(d, slot){
     else if (S.q4 === 3 && slot === 'rest' && d >= S.q4Day + 1){ await run(CH4.gu); }
     else if (S.q4 === 5 && slot === 'class' && d >= S.q4Day + 4){ await run(CH4.letter); }
     else if (S.q4 === 6 && slot === 'rest' && d >= S.q4Day + 2 && !ch4Needs().length){ await run(CH4.finale); await ch4End(); }
+    else if (S.flags.ch4done && !S.flags.yulanOpen && slot === 'class' && d >= (S.ch4Day || 0) + 1){ await run(POST.open); S.flags.yulanOpen = true; syncPost(); hud(); }
     if (S.q2 === 0 && d >= 31 && slot === 'rest') await run(CH2.open);
     else if (S.q2 === 1 && d >= 38 && slot === 'rest') await run([['#scene','宿舍・夜'],['','夜裡，你又夢見了那面鏡子。醒過來時，你已經披著外衣，站在紫藤迴廊了。'], ...CH2.vine]);
     else if (S.q2 === 2 && d >= 45 && slot === 'rest') await run([['#scene','宿舍・夜'],['','窗邊落下一隻紙鶴。'],['npc:紙鶴','「星圖有變。今夜，觀星閣。——江望舒」'], ...CH2.star]);
@@ -2200,6 +2292,7 @@ function openTab(t){
         : `<button type="button" class="lock" disabled>未解鎖</button>`).join('') + '</div>';
   } else if (t === 'stats'){
     h = `<header>${S.house ? `<img class="hcrest" src="img/crest_${S.house}.webp" alt="">` : ''}<h2>${S.name || '能力'}</h2><span class="sub">${S.gender === 'm' ? '男' : S.gender === 'f' ? '女' : ''}${S.house ? '・' + HOUSES[S.house].name : ''}</span><button class="close" type="button">返回</button></header>` + hexSVG();
+    if (S.flags.shouxi) h += `<div class="title-badge"><img src="${BADGE_IMG}" alt=""><span><b>玉蘭院首席</b><small>二十二年來第一位・四院學生都認得你</small></span></div>`;
     h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><img class="sicon" src="img/stat_${k}.webp" alt=""><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook() + (S.house ? decorList() : '');
   } else {
     h = `<header><h2>手帳與日記</h2><button class="close" type="button">返回</button></header>${S.house ? handbook() : ''}<ul class="log">` +
@@ -2363,7 +2456,7 @@ async function loop(){
       S.day = 1; S.slot = 0; S.today = [];
     }
     const P = plan(S.day);
-    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } }
+    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } }
     while (S.slot < P.length){
       const k = P[S.slot]; S.today = S.slot === 0 ? [] : S.today; checkpoint(); hud();
       if (S.house && S.hp <= 2 && k !== 'rest') await tip('tired');
@@ -2415,7 +2508,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
