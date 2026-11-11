@@ -25,6 +25,7 @@ const SND = (() => {
     verb.buffer = ir; const wet = ctx.createGain(); wet.gain.value = .35; verb.connect(wet); wet.connect(master);
     musicBus.connect(master); musicBus.connect(verb); sfxBus.connect(master); sfxBus.connect(verb);
     startDrone(); nextT = ctx.currentTime + .2; timer = setInterval(schedule, 90);
+    if (ambKind) setTimeout(() => ambient(ambKind), 0);
   }
 
   // guzheng-ish pluck: bright attack, slight pitch bend down, fast decay
@@ -112,6 +113,13 @@ const SND = (() => {
       case 'gain': [0, 2, 4].forEach((k, i) => bell(t + i * .08, note(M, k + 5, 0), .07, sfxBus, 1.4)); break;
       case 'aff': bell(t, note(M, 7, 0), .08, sfxBus, 2.2); bell(t + .14, note(M, 9, 0), .07, sfxBus, 2.4); break;
       case 'magic': for (let i = 0; i < 9; i++) bell(t + i * .055, note(M, i + 3, 0), .05, sfxBus, 1.8); break;
+      case 'star': bell(t, note(M, 7 + (arg||0), 1), .07, sfxBus, 2.2); bell(t + .05, note(M, 9 + (arg||0), 1), .04, sfxBus, 1.8); break;
+      case 'fire': { const n = ctx.createBufferSource(); n.buffer = noise(); const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(400, t); bp.frequency.exponentialRampToValueAtTime(2400, t + .25); bp.Q.value = 1.2;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.25, t + .04); g.gain.exponentialRampToValueAtTime(.001, t + .4); n.connect(bp); bp.connect(g); g.connect(sfxBus); n.start(t, Math.random() * 2); n.stop(t + .45);
+        pluck(t, note(M, 0, -1), .2, sfxBus, .8); break; }
+      case 'leaf': { const n = ctx.createBufferSource(); n.buffer = noise(); const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2500;
+        const g = ctx.createGain(); g.gain.setValueAtTime(.0, t); g.gain.linearRampToValueAtTime(.12, t + .03); g.gain.exponentialRampToValueAtTime(.001, t + .22); n.connect(hp); hp.connect(g); g.connect(sfxBus); n.start(t, Math.random() * 2); n.stop(t + .25);
+        pluck(t + .02, note(M, 4 + (arg||0), 1), .08, sfxBus, .9); break; }
       case 'page': { const n = ctx.createBufferSource(), buf = ctx.createBuffer(1, ctx.sampleRate * .18, ctx.sampleRate), d = buf.getChannelData(0);
         for (let i = 0; i < d.length; i++) d[i] = (Math.random()*2-1) * Math.sin(Math.PI * i / d.length); n.buffer = buf;
         const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = .7; const g = ctx.createGain(); g.gain.value = .12;
@@ -128,7 +136,62 @@ const SND = (() => {
   const wake = () => { if (!on) return; init(); if (ctx && ctx.state !== 'running') ctx.resume(); };
   addEventListener('pointerdown', wake, true); addEventListener('keydown', wake, true);
   document.addEventListener('visibilitychange', () => { if (!ctx) return; document.hidden ? ctx.suspend() : (on && ctx.resume()); });
-  return {sfx, setMood, toggle, isOn: () => on};
+  // ---------- 環境音：雨、湖水、夜蟲、市集、花風（即時合成，可交叉淡入淡出） ----------
+  let ambBus = null, amb = null, ambKind = '', ambTimer = null, noiseBuf = null;
+  function noise(){
+    if (noiseBuf) return noiseBuf;
+    const len = ctx.sampleRate * 4; noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate); const d = noiseBuf.getChannelData(0);
+    let b = 0; for (let i = 0; i < len; i++){ const w = Math.random() * 2 - 1; b = (b + .02 * w) / 1.02; d[i] = w * .6 + b * 3.5; }
+    return noiseBuf;
+  }
+  function ambLayer(lp, hp, vol, bp){
+    const src = ctx.createBufferSource(); src.buffer = noise(); src.loop = true;
+    const g = ctx.createGain(); g.gain.value = 0;
+    let node = src;
+    if (hp){ const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; node.connect(f); node = f; }
+    if (bp){ const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = bp; f.Q.value = .8; node.connect(f); node = f; }
+    if (lp){ const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; node.connect(f); node = f; }
+    node.connect(g); g.connect(ambBus); src.start();
+    g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 2.5);
+    return {src, g};
+  }
+  function chirp(t){ // 夜蟲：三下短促的高音
+    for (let i = 0; i < 3; i++){ const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 4300 + Math.random() * 300;
+      g.gain.setValueAtTime(0, t + i * .07); g.gain.linearRampToValueAtTime(.012, t + i * .07 + .01); g.gain.linearRampToValueAtTime(0, t + i * .07 + .05);
+      o.connect(g); g.connect(ambBus); o.start(t + i * .07); o.stop(t + i * .07 + .06); }
+  }
+  function plip(t){ // 湖水：偶爾一聲水滴
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(900 + Math.random() * 500, t); o.frequency.exponentialRampToValueAtTime(380, t + .12);
+    g.gain.setValueAtTime(.03, t); g.gain.exponentialRampToValueAtTime(.0005, t + .18); o.connect(g); g.connect(ambBus); o.start(t); o.stop(t + .2);
+  }
+  function ambient(kind){
+    ambKind = kind || '';
+    if (!ctx) return;
+    if (!ambBus){ ambBus = ctx.createGain(); ambBus.gain.value = 1; ambBus.connect(master); }
+    if (amb && amb.kind === ambKind) return;
+    const t = ctx.currentTime;
+    if (amb){ amb.layers.forEach(l => { l.g.gain.cancelScheduledValues(t); l.g.gain.setValueAtTime(l.g.gain.value, t); l.g.gain.linearRampToValueAtTime(0, t + 1.8); l.src.stop(t + 2); }); }
+    clearInterval(ambTimer); amb = {kind:ambKind, layers:[]};
+    const L = amb.layers;
+    if (ambKind === 'rain'){ L.push(ambLayer(5200, 900, .05)); L.push(ambLayer(900, 200, .035)); }
+    else if (ambKind === 'rainIn'){ L.push(ambLayer(1400, 300, .03)); }
+    else if (ambKind === 'lake'){ const l = ambLayer(420, 0, .05); L.push(l); ambTimer = setInterval(() => { if (Math.random() < .35) plip(ctx.currentTime + Math.random()); }, 1600); }
+    else if (ambKind === 'night'){ L.push(ambLayer(380, 0, .02)); ambTimer = setInterval(() => { if (Math.random() < .55) chirp(ctx.currentTime + Math.random() * .5); }, 900); }
+    else if (ambKind === 'lakeNight'){ L.push(ambLayer(420, 0, .04)); ambTimer = setInterval(() => { const t = ctx.currentTime; if (Math.random() < .5) chirp(t + Math.random() * .5); if (Math.random() < .25) plip(t + Math.random()); }, 1000); }
+    else if (ambKind === 'market'){ const l = ambLayer(1500, 250, .035, 700); L.push(l); ambTimer = setInterval(() => { const t = ctx.currentTime; l.g.gain.setTargetAtTime(.02 + Math.random() * .03, t, .6); }, 1200); }
+    else if (ambKind === 'wind'){ const l = ambLayer(2600, 300, .04, 900); L.push(l); ambTimer = setInterval(() => { l.g.gain.setTargetAtTime(.015 + Math.random() * .05, ctx.currentTime, 1.2); }, 1500); }
+  }
+  // ---------- 角色旋律：每個人四個音，出場時輕輕響起 ----------
+  const MOTIF = {pei:[4,6,7,9], qin:[0,2,4,2], tang:[5,6,8,7], jiang:[7,9,11,9], lu:[2,4,3,0], wen:[5,7,6,8], lin:[4,3,2,4], ye:[7,5,4,2],
+    ruan:[6,7,8,10], su:[9,7,8,5], liu:[2,5,4,7], ji:[3,5,7,6], bai:[10,8,7,5], gran:[0,2,4,5]};
+  const motifLast = {};
+  function motif(id){
+    if (!ctx || !on || !MOTIF[id]) return; const t0 = ctx.currentTime + .05;
+    if (motifLast[id] && t0 - motifLast[id] < 25) return; motifLast[id] = t0;
+    const M = MOODS[mood];
+    MOTIF[id].forEach((d, i) => { bell(t0 + i * .2, note(M, d, 0), .045, sfxBus, 1.6); if (i === 3) flute(t0 + i * .2, note(M, d, 1), 1.2, .02); });
+  }
+  return {sfx, setMood, toggle, ambient, motif, isOn: () => on};
 })();
 const NIGHT_SCENES = new Set(['夜','宿舍','宿舍・夜','花月湖・夜','花朝節・夜','觀星閣','鳶尾院','夢境']);
 const PROLOGUE_SCENES = new Set(['雲溪鎮','茶館','外婆的院子','花徑']);

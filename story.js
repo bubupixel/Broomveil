@@ -2175,5 +2175,25 @@ const EV_BAI = [
 
 LIFE2.BD.bai = [6, 6, '生辰？……二十二年沒有人記得了。我自己，都快忘了。謝謝你。'];
 LIFE2.HAUNT.bai = ['lake', 'lake'];
-return {CH3,BAIC,EV_BAI,LIFE2,GOODS,SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG};
+// ---------- 新手提示（每個系統第一次出現時說明一次，「記」頁可以重溫） ----------
+const TIPS = {
+  basics:{n:'學院的一天', icon:'img/loc_dorm.webp', t:['每天分成幾個時段：上課、午膳、下午、晚膳、夜晚。每個時段開始時都會自動存檔。','上課、探索、擺攤都會消耗體力（頂部的蓮花）。每晚只恢復 4 點，週日晚上才完全恢復，記得安排休息。','對白框右上角的「回顧」可以看剛才的對白；「略過」會快速帶過讀過的內容。']},
+  game_fei:{n:'火候掌握', icon:'img/spell_f1.webp', t:['緋玫院與器物製作課的練習。','指針會來回擺動，在它進入金色範圍時按「出手」。正中間最好。一共三輪，一輪比一輪難。']},
+  game_craft:{n:'火候掌握', icon:'img/spell_c1.webp', t:['器物製作課的練習。','指針會來回擺動，在它進入金色範圍時按「出手」。正中間最好。']},
+  game_yuan:{n:'星軌連線', icon:'img/spell_y2.webp', t:['鳶尾院的練習。','先看清楚星星亮起的順序，等星軌消失後，照同樣的順序把星星點亮。']},
+  game_ling:{n:'藤蔓編織', icon:'img/spell_l2.webp', t:['鈴蘭院與藥草學課的練習。','葉片會依序發光，記住順序再照著點回去。每一段藤蔓都比上一段長。']},
+  game_herb:{n:'藤蔓編織', icon:'img/spell_h1.webp', t:['藥草學課的練習。','葉片會依序發光，記住順序再照著點回去。']},
+  game_zi:{n:'幻境花瓣', icon:'img/spell_z1.webp', t:['紫藤院的練習。','依照數字順序點亮花瓣。灰色的是幻境裡的假花瓣，碰到會扣分。']},
+  map:{n:'地圖與日程', icon:'img/life_pin.webp', t:['下午可以自由走動。每個地點下面，會寫著今天在那裡的人。','大家都有常去的地方，也有偶爾才去的地方，有時候整天都找不到人。在「緣」頁可以看到每個人常在哪裡。','有 ✦ 的地點，代表那裡有事情在等你。']},
+  stall:{n:'花茶攤', icon:'img/hud_tea.webp', t:['在百靈市集或晚上可以擺攤。先決定泡哪些茶，再按客人點的茶遞上去。','茶材可以在各地「四處看看」時採到，也可以在市集買。晚上「研發新配方」可以學會新的茶。','名聲夠了，茶攤會升級，售價也會提高。']},
+  spell:{n:'院術譜', icon:'img/ui_scroll.webp', t:['上課和晚上「自修咒術」會累積熟練。熟練滿了，能力也達標，就能習得咒語。','每學會一層，就會解鎖下一層。咒語都有實際效果，可以在「華」頁查看。']},
+  promise:{n:'約定', icon:'img/life_promise.webp', t:['晚膳後可以約對方明天一起吃午膳。','守約會讓對方很高興；忘了的話，對方會記得的。']},
+  weather:{n:'天氣', icon:'img/wx_rain.webp', t:['每天的天氣不同：雨天熱茶好賣、霧天迴廊和湖邊容易遇到怪事、花風日採集會多一份、晴天市集客人多。']},
+  goods:{n:'雜貨攤', icon:'img/dec_goods.webp', t:['心意禮物：午膳時送給對的人，好感大增，生日當天更多。','宿舍佈置：一次買下，長期有效。','咒術手札可以加快修習；每個月可以寄一次包裹給外婆，她會回信。']},
+  birthday:{n:'生日', icon:'img/life_bday.webp', t:['每個人都有生日。生日當天第一次遇見對方，會有特別的對話；送心意禮物效果加倍。','頂部會在生日前七天提醒你。']},
+  keys:{n:'四院花鑰', icon:'img/key_fei.webp', t:['每把花鑰需要一位那一院的知己（好感 45），以及那一院擅長的能力。自己的學院則要學會術譜第三層。','條件達成後，到那一院的地點就會開始試煉。頂部任務列會告訴你還差什麼。']},
+  tired:{n:'體力不足', icon:'img/ui_hp.webp', t:['體力快用完了。體力不夠時，課堂收穫會減半，有些事也做不了。','可以下午「回宿舍休息」、晚上「早點休息」，或者在午膳和同院晚膳時恢復一點。']}
+};
+
+return {TIPS,CH3,BAIC,EV_BAI,LIFE2,GOODS,SORT,QUESTS2,CH2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG};
 })();
