@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-084301';</script>
+<script>window.GAME_VERSION = '20261112-085830';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -584,8 +584,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-084301"></script>
-<script src="story.js?v=20261112-084301"></script>
+<script src="audio.js?v=20261112-085830"></script>
+<script src="story.js?v=20261112-085830"></script>
 <script>
 (() => {
 const {YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -714,7 +714,7 @@ const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house + (g === 'fc' ? '_2' : '') : g + '0'}.jpg`}; };
 const HUAPO = {id:'huapo', n:'花婆婆', h:'yu', cut:'img/c15.webp'};
-const TOWNS = {'npc:青年':{id:'gu', n:'青年', h:'fei', cut:'img/c18.webp'}, 'npc:蕭院監':{id:'xiao', n:'蕭院監', h:'yuan', cut:'img/c19.webp'}, 'npc:顧長庚':{id:'gu', n:'顧長庚', h:'fei', cut:'img/c18.webp'}, 'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16_3.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17_3.webp'}};
+const TOWNS = {'npc:青年':{id:'gu', n:'青年', h:'fei', cut:'img/c18.webp'}, 'npc:蕭院監':{id:'xiao', n:'蕭院監', h:'yuan', cut:'img/c19.webp'}, 'npc:宋燃':{id:'m_fei', n:'宋燃', h:'fei', cut:'img/c20_2.webp'}, 'npc:許星眠':{id:'m_yuan', n:'許星眠', h:'yuan', cut:'img/c21_2.webp'}, 'npc:夏苗苗':{id:'m_ling', n:'夏苗苗', h:'ling', cut:'img/c22_2.webp'}, 'npc:秋紗':{id:'m_zi', n:'秋紗', h:'zi', cut:'img/c23_2.webp'}, 'npc:顧長庚':{id:'gu', n:'顧長庚', h:'fei', cut:'img/c18.webp'}, 'npc:王伯':{id:'wangbo', n:'王伯', h:'yu', cut:'img/c16_3.webp'}, 'npc:阿桃':{id:'atao', n:'阿桃', h:'yu', cut:'img/c17_3.webp'}};
 const teaImg = id => `img/tea_${id}.webp`, ingImg = k => `img/ing_${k}.webp`;
 function who(id){
   if (!id) return null;
@@ -2641,7 +2641,7 @@ function assets(){
     ...Object.keys(TEA.ING).map(k => `img/ing_${k}.webp`), ...TEA.RECIPES.map(r => `img/tea_${r.id}.webp`), 'img/tea_unk.webp',
     ...GOODS.GIFTS.map(g => `img/gift_${g.id}.webp`), ...GOODS.DECOR.map(x => `img/dec_${x.id}.webp`), 'img/dec_book.webp', 'img/dec_parcel.webp', 'img/dec_goods.webp',
     ...Object.values(SPELL).map(x => `img/spell_${x.id}.webp`), ...Array.from({length:10}, (_, i) => `img/npc${String(i + 1).padStart(2, '0')}.jpg`),
-    'img/c15.webp', 'img/c18.webp', 'img/c19.webp', 'img/bg_yearend.jpg']);
+    'img/c15.webp', 'img/c18.webp', 'img/c19.webp', 'img/c20_2.webp', 'img/c21_2.webp', 'img/c22_2.webp', 'img/c23_2.webp', 'img/bg_yearend.jpg']);
   core.forEach(u => all.delete(u));
   return {core, rest:[...all]};
 }
