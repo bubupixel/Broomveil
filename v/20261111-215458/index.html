@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-214316';</script>
+<script>window.GAME_VERSION = '20261111-215458';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -562,8 +562,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-214316"></script>
-<script src="story.js?v=20261111-214316"></script>
+<script src="audio.js?v=20261111-215458"></script>
+<script src="story.js?v=20261111-215458"></script>
 <script>
 (() => {
 const {QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -834,18 +834,18 @@ function ambFor(name){
   if (wx === 'wind' && out) return 'wind';
   return night ? 'night' : '';
 }
-function setScene(name, cg){
+function setScene(name, cg, img){
   show(null); cgOn = !!cg;
   if (E.place.textContent !== name){ E.place.textContent = name; E.place.classList.remove('in'); void E.place.offsetWidth; E.place.classList.add('in'); }
   SND.setMood(PROLOGUE_SCENES.has(name) ? 'prologue' : NIGHT_SCENES.has(name) ? 'night' : 'day');
   applyWx(name); SND.ambient(ambFor(name));
-  if (front.dataset.k === name + (cg || '')) return;
-  const key = cg || SCENE_IMG[name];
+  if (front.dataset.k === name + (cg || img || '')) return;
+  const key = cg || img || SCENE_IMG[name];
   const url = key ? (key.includes('/') ? key : `img/${key}.jpg`) : '';
   const fb = SCENE_FALLBACK[name] || 'linear-gradient(170deg,#3a2d26,#14110f)';
   const back = front === E.bgA ? E.bgB : E.bgA;
   back.style.background = url ? `url("${url}") center 26% / cover no-repeat, ${fb}` : fb;
-  back.dataset.k = name + (cg || '');
+  back.dataset.k = name + (cg || img || '');
   back.classList.remove('on'); void back.offsetWidth; back.classList.add('on');
   front.classList.remove('on'); front = back;
   E.backdrop.style.backgroundImage = url ? `url("${url}")` : 'none';
@@ -1026,7 +1026,7 @@ async function run(seq, ctx = {}){
     const op = st[0];
     if (typeof op === 'string' && op[0] === '#'){
       switch (op){
-        case '#scene': setScene(st[1]); await sleep(350); break;
+        case '#scene': setScene(st[1], null, st[2]); await sleep(350); break;
         case '#show': show(st[1] === 'me' ? pc() : who(st[1]), {mystery: !!st[2] && !S.flags.baiName}); await sleep(250); break;
         case '#quest2': S.q2 = st[1]; hud(); E.quest.classList.remove('flash'); void E.quest.offsetWidth; E.quest.classList.add('flash'); toast('主線更新・鏡中來客', true); break;
         case '#card': await card(`<span class="big">${st[1]}</span><span class="small">${st[2] || ''}</span>`, 2400); break;
@@ -2408,7 +2408,7 @@ if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); 
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
-  const core = ['img/title_v3.jpg', ...['bg_town','bg_tea','bg_yard','bg_room','bg_path','bg_hall','bg_dorm_day'].map(imgURL), 'img/mc0.jpg', 'img/fc0.jpg', GRAN.cut,
+  const core = ['img/title_v3.jpg', ...['bg_town','bg_tea','bg_yard','bg_room','bg_room2','bg_path','bg_hall','bg_dorm_day'].map(imgURL), 'img/mc0.jpg', 'img/fc0.jpg', GRAN.cut,
     ...['tea','people','stats','log','save','sound'].map(k => `img/hud_${k}.webp`), 'img/ui_stone.webp', 'img/ui_hp.webp', 'img/paper.jpg', 'img/petal_yu.webp', 'img/c16_3.webp', 'img/c17_3.webp'];
   const all = new Set([...Object.values(SCENE_IMG).map(imgURL), ...C.map(c => c.cut), BAI.cut,
     ...Object.values(FACES).flatMap(f => Object.values(f)), ...Object.values(CG),
