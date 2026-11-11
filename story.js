@@ -1558,7 +1558,7 @@ const SCENE_IMG = {
   '花朝正殿':'bg_hall','學院地圖':'bg_campus','膳堂':'bg_dining','晚膳':'bg_dining',
   '宿舍・夜':'bg_dorm_night','宿舍・晨':'bg_dorm_day','宿舍':'bg_dorm_night',
   '觀星閣':'bg_star','藏書閣':'bg_lib','課室':'bg_class','試煉場':'bg_arena','鈴蘭藥圃':'bg_herb','紫藤迴廊':'bg_vine',
-  '花月湖':'bg_lake','玉蘭院':'bg_yulan','花月湖・夜':'bg_lake_night','百靈市集':'bg_market','花茶攤':'bg_stall','夜市・花茶攤':'bg_stall_night',
+  '花月湖':'bg_lake','玉蘭院':'bg_yulan','年終祭':'bg_yearend','花月湖・夜':'bg_lake_night','百靈市集':'bg_market','花茶攤':'bg_stall','夜市・花茶攤':'bg_stall_night',
   '花朝節':'bg_fest','花朝節・夜':'bg_fest_night','夢境':'bg_dream',
   '緋玫院':'bg_arena','鳶尾院':'bg_star','鈴蘭院':'bg_herb','紫藤院':'bg_vine'
 };
