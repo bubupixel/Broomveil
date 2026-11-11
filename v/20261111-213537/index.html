@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-210937';</script>
+<script>window.GAME_VERSION = '20261111-213537';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -562,8 +562,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-210937"></script>
-<script src="story.js?v=20261111-210937"></script>
+<script src="audio.js?v=20261111-213537"></script>
+<script src="story.js?v=20261111-213537"></script>
 <script>
 (() => {
 const {QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -837,13 +837,13 @@ function setScene(name, cg){
   if (E.place.textContent !== name){ E.place.textContent = name; E.place.classList.remove('in'); void E.place.offsetWidth; E.place.classList.add('in'); }
   SND.setMood(PROLOGUE_SCENES.has(name) ? 'prologue' : NIGHT_SCENES.has(name) ? 'night' : 'day');
   applyWx(name); SND.ambient(ambFor(name));
-  if (front.dataset.k === name) return;
+  if (front.dataset.k === name + (cg || '')) return;
   const key = cg || SCENE_IMG[name];
   const url = key ? (key.includes('/') ? key : `img/${key}.jpg`) : '';
   const fb = SCENE_FALLBACK[name] || 'linear-gradient(170deg,#3a2d26,#14110f)';
   const back = front === E.bgA ? E.bgB : E.bgA;
   back.style.background = url ? `url("${url}") center 26% / cover no-repeat, ${fb}` : fb;
-  back.dataset.k = name;
+  back.dataset.k = name + (cg || '');
   back.classList.remove('on'); void back.offsetWidth; back.classList.add('on');
   front.classList.remove('on'); front = back;
   E.backdrop.style.backgroundImage = url ? `url("${url}")` : 'none';
@@ -1029,6 +1029,7 @@ async function run(seq, ctx = {}){
         case '#card': await card(`<span class="big">${st[1]}</span><span class="small">${st[2] || ''}</span>`, 2400); break;
         case '#reveal': S.flags.baiName = true; show(null); await sleep(200); show(who('bai')); await sleep(400); toast('白衣人・白溯光', true); break;
         case '#hide': show(null); break;
+        case '#cg': if (CG[st[2]]){ setScene(st[1], CG[st[2]]); await sleep(600); } break;
         case '#quest': setQuest(st[1]); break;
         case '#note': note(st[1]); break;
         case '#flag': S.flags[st[1]] = true; break;
@@ -1814,13 +1815,13 @@ async function ch4End(){
 function handbook(){
   const nInc = Object.values(LIFE.INCIDENTS).reduce((a, l) => a + l.length, 0);
   const myLines = S.house ? [...MAGIC.HOUSE[S.house], ...MAGIC.SHARED.herb, ...MAGIC.SHARED.craft] : [];
-  const cgGot = C12.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]).length;
+  const cgGot = C12.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]).length + ((S.ev.bai || 0) >= 8 ? 1 : 0);
   const evs = Object.values(S.ev).reduce((a, b) => a + b, 0);
   const items = [
     ['花茶配方', 'img/tea_four.webp', S.known.length, TEA.RECIPES.length],
     ['咒術', S.house ? `img/book_${S.house}.webp` : 'img/ui_scroll.webp', S.spells.length, myLines.length || 10],
     ['羈絆事件', 'img/ui_knot.webp', evs, evTotal()],
-    ['回憶', 'img/hud_people.webp', cgGot, 12],
+    ['回憶', 'img/hud_people.webp', cgGot, 13],
     ['心意禮物', 'img/dec_goods.webp', Object.keys(S.col.gift).length, GOODS.GIFTS.length],
     ['生日祝福', 'img/life_bday.webp', Object.keys(S.col.bd).length, Object.keys(BDAY).length],
     ['外婆家書', 'img/dec_parcel.webp', Math.min(S.replies, GOODS.REPLIES.length), GOODS.REPLIES.length],
@@ -2177,10 +2178,11 @@ function openTab(t){
         ${m ? (ready(c) ? '<span class="tag">有話想說</span>' : '') : '<span class="tag">—</span>'}</div>`;
     }).join('');
     if (!S.flags.baiFree) h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">${S.flags.baiName ? '白溯光' : '？？？'}</div><div class="meta"><img class="mcrest" src="img/crest_yu.webp" alt="">玉蘭院・${S.flags.baiName ? '院師・在鏡子的另一邊' : S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
-    const got = C12.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]);
-    h += `<h3>回憶</h3><p class="sub" style="margin:0;font-size:13px;color:var(--ink-soft)">完成第四段羈絆事件後解鎖。已收集 ${got.length} / 12</p><div class="gallery">` +
-      C12.map(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]
-        ? `<button type="button" data-cg="${c.id}"><img src="${CG['cg_' + c.id]}" alt="${c.n}・${EV[c.id][3].title}" loading="lazy"><span>${c.n}</span></button>`
+    const GAL = [...C12, BAIC], cgAt = c => c.id === 'bai' ? 7 : 3, hasCg = c => (S.ev[c.id] || 0) > cgAt(c) && CG['cg_' + c.id];
+    const got = GAL.filter(hasCg);
+    h += `<h3>回憶</h3><p class="sub" style="margin:0;font-size:13px;color:var(--ink-soft)">完成第四段羈絆事件後解鎖（白溯光為最後一段）。已收集 ${got.length} / ${GAL.length}</p><div class="gallery">` +
+      GAL.map(c => hasCg(c)
+        ? `<button type="button" data-cg="${c.id}"><img src="${CG['cg_' + c.id]}" alt="${c.n}・${EV[c.id][cgAt(c)].title}" loading="lazy"><span>${c.n}</span></button>`
         : `<button type="button" class="lock" disabled>未解鎖</button>`).join('') + '</div>';
   } else if (t === 'stats'){
     h = `<header>${S.house ? `<img class="hcrest" src="img/crest_${S.house}.webp" alt="">` : ''}<h2>${S.name || '能力'}</h2><span class="sub">${S.gender === 'm' ? '男' : S.gender === 'f' ? '女' : ''}${S.house ? '・' + HOUSES[S.house].name : ''}</span><button class="close" type="button">返回</button></header>` + hexSVG();
@@ -2194,7 +2196,7 @@ function openTab(t){
   E.sheet.querySelectorAll('[data-cg]').forEach(b => b.onclick = () => {
     const c = BY[b.dataset.cg], v = document.createElement('div');
     v.className = 'viewer'; v.style.backgroundImage = `url("${CG['cg_' + c.id]}")`;
-    v.innerHTML = `<span>${c.n}・${EV[c.id][3].title}</span>`; v.onclick = () => v.remove();
+    v.innerHTML = `<span>${c.n}・${EV[c.id][c.id === 'bai' ? 7 : 3].title}</span>`; v.onclick = () => v.remove();
     E.app.appendChild(v); SND.sfx('page');
   });
 }
