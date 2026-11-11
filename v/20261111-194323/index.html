@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-192950';</script>
+<script>window.GAME_VERSION = '20261111-194323';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -88,7 +88,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .coin{letter-spacing:.06em;color:#f4e5bd;font-variant-numeric:tabular-nums}
 .coin:empty{display:none}
 .coin b{color:var(--gold-hi);font-weight:700}
-.saved{margin-left:2px;color:var(--gold-hi);letter-spacing:.12em;opacity:0;transition:opacity .5s}
+.saved{margin-left:10px;letter-spacing:.1em;font-size:11px;color:var(--gold-hi);letter-spacing:.12em;opacity:0;transition:opacity .5s}
 .saved.on{opacity:.95}
 #app.gaming .hud,#app.gaming .quest,#app.gaming .place,#app.gaming .dock{visibility:hidden}
 .icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
@@ -96,9 +96,10 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
   color:#f6e7c3;font-size:15px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .icon:active{transform:scale(.94)}
 .icon[aria-pressed="false"]{opacity:.5}
-.quest{position:absolute;top:var(--hudB,112px);left:max(16px,env(safe-area-inset-left,0px));right:max(70px,env(safe-area-inset-right,0px));z-index:10;
+.quest{grid-column:1/-1;grid-row:3;margin:5px 50px 0 0;min-width:0;
   display:flex;align-items:baseline;gap:8px;font-size:13px;line-height:1.45;color:#f2e4c4;padding:5px 12px 5px 10px;
   background:linear-gradient(90deg,rgba(18,12,9,.7),rgba(18,12,9,.35) 70%,rgba(18,12,9,0));border-left:2px solid var(--gold);text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.quest[hidden]{display:none}
 .quest b{color:var(--gold-hi);white-space:nowrap;font-weight:700}
 .quest.flash{animation:flash 1.4s ease}
 @keyframes flash{0%,60%{background-color:rgba(236,215,162,.35)}}
@@ -510,7 +511,7 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
   <div class="shade"></div>
   <img class="portrait" id="portrait" alt="">
   <header class="hud">
-    <div class="datebox"><span class="d"><small id="yr"></small><span id="date">花朝靈院</span></span><span class="s"><span class="hudchip" id="slot">序章</span><span class="hudchip wxc" id="wxc" hidden></span><span class="hudchip coin" id="money"></span><span class="saved" id="saved">已存檔</span></span></div>
+    <div class="datebox"><span class="d"><small><span id="yr"></span><span class="saved" id="saved">已存檔</span></small><span id="date">花朝靈院</span></span><span class="s"><span class="hudchip" id="slot">序章</span><span class="hudchip wxc" id="wxc" hidden></span><span class="hudchip coin" id="money"></span></span></div>
     <div class="right">
       <button class="icon" data-tab="tea" aria-label="花茶攤"><img src="img/hud_tea.webp" alt=""></button>
       <button class="icon" data-tab="people" aria-label="人物"><img src="img/hud_people.webp" alt=""></button>
@@ -519,8 +520,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
       <button class="icon" data-tab="save" aria-label="存檔"><img src="img/hud_save.webp" alt=""></button>
       <button class="icon" id="snd" aria-label="聲音" aria-pressed="true"><img src="img/hud_sound.webp" alt=""></button>
     </div>
+    <div class="quest" id="quest" hidden></div>
   </header>
-  <div class="quest" id="quest" hidden></div>
   <div class="place" id="place"></div>
   <div class="scrim" id="scrim"></div>
   <div class="dock">
@@ -544,8 +545,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-192950"></script>
-<script src="story.js?v=20261111-192950"></script>
+<script src="audio.js?v=20261111-194323"></script>
+<script src="story.js?v=20261111-194323"></script>
 <script>
 (() => {
 const {TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -938,14 +939,7 @@ function choose(prompt, opts){
   });
 }
 function moreHint(){
-  document.querySelectorAll('.morehint').forEach(x => x.remove());
-  const el = E.choices, upd = () => {
-    const more = el.scrollHeight - el.scrollTop - el.clientHeight > 8 && el.children.length;
-    el.classList.toggle('hasmore', !!more);
-    const h = el.parentNode.querySelector('.morehint');
-    if (more && !h){ const t = document.createElement('div'); t.className = 'morehint'; t.textContent = '向下滑還有選項'; el.after(t); }
-    else if (!more && h) h.remove();
-  };
+  const el = E.choices, upd = () => el.classList.toggle('hasmore', el.scrollHeight - el.scrollTop - el.clientHeight > 8 && el.children.length > 0);
   el.onscroll = upd; requestAnimationFrame(upd);
 }
 let toastT;
