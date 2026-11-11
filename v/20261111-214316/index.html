@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-213537';</script>
+<script>window.GAME_VERSION = '20261111-214316';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -562,8 +562,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-213537"></script>
-<script src="story.js?v=20261111-213537"></script>
+<script src="audio.js?v=20261111-214316"></script>
+<script src="story.js?v=20261111-214316"></script>
 <script>
 (() => {
 const {QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -581,7 +581,8 @@ const CN = ['〇','一','二','三','四','五','六','七','八','九','十'];
 const cn = n => n <= 10 ? CN[n] : n < 20 ? '十' + (n % 10 ? CN[n % 10] : '') : CN[Math.floor(n / 10)] + '十' + (n % 10 ? CN[n % 10] : '');
 // 劇本表情 → 差分圖：laugh 開心大笑、smile 微笑、shy 害羞、angry 生氣皺眉（嚴肅也用）、sad 傷心低落、angry 生氣、sad 傷心、surprised 驚訝
 const FACE_ALIAS = {smug:'smile',happy:'laugh',annoyed:'angry',cold:'angry',serious:'angry',panic:'shy'};
-const STAGES = [[0,'相識'],[20,'熟絡'],[40,'知己'],[60,'心動'],[80,'羈絆']];
+const AFF_MAX = 200;
+const STAGES = [[0,'相識'],[30,'熟絡'],[60,'好友'],[90,'知己'],[120,'心動'],[150,'傾心'],[180,'羈絆']];
 const stageOf = v => { let s = '相識'; for (const [t, n] of STAGES) if (v >= t) s = n; return s; };
 
 // ---------- state ----------
@@ -590,7 +591,8 @@ const slotKey = i => `huachao-v2-s${i}`;
 const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money:50,cake:0,
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
 // 舊存檔補上新系統的欄位
-function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; v.q2 ??= 0; v.items ??= {}; v.decor ??= {}; v.parcel ??= 0; v.replies ??= 0; v.giftDay ??= {}; v.wx ??= 'sun'; v.bdDone ??= {}; v.promise ??= null; v.broken ??= null; v.keys ??= {}; v.keyHint ??= {}; v.col ??= {}; v.col.gift ??= {}; v.col.inc ??= {}; v.col.fest ??= {}; v.col.bd ??= {}; v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; refreshC(v); return v; }
+function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; v.q2 ??= 0; v.items ??= {}; v.decor ??= {}; v.parcel ??= 0; v.replies ??= 0; v.giftDay ??= {}; v.wx ??= 'sun'; v.bdDone ??= {}; v.promise ??= null; v.broken ??= null; v.keys ??= {}; v.keyHint ??= {}; v.col ??= {}; v.col.gift ??= {}; v.col.inc ??= {}; v.col.fest ??= {}; v.col.bd ??= {}; if (!v.aff2){ v.aff2 = 1; for (const k in (v.aff || {})) v.aff[k] = Math.min(200, v.aff[k] * 2); }
+  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; refreshC(v); return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -906,7 +908,8 @@ E.app.addEventListener('click', e => {
 addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('input,button') && E.sheet.hidden){ e.preventDefault(); tap(); }
 });
-const heartsHTML = v => `<span class="hearts" aria-label="好感 ${v}">${[0,1,2,3,4].map(i => `<i style="--f:${Math.max(0, Math.min(1, (v - i * 20) / 20)).toFixed(2)}"></i>`).join('')}</span>`;
+const HEART_T = [...STAGES.map(x => x[0]), AFF_MAX];
+const heartsHTML = v => `<span class="hearts" aria-label="好感 ${v}">${STAGES.map((_, i) => `<i style="--f:${Math.max(0, Math.min(1, (v - HEART_T[i]) / (HEART_T[i + 1] - HEART_T[i]))).toFixed(2)}"></i>`).join('')}</span>`;
 function affRow(id){
   const el = $('affrow'); if (!el) return;
   const ok = id && BY[id] && S && S.met && S.met[id] && !(id === 'bai' && !S.flags.baiName);
@@ -1001,14 +1004,14 @@ function aff(id, v, daily){
   if (v > 0 && S.house && BY[id] && BY[id].h === S.house && hasFx('bond')) v = Math.ceil(v * 1.2);
   const before = S.aff[id] || 0;
   if (v > 0){
-    v = Math.max(1, Math.round(v * Math.max(.15, 1 - before / 105)));
+    v = Math.max(1, Math.round(v * Math.max(.12, 1 - before / 215)));
     if (daily){
       const t = S.affDay[id] && S.affDay[id][0] === S.day ? S.affDay[id][1] : 0;
       v = Math.min(v, AFF_DAY - t); if (v <= 0) return 0;
       S.affDay[id] = [S.day, t + v];
     }
   }
-  const after = Math.min(100, before + v);
+  const after = Math.min(AFF_MAX, before + v);
   S.aff[id] = after; S.today.push(['a', id, v]); SND.sfx('aff');
   const ar = $('affrow');
   if (ar && ar.dataset.id === id && !ar.hidden){ affRow(id); ar.classList.remove('pulse'); void ar.offsetWidth; ar.classList.add('pulse');
@@ -1142,7 +1145,7 @@ async function meet(c, ctx, where){
   }
   if (ctx === 'lunch'){ await say(c.id, pick(c.lunch), 'happy'); aff(c.id, 5, true); }
   else if (ctx === 'date'){
-    if ((S.aff[c.id] || 0) >= 50){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
+    if ((S.aff[c.id] || 0) >= 100){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
     else await say(c.id, c.dateA[0], 'happy');
     aff(c.id, 8, true); note(`和${c.n}共進晚膳。`);
     if (!FAST || Math.random() < .3){
@@ -1588,7 +1591,7 @@ async function monthFest(){
   setScene(F.scene); await sleep(400);
   await card(`<img class="festimg" src="img/fest_${fi + 1}.webp" alt=""><span class="small">${cn(mInYear(S.day))}月十四日</span><span class="big">${F.n}</span>`, 2200);
   for (const t of F.intro) await say('', t);
-  const ok = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 20).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
+  const ok = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 40).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
   const id = await choose(ok.length ? `要和誰一起去${F.n}？` : `要和誰一起去${F.n}？（好感達到「熟絡」才能相約）`,
     [...ok.map(c => ({...charOpt(c), sub:stageOf(S.aff[c.id] || 0), hot:false})), {label:'自己去逛逛', value:null}]);
   const c = id && BY[id];
@@ -1700,7 +1703,7 @@ async function birthdayMoment(c){
   aff(c.id, 6); note(`今天是${c.n}的生日，我是第一個祝賀的人。`);
 }
 function birthdayToday(){
-  const who = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 10 && isBday(c));
+  const who = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 20 && isBday(c));
   if (who.length) toast(`今天是${who.map(c => c.n).join('、')}的生日`, true);
   return who.length > 0;
 }
@@ -1712,7 +1715,7 @@ const PLACE_OF_KEY = {fei:'arena', yuan:'star', ling:'herb', zi:'vine'};
 const keyGuide = h => C.filter(c => c.h === h && S.met[c.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0))[0];
 function keyNeeds(h){
   const g = keyGuide(h), needs = [];
-  if (!g || (S.aff[g.id] || 0) < 45) needs.push(`一位${HOUSES[h].name}的知己（好感 45）`);
+  if (!g || (S.aff[g.id] || 0) < 90) needs.push(`一位${HOUSES[h].name}的知己（好感 90）`);
   if (h === S.house){ const t3 = MAGIC.HOUSE[h][2]; if (!S.spells.includes(t3.id)) needs.push(`習得術譜第三層「${t3.n}」`); }
   else if (S.stats[HOUSES[h].stat] < 30) needs.push(`${STATS[HOUSES[h].stat][0]}達到 30`);
   return needs;
@@ -1740,7 +1743,7 @@ async function keyTrial(h){
 }
 async function ch3End(){
   S.flags.ch3done = true; S.flags.baiFree = true; S.flags.baiName = true; S.ch3Day = S.day;
-  S.met.bai = true; S.aff.bai = Math.max(S.aff.bai || 0, 30); refreshC(S);
+  S.met.bai = true; S.aff.bai = Math.max(S.aff.bai || 0, 60); refreshC(S);
   await card(`<img class="crestimg" src="img/crest_yu.webp" alt=""><span class="big">四院花鑰</span><span class="small">第三章・完</span><div class="sum">鏡中之門打開了。顧長庚回來了。<br>白溯光可以在月光下，走出花月湖。<br><br>從今天起，可以在花月湖遇見白溯光。<br>過幾天，第四章「玉蘭重開」就會開始。</div>`, 0);
   note('第三章「四院花鑰」完。白溯光在花月湖等著。');
   hud();
@@ -1756,7 +1759,7 @@ const ch4Friend = h => C.filter(c => c.h === h && S.met[c.id]).sort((a, b) => (S
 function ch4Needs(){
   const n = [];
   if (S.purged < 6) n.push(`淨化蝕痕 ${S.purged}/6`);
-  for (const h of KEY_HOUSES){ const f = ch4Friend(h); if (!f || (S.aff[f.id] || 0) < 55) n.push(`一位${HOUSES[h].name}的朋友（好感 55）`); }
+  for (const h of KEY_HOUSES){ const f = ch4Friend(h); if (!f || (S.aff[f.id] || 0) < 110) n.push(`一位${HOUSES[h].name}的朋友（好感 110）`); }
   return n;
 }
 function q4Goal(){
@@ -1989,7 +1992,7 @@ async function lunch(){
 }
 async function dinner(){
   setScene('晚膳'); await sleep(300);
-  const ok = C.filter(c => (S.aff[c.id] || 0) >= 20).sort((a, b) => (ready(b) - ready(a)) || ((S.aff[b.id] || 0) - (S.aff[a.id] || 0))).slice(0, 4);
+  const ok = C.filter(c => (S.aff[c.id] || 0) >= 40).sort((a, b) => (ready(b) - ready(a)) || ((S.aff[b.id] || 0) - (S.aff[a.id] || 0))).slice(0, 4);
   const id = await choose(ok.length ? '傍晚的燈籠亮起來了。要邀請誰共進晚膳？' : '傍晚的燈籠亮起來了。（好感達到「熟絡」，就可以邀請對方晚膳）',
     [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感・體力 +1', value:null}]);
   if (!id){
@@ -2045,7 +2048,7 @@ async function festival(){
   await card('<img class="festimg" src="img/fest_0.webp" alt=""><span class="small">第十四日</span><span class="big">花朝節</span>', 2200);
   await say('', '今天是花朝節——百花的生日。整座靈院掛滿了紅綢與花燈。');
   await say('', '按照習俗，大家會把紅綢繫在花枝上，替花神賀壽，這叫「賞紅」。');
-  const ok = C.filter(c => (S.aff[c.id] || 0) >= 20).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
+  const ok = C.filter(c => (S.aff[c.id] || 0) >= 40).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
   const id = await choose('要和誰一起過花朝節？', [...ok.map(c => ({...charOpt(c), sub:stageOf(S.aff[c.id] || 0), hot:false})), {label:'和同院同學一起逛', value:null}]);
   const c = id && BY[id];
   if (c){ show(c); await say(c.id, pick(['……你約我？好。走吧。','今天人好多，別走散了。','我還以為，你會約別人。'])); }
