@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-151632';</script>
+<script>window.GAME_VERSION = '20261111-181558';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -446,11 +446,11 @@ html.lowfx .wx .w1,html.lowfx .wx .w2{animation-duration:0s!important}
 .wx{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity 1.2s}
 .wx.on{opacity:1}
 .wx i{position:absolute;inset:-20%;display:block}
-.wx.rain{background:linear-gradient(rgba(30,40,60,.18),rgba(30,40,60,.1))}
-.wx.rain .w1{background:repeating-linear-gradient(105deg,transparent 0 11px,rgba(220,232,255,.32) 11px 12px,transparent 12px 23px);background-size:100% 160px;animation:rainA .45s linear infinite}
-.wx.rain .w2{background:repeating-linear-gradient(103deg,transparent 0 17px,rgba(220,232,255,.2) 17px 18px,transparent 18px 37px);background-size:100% 230px;animation:rainB .7s linear infinite}
-@keyframes rainA{to{transform:translate(-30px,160px)}}
-@keyframes rainB{to{transform:translate(-40px,230px)}}
+.wx.rain{background:linear-gradient(rgba(44,54,70,.42),rgba(60,72,90,.26) 45%,rgba(52,62,78,.34));-webkit-backdrop-filter:saturate(.62) brightness(.86) contrast(.94);backdrop-filter:saturate(.62) brightness(.86) contrast(.94)}
+html.lowfx .wx.rain{-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(rgba(40,50,66,.5),rgba(56,68,86,.36))}
+.wx canvas{position:absolute;inset:0;width:100%;height:100%;display:none}
+.wx.rain canvas{display:block}
+.wx.rain i{display:none}
 .wx.fog{background:linear-gradient(rgba(232,234,240,.28),rgba(232,234,240,.12) 45%,rgba(232,234,240,.3))}
 .wx.fog .w1{background:radial-gradient(45% 32% at 30% 60%,rgba(242,242,247,.75),transparent 70%),radial-gradient(50% 28% at 75% 40%,rgba(238,239,245,.65),transparent 70%);animation:fogA 26s ease-in-out infinite alternate}
 .wx.fog .w2{background:radial-gradient(55% 32% at 60% 82%,rgba(242,242,247,.7),transparent 70%),radial-gradient(40% 25% at 20% 30%,rgba(238,239,245,.55),transparent 70%);animation:fogB 34s ease-in-out infinite alternate}
@@ -487,7 +487,7 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
 <div id="app">
   <div class="bg" id="bgA"></div><div class="bg" id="bgB"></div>
   <canvas id="fx"></canvas>
-  <div class="wx" id="wx"><i class="w1"></i><i class="w2"></i></div>
+  <div class="wx" id="wx"><canvas id="rainCv"></canvas><i class="w1"></i><i class="w2"></i></div>
   <div class="shade"></div>
   <img class="portrait" id="portrait" alt="">
   <header class="hud">
@@ -525,8 +525,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-151632"></script>
-<script src="story.js?v=20261111-151632"></script>
+<script src="audio.js?v=20261111-181558"></script>
+<script src="story.js?v=20261111-181558"></script>
 <script>
 (() => {
 const {TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -681,7 +681,105 @@ function applyWx(name){
   const el = $('wx'); if (!el) return;
   const w = S && S.house && S.wx && S.wx !== 'sun' && !INDOOR.has(name) && !cgOn ? S.wx : '';
   el.className = 'wx' + (w ? ' on ' + w : '');
+  RAIN.set(w === 'rain');
 }
+/* 雨：三層遠近雨絲＋風勢搖擺＋地面濺起的水花＋近地薄霧 */
+const RAIN = (() => {
+  let cv, cx, W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, drops = [], splash = [], lens = [], t = 0;
+  const LAYERS = [ // 遠、中、近
+    {n:.58, len:[8,14],  sp:[520,640],  w:.8, a:[.12,.22], z:.45},
+    {n:.30, len:[16,26], sp:[760,900],  w:1.1,a:[.22,.36], z:.75},
+    {n:.15, len:[30,48], sp:[1050,1250],w:1.6,a:[.30,.50], z:1}
+  ];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function size(){
+    const r = cv.getBoundingClientRect(); dpr = Math.min(2, devicePixelRatio || 1);
+    W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const total = Math.round(W * H / (document.documentElement.classList.contains('lowfx') ? 1300 : 420));
+    lens = []; for (let i = 0; i < 7; i++) lens.push(mkLens(true));
+    drops = []; LAYERS.forEach((L, li) => { for (let i = 0; i < total * L.n; i++) drops.push(mk(li, true)); });
+  }
+  function mk(li, anywhere){
+    const L = LAYERS[li];
+    return {li, x: rnd(-60, W + 60), y: anywhere ? rnd(-H, H) : rnd(-80, -10), len: rnd(...L.len), sp: rnd(...L.sp), a: rnd(...L.a), b: Math.random() < .5 ? 0 : 1, j: rnd(-.04, .04),
+      ground: li === 2 ? rnd(H * .62, H * 1.02) : li === 1 ? rnd(H * .7, H * 1.05) : H + 20};
+  }
+  function mkLens(any){ return {x: rnd(10, W - 10), y: rnd(H * .05, H * .7), r: any ? rnd(2, 6) : .5, g: rnd(.4, 1.4), slide: 0, vy: 0, a: 0}; }
+  function drawLens(dt){
+    for (const L of lens){
+      L.a = Math.min(1, L.a + dt * .8);
+      if (!L.slide){ L.r += dt * L.g * .6; if (L.r > 7.5 && Math.random() < dt * .6) L.slide = 1; }
+      else { L.vy += dt * 160; L.y += L.vy * dt; L.x += Math.sin(L.y * .05) * .3; L.r -= dt * 1.2;
+        if (L.y > H + 10 || L.r < 1.2){ Object.assign(L, mkLens(false)); continue; } }
+      const r = L.r, al = L.a;
+      const g = cx.createRadialGradient(L.x - r * .35, L.y - r * .4, r * .1, L.x, L.y, r);
+      g.addColorStop(0, `rgba(255,255,255,${.55 * al})`); g.addColorStop(.35, `rgba(220,232,248,${.16 * al})`);
+      g.addColorStop(.85, `rgba(150,165,190,${.10 * al})`); g.addColorStop(1, `rgba(255,255,255,${.28 * al})`);
+      cx.fillStyle = g; cx.beginPath(); cx.ellipse(L.x, L.y, r * .92, r, 0, 0, Math.PI * 2); cx.fill();
+      if (L.slide){ cx.strokeStyle = `rgba(225,235,250,${.10 * al})`; cx.lineWidth = r * .5; cx.beginPath(); cx.moveTo(L.x, L.y - r); cx.lineTo(L.x, L.y - r - 26); cx.stroke(); }
+    }
+  }
+  function wind(){ return -0.16 + Math.sin(t * .35) * .07 + Math.sin(t * 1.3) * .025; } // 斜度（x / y）
+  function frame(now){
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - (last || now)) / 1000); last = now; t += dt;
+    cx.clearRect(0, 0, W, H);
+    const k = wind();
+    cx.lineCap = 'round';
+    const P = LAYERS.map(() => [[new Path2D(), new Path2D()], [new Path2D(), new Path2D()]]);
+    for (const d of drops){
+      const L = LAYERS[d.li], dy = d.sp * dt, kk = k + d.j;
+      d.y += dy; d.x += dy * kk;
+      if (d.y > d.ground){
+        if (d.li > 0 && d.ground < H && splash.length < 220) {
+          const n = d.li === 2 ? 3 : 1;
+          splash.push({ring: 1, x: d.x, y: d.ground, r: 0, R: d.li === 2 ? rnd(6, 11) : rnd(3, 6), a: Math.min(.7, d.a * 1.8)});
+          for (let i = 0; i < n; i++) splash.push({x: d.x, y: d.ground, vx: rnd(-55, 55) + k * 120, vy: rnd(-140, -70) * L.z, a: d.a * 1.6, life: rnd(.25, .4)});
+        }
+        Object.assign(d, mk(d.li, false));
+        continue;
+      }
+      if (d.x < -80) d.x += W + 140; else if (d.x > W + 80) d.x -= W + 140;
+      const mx = d.x - d.len * .45 * kk, my = d.y - d.len * .45, tx = d.x - d.len * kk, ty = d.y - d.len, pp = P[d.li][d.b];
+      pp[0].moveTo(tx, ty); pp[0].lineTo(mx, my);
+      pp[1].moveTo(mx, my); pp[1].lineTo(d.x, d.y);
+    }
+    LAYERS.forEach((L, li) => [0, 1].forEach(b => {
+      const a = L.a[0] + (L.a[1] - L.a[0]) * (b ? .85 : .3);
+      cx.lineWidth = L.w;
+      cx.strokeStyle = `rgba(222,233,250,${a * .35})`; cx.stroke(P[li][b][0]);
+      cx.strokeStyle = `rgba(228,237,252,${a})`; cx.stroke(P[li][b][1]);
+    }));
+    for (let i = splash.length - 1; i >= 0; i--){
+      const p = splash[i];
+      if (p.ring){
+        p.r += dt * 38; const f = 1 - p.r / p.R;
+        if (f <= 0){ splash.splice(i, 1); continue; }
+        cx.strokeStyle = `rgba(225,235,250,${p.a * f})`; cx.lineWidth = 1;
+        cx.beginPath(); cx.ellipse(p.x, p.y, p.r, p.r * .32, 0, 0, Math.PI * 2); cx.stroke();
+      } else {
+        p.life -= dt; if (p.life <= 0){ splash.splice(i, 1); continue; }
+        p.vy += 900 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        cx.fillStyle = `rgba(230,238,252,${Math.min(1, p.a) * Math.min(1, p.life * 4)})`;
+        cx.fillRect(p.x, p.y, 1.3, 1.3);
+      }
+    }
+    // 近地雨霧
+    const m = cx.createLinearGradient(0, H * .72, 0, H);
+    m.addColorStop(0, 'rgba(205,215,230,0)'); m.addColorStop(1, `rgba(205,215,230,${.10 + Math.sin(t * .5) * .03})`);
+    cx.fillStyle = m; cx.fillRect(0, H * .72, W, H * .28);
+    drawLens(dt);
+  }
+  function set(v){
+    cv = cv || $('rainCv'); if (!cv) return; cx = cx || cv.getContext('2d');
+    if (v === on) return; on = v;
+    if (on){ size(); last = 0; raf = requestAnimationFrame(frame); }
+    else { cancelAnimationFrame(raf); splash = []; cx.clearRect(0, 0, W, H); }
+  }
+  addEventListener('resize', () => { if (on) size(); });
+  document.addEventListener('visibilitychange', () => { if (!on) return; if (document.hidden) cancelAnimationFrame(raf); else { last = 0; raf = requestAnimationFrame(frame); } });
+  return {set};
+})();
 async function wxLine(){
   if (!S.wx || S.wx === 'sun' || S.wxSaid) return;
   S.wxSaid = true; await say('', WX[S.wx].line(pick)); await tip('weather');
