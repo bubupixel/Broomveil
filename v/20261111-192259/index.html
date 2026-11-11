@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-184234';</script>
+<script>window.GAME_VERSION = '20261111-192259';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -96,13 +96,13 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
   color:#f6e7c3;font-size:15px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .icon:active{transform:scale(.94)}
 .icon[aria-pressed="false"]{opacity:.5}
-.quest{position:absolute;top:var(--hudB,98px);left:max(16px,env(safe-area-inset-left,0px));right:max(70px,env(safe-area-inset-right,0px));z-index:10;
+.quest{position:absolute;top:var(--hudB,112px);left:max(16px,env(safe-area-inset-left,0px));right:max(70px,env(safe-area-inset-right,0px));z-index:10;
   display:flex;align-items:baseline;gap:8px;font-size:13px;line-height:1.45;color:#f2e4c4;padding:5px 12px 5px 10px;
   background:linear-gradient(90deg,rgba(18,12,9,.7),rgba(18,12,9,.35) 70%,rgba(18,12,9,0));border-left:2px solid var(--gold);text-shadow:0 1px 4px rgba(0,0,0,.7)}
 .quest b{color:var(--gold-hi);white-space:nowrap;font-weight:700}
 .quest.flash{animation:flash 1.4s ease}
 @keyframes flash{0%,60%{background-color:rgba(236,215,162,.35)}}
-.place{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:calc(var(--hudB,98px) + 4px);z-index:9;writing-mode:vertical-rl;font-size:25px;font-weight:700;color:#fffaf0;letter-spacing:.32em;
+.place{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:calc(var(--hudB,112px) + 4px);z-index:9;writing-mode:vertical-rl;font-size:25px;font-weight:700;color:#fffaf0;letter-spacing:.32em;
   text-shadow:0 2px 14px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.6);pointer-events:none}
 .place::after{content:"";display:block;width:2px;height:34px;margin:10px auto 0;background:linear-gradient(var(--gold-hi),transparent)}
 .place.in{animation:ink 1.3s ease both}
@@ -128,6 +128,12 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .choices img{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;border:1.5px solid var(--c,var(--gold))}
 .choices.two button{flex-direction:column;align-items:flex-start;gap:1px;min-height:56px;padding:8px 12px 8px 18px}
 .choices.two .sub{white-space:normal}
+.choices.two button:has(> img){display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:1px;align-items:center;align-content:center}
+.choices.two button > img{grid-row:1/3;width:36px;height:36px}
+.choices.two button > .t,.choices.two button > .sub{grid-column:2}
+.choices.more{-webkit-mask-image:linear-gradient(#000 calc(100% - 38px),transparent);mask-image:linear-gradient(#000 calc(100% - 38px),transparent)}
+.morehint{position:absolute;left:50%;transform:translateX(-50%);margin-top:-30px;z-index:3;padding:3px 12px;border-radius:12px;font-size:12px;letter-spacing:.1em;color:#fbf2df;background:rgba(28,20,14,.72);pointer-events:none;animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translate(-50%,3px)}}
 
 .box{position:relative;min-height:140px;padding:24px 22px 22px;cursor:pointer;
   background:var(--grain),linear-gradient(180deg,rgba(253,249,240,.82),rgba(244,235,217,.82));
@@ -538,8 +544,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-184234"></script>
-<script src="story.js?v=20261111-184234"></script>
+<script src="audio.js?v=20261111-192259"></script>
+<script src="story.js?v=20261111-192259"></script>
 <script>
 (() => {
 const {TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -915,7 +921,8 @@ function choose(prompt, opts){
   E.choices.innerHTML = ''; E.choices.classList.toggle('two', opts.length > 4);
   E.scrim.classList.add('on');
   return new Promise(res => {
-    opts.forEach((o, i) => {
+    // 可以揀的選項排前面，唔會俾「體力不足」嘅選項推到睇唔到
+    opts.map((o, i) => [o, i]).sort((a, b) => !!a[0].disabled - !!b[0].disabled).forEach(([o, i]) => {
       const b = document.createElement('button'); b.type = 'button'; b.id = 'opt-' + i;
       if (o.color) b.style.setProperty('--c', o.color);
       if (o.disabled) b.disabled = true;
@@ -923,11 +930,23 @@ function choose(prompt, opts){
       else if (o.icon){ const im = document.createElement('img'); im.src = o.icon; im.alt = ''; im.className = 'ic'; b.appendChild(im); }
       const t = document.createElement('span'); t.className = 't'; t.textContent = fmt(o.label); b.appendChild(t);
       if (o.sub){ const s = document.createElement('span'); s.className = 'sub' + (o.hot ? ' hot' : ''); s.textContent = o.sub; b.appendChild(s); }
-      b.onclick = () => { SND.sfx('choose'); logLine('', '▸ ' + fmt(o.label), 'pick'); E.choices.innerHTML = ''; E.scrim.classList.remove('on'); E.box.classList.remove('wait'); res(o.value); };
+      b.onclick = () => { SND.sfx('choose'); logLine('', '▸ ' + fmt(o.label), 'pick'); E.choices.innerHTML = ''; E.choices.classList.remove('more'); document.querySelectorAll('.morehint').forEach(x => x.remove()); E.scrim.classList.remove('on'); E.box.classList.remove('wait'); res(o.value); };
       E.choices.appendChild(b);
     });
+    moreHint();
     if (FAST) setTimeout(() => { const bs = [...E.choices.querySelectorAll('button:not([disabled])')]; if (bs.length) pick(bs).click(); }, 0);
   });
+}
+function moreHint(){
+  document.querySelectorAll('.morehint').forEach(x => x.remove());
+  const el = E.choices, upd = () => {
+    const more = el.scrollHeight - el.scrollTop - el.clientHeight > 8 && el.children.length;
+    el.classList.toggle('more', !!more);
+    const h = el.parentNode.querySelector('.morehint');
+    if (more && !h){ const t = document.createElement('div'); t.className = 'morehint'; t.textContent = '向下滑還有選項'; el.after(t); }
+    else if (!more && h) h.remove();
+  };
+  el.onscroll = upd; requestAnimationFrame(upd);
 }
 let toastT;
 function toast(t, sfx){ if (sfx) SND.sfx('magic'); E.toast.textContent = t; E.toast.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => E.toast.classList.remove('on'), 2200); }
@@ -1009,6 +1028,10 @@ async function run(seq, ctx = {}){
 // ---------- HUD ----------
 function hudGap(){ const h = document.querySelector('.hud'); if (h) E.app.style.setProperty('--hudB', (h.offsetTop + h.offsetHeight + 6) + 'px'); }
 addEventListener('resize', () => requestAnimationFrame(hudGap));
+try { new ResizeObserver(hudGap).observe(document.querySelector('.hud')); } catch (e) {}
+document.fonts && document.fonts.ready.then(hudGap);
+if (window.ResizeObserver) new ResizeObserver(() => hudGap()).observe(document.querySelector('.hud'));
+document.fonts && document.fonts.ready.then(hudGap);
 function hud(){
   const P = plan(S.day);
   const yr = $('yr'), wc = $('wxc');
