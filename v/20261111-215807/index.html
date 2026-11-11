@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-215458';</script>
+<script>window.GAME_VERSION = '20261111-215807';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -518,6 +518,15 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
 .person .hrow{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--ink-soft);letter-spacing:.08em}
 .person .hrow .hearts i{width:16px;height:15px}
 .person .hrow .hearts i{--h-empty:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 21s-8.6-5.3-10.6-10.2C-.2 6.6 2.4 2 6.6 2c2.4 0 4 1.3 5.4 3.2C13.4 3.3 15 2 17.4 2c4.2 0 6.8 4.6 5.2 8.8C20.6 15.7 12 21 12 21z' fill='%238a6a52' fill-opacity='.12' stroke='%23a5845e' stroke-width='1.3'/%3E%3C/svg%3E")}
+.item{position:absolute;left:50%;top:31%;z-index:4;width:min(40%,180px);pointer-events:none;opacity:0;transform:translate(-50%,-50%);
+  filter:drop-shadow(0 0 14px rgba(255,236,205,.85)) drop-shadow(0 0 38px rgba(255,214,190,.5))}
+.item[hidden]{display:none}
+.item.in{animation:itemIn 2.4s cubic-bezier(.2,.7,.3,1) forwards,itemBob 3.4s ease-in-out 2.4s infinite}
+.item.out{animation:itemOut .7s ease forwards}
+@keyframes itemIn{0%{opacity:0;transform:translate(-185%,-75%) rotate(-28deg) scale(.55)}35%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) rotate(-7deg) scale(1)}}
+@keyframes itemBob{0%,100%{opacity:1;transform:translate(-50%,-50%) rotate(-7deg)}50%{opacity:1;transform:translate(-50%,-57%) rotate(-4deg)}}
+@keyframes itemOut{from{opacity:1;transform:translate(-50%,-50%) rotate(-7deg)}to{opacity:0;transform:translate(-50%,-30%) rotate(-2deg) scale(.85)}}
+html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
 </style>
 
 <div class="backdrop" id="backdrop"></div>
@@ -526,7 +535,7 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
   <canvas id="fx"></canvas>
   <div class="wx" id="wx"><canvas id="rainCv"></canvas><i class="w1"></i><i class="w2"></i></div>
   <div class="shade"></div>
-  <img class="portrait" id="portrait" alt="">
+  <img class="portrait" id="portrait" alt=""><img class="item" id="item" alt="" hidden>
   <header class="hud">
     <div class="datebox"><span class="d"><small><span id="yr"></span><span class="saved" id="saved">已存檔</span></small><span id="date">花朝靈院</span></span><span class="s"><span class="hudchip" id="slot">序章</span><span class="hudchip wxc" id="wxc" hidden></span><span class="hudchip coin" id="money"></span></span></div>
     <div class="right">
@@ -562,8 +571,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-215458"></script>
-<script src="story.js?v=20261111-215458"></script>
+<script src="audio.js?v=20261111-215807"></script>
+<script src="story.js?v=20261111-215807"></script>
 <script>
 (() => {
 const {QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -836,6 +845,7 @@ function ambFor(name){
 }
 function setScene(name, cg, img){
   show(null); cgOn = !!cg;
+  { const it = $('item'); if (it){ it.hidden = true; it.className = 'item'; } }
   if (E.place.textContent !== name){ E.place.textContent = name; E.place.classList.remove('in'); void E.place.offsetWidth; E.place.classList.add('in'); }
   SND.setMood(PROLOGUE_SCENES.has(name) ? 'prologue' : NIGHT_SCENES.has(name) ? 'night' : 'day');
   applyWx(name); SND.ambient(ambFor(name));
@@ -1032,6 +1042,7 @@ async function run(seq, ctx = {}){
         case '#card': await card(`<span class="big">${st[1]}</span><span class="small">${st[2] || ''}</span>`, 2400); break;
         case '#reveal': S.flags.baiName = true; show(null); await sleep(200); show(who('bai')); await sleep(400); toast('白衣人・白溯光', true); break;
         case '#hide': show(null); break;
+        case '#item': { const el = $('item'); if (st[1]){ el.src = st[1]; el.hidden = false; el.className = 'item'; void el.offsetWidth; el.classList.add('in'); SND.sfx('magic'); await sleep(FAST ? 0 : 900); } else if (!el.hidden){ el.className = 'item out'; await sleep(FAST ? 0 : 500); el.hidden = true; } break; }
         case '#cg': if (CG[st[2]]){ setScene(st[1], CG[st[2]]); await sleep(600); } break;
         case '#quest': setQuest(st[1]); break;
         case '#note': note(st[1]); break;
@@ -2408,7 +2419,7 @@ if (location.hash === '#shot') window.__T = {setS:o => { S = migrate(o); hud(); 
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
-  const core = ['img/title_v3.jpg', ...['bg_town','bg_tea','bg_yard','bg_room','bg_room2','bg_path','bg_hall','bg_dorm_day'].map(imgURL), 'img/mc0.jpg', 'img/fc0.jpg', GRAN.cut,
+  const core = ['img/title_v3.jpg', ...['bg_town','bg_tea','bg_yard','bg_room2','bg_path','bg_hall','bg_dorm_day'].map(imgURL), 'img/letter.webp', 'img/mc0.jpg', 'img/fc0.jpg', GRAN.cut,
     ...['tea','people','stats','log','save','sound'].map(k => `img/hud_${k}.webp`), 'img/ui_stone.webp', 'img/ui_hp.webp', 'img/paper.jpg', 'img/petal_yu.webp', 'img/c16_3.webp', 'img/c17_3.webp'];
   const all = new Set([...Object.values(SCENE_IMG).map(imgURL), ...C.map(c => c.cut), BAI.cut,
     ...Object.values(FACES).flatMap(f => Object.values(f)), ...Object.values(CG),
