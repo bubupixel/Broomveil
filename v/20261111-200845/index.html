@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261111-194323';</script>
+<script>window.GAME_VERSION = '20261111-200845';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -132,7 +132,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 .choices.two button:has(> img){display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:1px;align-items:center;align-content:center}
 .choices.two button > img{grid-row:1/3;width:36px;height:36px}
 .choices.two button > .t,.choices.two button > .sub{grid-column:2}
-.choices.hasmore{-webkit-mask-image:linear-gradient(#000 calc(100% - 38px),transparent);mask-image:linear-gradient(#000 calc(100% - 38px),transparent)}
+
 .morehint{position:absolute;left:50%;transform:translateX(-50%);margin-top:-30px;z-index:3;padding:3px 12px;border-radius:12px;font-size:12px;letter-spacing:.1em;color:#fbf2df;background:rgba(28,20,14,.72);pointer-events:none;animation:hintbob 1.4s ease-in-out infinite}
 @keyframes hintbob{50%{transform:translate(-50%,3px)}}
 
@@ -501,6 +501,7 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
 @media (max-height:700px){.portrait{height:80%}.box{min-height:122px;padding:20px 18px 18px}.line{font-size:16.5px}.choices button{min-height:46px;padding:8px 14px 8px 18px}.place{font-size:22px}}
 @media (min-width:521px){#app{border-left:1px solid rgba(184,146,74,.25);border-right:1px solid rgba(184,146,74,.25)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.boxbtns{display:none!important}
 </style>
 
 <div class="backdrop" id="backdrop"></div>
@@ -545,8 +546,8 @@ button:not(:disabled):active,.cup:active,.shopitem:not(:disabled):active{filter:
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261111-194323"></script>
-<script src="story.js?v=20261111-194323"></script>
+<script src="audio.js?v=20261111-200845"></script>
+<script src="story.js?v=20261111-200845"></script>
 <script>
 (() => {
 const {TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -620,6 +621,7 @@ function logLine(name, text, cls){ BL.push({n:name || '', t:text, c:cls || ''});
 function backlog(){
   SND.sfx('page');
   return panel('', (el, done) => {
+    el.style.zIndex = 32;
     el.querySelector('.tp-in').innerHTML = `<header><h3>對白回顧</h3><button type="button" class="act" data-x="close">返回</button></header>
       <div class="bl">${BL.length ? BL.map(l => `<p class="${l.c}">${l.n ? `<b>${l.n}</b>` : ''}${l.t}</p>`).join('') : '<p class="muted">還沒有對白。</p>'}</div>`;
     const list = el.querySelector('.bl'); requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; el.querySelector('.tp-in').scrollTop = 1e6; });
@@ -2151,6 +2153,7 @@ function saveSheet(){
     <div id="codearea"></div></div>
     <div class="codebox prefs"><h3>設定</h3>
       <div class="pref"><span>文字速度</span><div class="seg2">${Object.entries(SPEEDS).map(([k, [, n]]) => `<button type="button" data-act="speed" data-k="${k}" class="${PREF.speed === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
+      <div class="pref"><span>對白回顧<small>查看最近說過的話和你的選擇</small></span><button type="button" class="tog" data-act="backlog">打開</button></div>
       <div class="pref"><span>略過已讀<small>讀過的對白快速帶過，遇到新對白或選項就停下</small></span><button type="button" class="tog ${PREF.skip ? 'on' : ''}" data-act="skip">${PREF.skip ? '開' : '關'}</button></div>
       <div class="pref"><span>自動播放<small>對白會自己往下走</small></span><button type="button" class="tog ${PREF.auto ? 'on' : ''}" data-act="auto">${PREF.auto ? '開' : '關'}</button></div>
       <div class="pref"><span>減少特效<small>手機發熱或卡頓時開啟</small></span><button type="button" class="tog ${document.documentElement.classList.contains('lowfx') ? 'on' : ''}" data-act="lowfx">${document.documentElement.classList.contains('lowfx') ? '開' : '關'}</button></div>
@@ -2171,6 +2174,7 @@ function saveAct(b){
   const act = b.dataset.act, k = b.dataset.k, key = k === 'auto' ? KEY : slotKey(k);
   if (act === 'update'){ if (window.checkUpdate) window.checkUpdate(true); return; }
   if (act === 'speed'){ PREF.speed = k; savePref(); SND.sfx('tap'); saveSheet(); return; }
+  if (act === 'backlog'){ backlog(); return; }
   if (act === 'skip'){ setSkip(!PREF.skip, true); saveSheet(); return; }
   if (act === 'auto'){ PREF.auto = !PREF.auto; savePref(); SND.sfx('tap'); saveSheet(); return; }
   if (act === 'lowfx'){ PREF.lowfx = !document.documentElement.classList.contains('lowfx'); savePref(); applyLowFx(); SND.sfx('tap'); saveSheet(); return; }
