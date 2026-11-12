@@ -1583,6 +1583,20 @@ const CG = {
   cg_ch4_herb:'img/cg_14.jpg',
   cg_ch4_bell:'img/cg_15.jpg',
   cg_ch4_chess:'img/cg_16.jpg',
+  cg_end_grad:'img/cg_end_grad.jpg',
+  cg_end_pei:'img/cg_end_pei.jpg',
+  cg_end_qin:'img/cg_end_qin.jpg',
+  cg_end_tang:'img/cg_end_tang.jpg',
+  cg_end_jiang:'img/cg_end_jiang.jpg',
+  cg_end_lu:'img/cg_end_lu.jpg',
+  cg_end_wen:'img/cg_end_wen.jpg',
+  cg_end_lin:'img/cg_end_lin.jpg',
+  cg_end_ye:'img/cg_end_ye.jpg',
+  cg_end_ruan:'img/cg_end_ruan.jpg',
+  cg_end_su:'img/cg_end_su.jpg',
+  cg_end_liu:'img/cg_end_liu.jpg',
+  cg_end_ji:'img/cg_end_ji.jpg',
+  cg_end_bai:'img/cg_end_bai.jpg',
 };
 
 // ---------- 花茶攤經營 ----------

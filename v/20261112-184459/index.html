@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-134520';</script>
+<script>window.GAME_VERSION = '20261112-184459';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-134520"></script>
-<script src="story.js?v=20261112-134520"></script>
+<script src="audio.js?v=20261112-184459"></script>
+<script src="story.js?v=20261112-184459"></script>
 <script>
 (() => {
 const {END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -2012,7 +2012,7 @@ function legacy(){ try { const v = JSON.parse(readRaw(LEGACY) || '{}'); return {
 function saveLegacy(L){ store(LEGACY, JSON.stringify(L)); }
 const fillC = (t, c) => t.replace(/\{c\}/g, c ? c.n : '');
 async function graduation(){
-  setScene('花朝正殿'); await sleep(300);
+  setScene('畢業典禮', CG.cg_end_grad); await sleep(300);
   await card(`<img class="crestimg" src="img/ui_medal.webp" alt=""><span class="small">花朝靈院第二十五屆</span><span class="big">畢業典禮</span>`, 2600);
   for (const x of END.CERE) Array.isArray(x) ? await say(x[0], x[1]) : await say('', x);
   if (S.mentee) await say(END.MENTEE[0].replace('{m}', S.mentee.n), END.MENTEE[1]);
@@ -2025,8 +2025,8 @@ async function graduation(){
   if (lover){ relKey = 'L:' + lover; relT = `${BY[lover].n}・${END.LOVE[lover].t}`; seq = END.LOVE[lover].s; who = BY[lover]; }
   else if (fr){ relKey = 'F'; relT = `${fr.n}・${END.FRIEND.t}`; seq = END.FRIEND.s.map(([w, t]) => [w === '{c}' ? fr.id : w, t]); who = fr; }
   else { relKey = 'S'; relT = END.SOLO.t; seq = END.SOLO.s; }
-  const cg = who && (CG['cg_end_' + who.id] || CG['cg_' + who.id]);
-  if (cg) setScene('花月湖', cg); else setScene('花月湖');
+  const cg = who && ((lover && CG['cg_end_' + who.id]) || CG['cg_' + who.id]);
+  if (cg) setScene('後來', cg); else setScene('花月湖');
   await sleep(500);
   for (const [w, t] of seq){ if (w && !cg) show(BY[w]); await say(w, fillC(t, who)); }
   show(null);
@@ -2546,6 +2546,11 @@ function openTab(t){
       GAL.map(c => hasCg(c)
         ? `<button type="button" data-cg="${c.id}"><img src="${CG['cg_' + c.id]}" alt="${c.n}・${EV[c.id][cgAt(c)].title}" loading="lazy"><span>${c.n}</span></button>`
         : `<button type="button" class="lock" disabled>未解鎖</button>`).join('') + '</div>';
+    const endGot = Object.keys(legacy().endings).filter(k => k.startsWith('L:') && CG['cg_end_' + k.slice(2)]).map(k => k.slice(2));
+    const endAll = Object.keys(END.LOVE).filter(id => CG['cg_end_' + id]);
+    if (endGot.length || Object.keys(legacy().endings).length) h += `<h3>結局</h3><p class="sub" style="margin:0;font-size:13px;color:var(--ink-soft)">達成戀人結局後解鎖，周目之間保留。已收集 ${endGot.length} / ${endAll.length}</p><div class="gallery">` +
+      `<button type="button" data-end="grad"><img src="${CG.cg_end_grad}" alt="畢業典禮" loading="lazy"><span>畢業典禮</span></button>` +
+      endAll.map(id => endGot.includes(id) ? `<button type="button" data-end="${id}"><img src="${CG['cg_end_' + id]}" alt="${BY[id].n}・${END.LOVE[id].t}" loading="lazy"><span>${BY[id].n}</span></button>` : `<button type="button" class="lock" disabled>未解鎖</button>`).join('') + '</div>';
   } else if (t === 'stats'){
     h = `<header>${S.house ? `<img class="hcrest" src="img/crest_${S.house}.webp" alt="">` : ''}<h2>${S.name || '能力'}</h2><span class="sub">${S.gender === 'm' ? '男' : S.gender === 'f' ? '女' : ''}${S.house ? '・' + HOUSES[S.house].name : ''}</span><button class="close" type="button">返回</button></header>` + hexSVG();
     if (S.flags.shouxi) h += `<div class="title-badge"><img src="${BADGE_IMG}" alt=""><span><b>玉蘭院首席</b><small>二十二年來第一位・四院學生都認得你</small></span></div>`;
@@ -2560,6 +2565,11 @@ function openTab(t){
     const c = BY[b.dataset.cg], v = document.createElement('div');
     v.className = 'viewer'; v.style.backgroundImage = `url("${CG['cg_' + c.id]}")`;
     v.innerHTML = `<span>${c.n}・${EV[c.id][c.id === 'bai' ? 7 : 3].title}</span>`; v.onclick = () => v.remove();
+    E.app.appendChild(v); SND.sfx('page');
+  });  E.sheet.querySelectorAll('[data-end]').forEach(b => b.onclick = () => {
+    const id = b.dataset.end, v = document.createElement('div');
+    v.className = 'viewer'; v.style.backgroundImage = `url("${CG['cg_end_' + id]}")`;
+    v.innerHTML = `<span>${id === 'grad' ? '畢業典禮' : BY[id].n + '・' + END.LOVE[id].t}</span>`; v.onclick = () => v.remove();
     E.app.appendChild(v); SND.sfx('page');
   });
 }
