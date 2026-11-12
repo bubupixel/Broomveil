@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-085830';</script>
+<script>window.GAME_VERSION = '20261112-101033';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -540,6 +540,7 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
 .yr-top img{width:48px;height:48px;border-radius:50%;object-fit:cover}.yr-top .hearts i{width:10px;height:9px}
 .yr-n{margin:2px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink-soft)}
 .yr-d{margin:6px 0;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.45)}.yr-d summary{font-weight:700;cursor:pointer}
+.reltag{color:#c2456a;font-weight:700}
 </style>
 
 <div class="backdrop" id="backdrop"></div>
@@ -584,11 +585,11 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-085830"></script>
-<script src="story.js?v=20261112-085830"></script>
+<script src="audio.js?v=20261112-101033"></script>
+<script src="story.js?v=20261112-101033"></script>
 <script>
 (() => {
-const {YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 // 白溯光在第三章之後才加入名單；C 是目前看得見的人
 const C_ALL = [...C12, BAIC];
 let C = C12.slice();
@@ -616,6 +617,7 @@ const fresh = () => migrate({v:2,name:'',gender:'',house:null,day:0,slot:0,money
   stats:{ling:5,bo:5,qiao:5,sheng:5,gan:5,feng:5},aff:{},met:{},ev:{},evDay:{},hint:{},flags:{},quest:0,log:[],today:[]});
 // 舊存檔補上新系統的欄位
 function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {}; v.known ??= []; v.cups ??= {}; v.stall ??= {}; v.stall.open ??= false; v.stall.rep ??= 0; v.stall.ups ??= {}; v.stall.earned ??= 0; v.stall.sessions ??= 0; v.mag ??= {}; v.spells ??= []; v.sfrac ??= {}; v.affDay ??= {}; v.seen ??= {}; v.flags ??= {}; v.grades ??= []; v.q2 ??= 0; v.items ??= {}; v.decor ??= {}; v.parcel ??= 0; v.replies ??= 0; v.giftDay ??= {}; v.wx ??= 'sun'; v.bdDone ??= {}; v.promise ??= null; v.broken ??= null; v.keys ??= {}; v.keyHint ??= {}; v.col ??= {}; v.col.gift ??= {}; v.col.inc ??= {}; v.col.fest ??= {}; v.col.bd ??= {}; if (!v.aff2){ v.aff2 = 1; for (const k in (v.aff || {})) v.aff[k] = Math.min(200, v.aff[k] * 2); }
+  v.rel ??= {}; v.relDay ??= {}; v.relAsk ??= {}; v.pairs ??= {}; v.pairDay ??= {}; v.letters ??= []; v.letterLast ??= 0;
   v.years ??= []; v.grad ??= {}; v.mentee ??= null; v.finals ??= {};
   v.comm ??= []; v.commDone ??= 0; v.commLast ??= {}; v.col.comm ??= {}; v.col.hue ??= {};
   v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; refreshC(v); return v; }
@@ -942,7 +944,7 @@ function affRow(id){
   const ok = id && BY[id] && S && S.met && S.met[id] && !(id === 'bai' && !S.flags.baiName);
   if (!ok){ el.hidden = true; el.dataset.id = ''; return; }
   const v = S.aff[id] || 0;
-  el.innerHTML = heartsHTML(v) + `<b>${stageOf(v)}</b>`; el.dataset.id = id; el.hidden = false;
+  el.innerHTML = heartsHTML(v) + `<b>${relName(id) || stageOf(v)}</b>`; el.dataset.id = id; el.hidden = false;
   requestAnimationFrame(() => { el.style.left = (E.speaker.offsetLeft + E.speaker.offsetWidth + 8) + 'px'; });
 }
 function setSpeaker(w){
@@ -1177,7 +1179,9 @@ async function meet(c, ctx, where){
     note(e.note); S.ev[c.id] = i + 1; S.evDay[c.id] = S.day;
     return;
   }
-  if (ctx === 'lunch'){ const gl = S.grad[c.id] && YEAR.GRADUATE[c.id]; await say(c.id, gl && Math.random() < .5 ? pick(gl.lunch) : S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : pick(c.lunch), 'happy'); aff(c.id, 5, true); }
+  if (was && await pactMoment(c)) return;
+  if (ctx === 'lunch'){ const gl = S.grad[c.id] && YEAR.GRADUATE[c.id]; const R = BOND.REL[c.id], rl = S.rel[c.id];
+    await say(c.id, rl && R && Math.random() < .55 ? pick(rl === 'love' ? R.L : R.F) : gl && Math.random() < .5 ? pick(gl.lunch) : S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : pick(c.lunch), 'happy'); aff(c.id, 5, true); }
   else if (ctx === 'date'){
     if ((S.aff[c.id] || 0) >= 100){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
     else await say(c.id, c.dateA[0], 'happy');
@@ -1197,8 +1201,10 @@ async function meet(c, ctx, where){
   }
 }
 const ready = c => { const st = S.met[c.id] && evState(c); return st && !st.locked; };
+const relName = id => S.rel && S.rel[id] === 'love' ? '戀人' : S.rel && S.rel[id] === 'friend' ? '摯友' : '';
+const relOf = c => relName(c.id) || stageOf(S.aff[c.id] || 0);
 const charOpt = c => ({label: S.met[c.id] ? c.n : `${HOUSES[c.h].name}的同學`, img:c.img, color:HOUSES[c.h].color, value:c.id,
-  sub: !S.met[c.id] ? '未認識' : ready(c) ? '✦ 有話想說' : stageOf(S.aff[c.id] || 0), hot: ready(c)});
+  sub: !S.met[c.id] ? '未認識' : ready(c) ? '✦ 有話想說' : relOf(c), hot: ready(c)});
 
 // ---------- minigame ----------
 function minigame({title, n = 5, time = 9000, decoy = 0}){
@@ -1928,6 +1934,78 @@ async function board(){
   }
 }
 
+// ---------- 關係深化 ----------
+async function pactMoment(c){
+  const R = BOND.REL[c.id], ev = S.ev[c.id] || 0, cur = S.rel[c.id];
+  if (!R || ev < 6) return false;
+  const canLove = ev >= 8 && !Object.values(S.rel).includes('love');
+  const stage = ev >= 8 ? 8 : 6;
+  if ((S.relAsk[c.id] || 0) >= stage || cur === 'love' || (cur === 'friend' && !canLove)) return false;
+  S.relAsk[c.id] = stage;
+  await tip('bond');
+  await say(c.id, R.pact, 'shy');
+  const opts = [];
+  if (canLove) opts.push({label:BOND.ASK.love, value:'love', hot:true});
+  if (!cur) opts.push({label:BOND.ASK.friend, value:'friend'});
+  opts.push({label:BOND.ASK.wait, value:'wait'});
+  const v = await choose(`${c.n}在等你的回答。`, opts);
+  if (v === 'wait'){ await say(c.id, BOND.WAIT); return true; }
+  S.rel[c.id] = v; S.relDay[c.id] = S.day; SND.sfx('magic');
+  await say(c.id, v === 'love' ? R.love : R.friend, 'happy');
+  aff(c.id, v === 'love' ? 15 : 10);
+  await card(`<img class="crestimg" src="img/ui_knot.webp" alt=""><span class="small">${c.n}</span><span class="big">${v === 'love' ? '戀人' : '摯友'}</span>`, 2400);
+  note(`和${c.n}成為了${v === 'love' ? '戀人' : '摯友'}。`);
+  return true;
+}
+async function anniversary(){
+  for (const [id, r] of Object.entries(S.rel)){
+    if (r !== 'love' || !BY[id]) continue;
+    const n = S.day - (S.relDay[id] || S.day);
+    if (n > 0 && n % 100 === 0){ toast(BOND.ANNI.replace('{c}', BY[id].n), true); aff(id, 6); note(`和${BY[id].n}在一起${cn(n / 100)}百天。`); }
+  }
+}
+async function letterNight(){
+  if (S.day - S.letterLast < 9 || Math.random() > .35) return;
+  const who = C.filter(c => BOND.REL[c.id] && (S.rel[c.id] || (S.ev[c.id] || 0) >= 4) && S.letters.filter(l => l.id === c.id).length < BOND.REL[c.id].letters.length);
+  if (!who.length) return;
+  const w = who.sort((a, b) => (S.rel[b.id] ? 1 : 0) - (S.rel[a.id] ? 1 : 0) || Math.random() - .5)[0], R = BOND.REL[w.id];
+  const k = S.letters.filter(l => l.id === w.id).length;
+  S.letterLast = S.day; SND.sfx('page');
+  await say('', pick(BOND.LETTER_IN));
+  await say(w.id, R.letters[k]);
+  show(null);
+  const t = await choose(`要怎麼回信給${w.n}？`, Object.entries(BOND.TONE).map(([v, l]) => ({label:l, value:v})));
+  const ok = t === R.tone;
+  await say('', BOND.TONE_OK[t] + (ok ? `你覺得，${w.n}讀到的時候，一定會笑。` : ''));
+  aff(w.id, ok ? 7 : 3); gain('feng', 1);
+  S.letters.push({id:w.id, k, d:S.day, t});
+  note(`收到${w.n}的信，${BOND.TONE[t].replace('地回信', '')}地回了信。`);
+}
+function lettersList(){
+  if (!S.letters.length) return '';
+  return `<h3>書信匣</h3>${S.letters.slice().reverse().map(l => BY[l.id] ? `<details class="yr-d"><summary>${BY[l.id].n}的信・${monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</summary><p class="yr-p" style="color:var(--ink)">${fmt(BOND.REL[l.id].letters[l.k])}</p><p class="yr-p">你${BOND.TONE[l.t]}。</p></details>` : '').join('')}`;
+}
+function pairHere(pid){
+  const here = presentAt(pid).filter(c => S.met[c.id]).map(c => c.id);
+  for (const [k, P] of Object.entries(BOND.PAIRS)){
+    const [a, b] = k.split('|'), n = S.pairs[k] || 0;
+    if (P.at !== pid || !here.includes(a) || !here.includes(b) || n >= P.s.length) continue;
+    if (n && S.day - (S.pairDay[k] || 0) < 30) continue;
+    if ((S.aff[a] || 0) < 30 || (S.aff[b] || 0) < 30) continue;
+    return k;
+  }
+  return null;
+}
+async function pairScene(k, p){
+  await tip('pair');
+  const [a, b] = k.split('|'), P = BOND.PAIRS[k], n = S.pairs[k] || 0;
+  for (const st of P.s[n]){ if (st[0]) show(BY[st[0]]); await say(st[0], st[1], st[2]); }
+  show(null);
+  aff(a, 4); aff(b, 4); gain(p.stat, 1);
+  S.pairs[k] = n + 1; S.pairDay[k] = S.day; S.col.pair = S.col.pair || {}; S.col.pair[k + n] = 1;
+  note(BOND.PAIR_NOTE.replace('{p}', p.n).replace('{a}', BY[a].n).replace('{b}', BY[b].n));
+}
+
 // ---------- 學年循環 ----------
 function yearSnap(y){
   const top = C.filter(c => S.met[c.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 3).map(c => [c.id, S.aff[c.id] || 0]);
@@ -2037,6 +2115,8 @@ function handbook(){
     ['校園小事', 'img/loc_vine.webp', Object.keys(S.col.inc).length, nInc],
     ['節慶', 'img/fest_0.webp', Object.keys(S.col.fest).length, LIFE.FESTS.length + 1],
     ['四院花鑰', 'img/key_fei.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4],
+    ['角色之間', 'img/hud_people.webp', Object.keys(S.col.pair || {}).length, Object.keys(BOND.PAIRS).length * 2],
+    ['書信', 'img/dec_parcel.webp', S.letters.length, Object.values(BOND.REL).reduce((a, r) => a + r.letters.length, 0)],
     ...(S.stall.open ? [['茶攤委託', BOARD_IMG, Object.keys(S.col.comm).length, POST.COMM.length]] : []),
     ...(S.flags.yuBook ? [['溯光喚色', 'img/spell_x1.webp', Object.keys(S.col.hue).length, Object.keys(POST.HUE).length]] : [])
   ];
@@ -2155,6 +2235,8 @@ async function explore(prompt){
   if (p.id === 'market'){ await market(); return; }
   if (p.id === 'yulan'){ await yulan(); return; }
   const opts = presentAt(p.id).map(charOpt);
+  const pk = pairHere(p.id);
+  if (pk){ const [a, b] = pk.split('|'); opts.unshift({label:`${BY[a].n}和${BY[b].n}`, sub:'✦ 兩個人在一起・體力 -2', value:'pair:' + pk, hot:true, img:BY[a].img, color:HOUSES[BY[a].h].color}); }
   opts.forEach(o => { if (!canHp(2)){ o.disabled = true; o.sub = '體力不足'; } });
   const mats = (TEA.GATHER[p.id] || []).map(ingName).join('、');
   opts.push({label:'四處看看', sub: canHp(2) ? `${STATS[p.stat][0]}${S.stall.open && mats ? '・採' + mats : ''}・體力 -2` : '體力不足', value:'look', disabled:!canHp(2)});
@@ -2162,6 +2244,7 @@ async function explore(prompt){
   const id = await choose(`${p.n}。要做什麼？`, opts);
   if (!id){ await say('', '你在附近走了走，就回去了。'); return; }
   useHp(2);
+  if (typeof id === 'string' && id.startsWith('pair:')){ await pairScene(id.slice(5), p); return; }
   if (id === 'look'){ gather(p.id); if (hasFx('hue') && POST.HUE[p.id] && Math.random() < .3 && await hueMoment(p.id)) return; if (Math.random() < (S.wx === 'fog' && p.id === 'vine' ? .6 : .35) && await incident(p.id)) return; gain(p.stat, 2); await say('', pick(LIFE.LOOK[p.id] || [LOOK[p.id]])); return; }
   gain(p.stat, 1);
   await meet(BY[id], HAUNT[id] && HAUNT[id][0] === p.id ? 'meet' : 'alt', p.n);
@@ -2223,6 +2306,7 @@ async function dinner(){
 }
 async function free(){
   setScene('宿舍・夜'); await sleep(300);
+  await letterNight();
   while (true){
     const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]}${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2), icon:`img/stat_${x.k}.webp`}));
     if (S.stall.open){
@@ -2395,7 +2479,7 @@ function openTab(t){
       const m = S.met[c.id], v = S.aff[c.id] || 0, n = S.ev[c.id] || 0;
       return `<div class="person ${m ? '' : 'unknown'}" style="--c:${HOUSES[c.h].color}"><img src="${ava(c.img)}" alt=""><div>
         <div class="nm">${m ? c.n : '？？？'}${m && ready(c) ? ' ✦' : ''}</div><div class="meta"><img class="mcrest" src="img/crest_${c.h}.webp" alt="">${HOUSES[c.h].name}・${m ? c.role : '未認識'}</div>${m && HAUNT[c.id] ? `<div class="meta haunt"><img class="mcrest" src="img/life_pin.webp" alt="">${HAUNT[c.id][0] === HAUNT[c.id][1] ? `只在${PLACE_N[HAUNT[c.id][0]]}` : `常在${PLACE_N[HAUNT[c.id][0]]}・偶爾在${PLACE_N[HAUNT[c.id][1]]}`}・生日 ${bdLabel(c.id)}</div>` : ''}
-        ${m ? `<div class="hrow">${heartsHTML(v)}<span>${stageOf(v)}・${v}</span></div>` : ''}${m ? `<div class="evs">${'◆'.repeat(n)}${'◇'.repeat(EV[c.id].length - n)}</div>` : ''}</div>
+        ${m ? `<div class="hrow">${heartsHTML(v)}<span>${relName(c.id) ? `<b class="reltag">${relName(c.id)}</b>・` : ''}${stageOf(v)}・${v}</span></div>` : ''}${m ? `<div class="evs">${'◆'.repeat(n)}${'◇'.repeat(EV[c.id].length - n)}</div>` : ''}</div>
         ${m ? (ready(c) ? '<span class="tag">有話想說</span>' : '') : '<span class="tag">—</span>'}</div>`;
     }).join('');
     if (!S.flags.baiFree) h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">${S.flags.baiName ? '白溯光' : '？？？'}</div><div class="meta"><img class="mcrest" src="img/crest_yu.webp" alt="">玉蘭院・${S.flags.baiName ? '院師・在鏡子的另一邊' : S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
@@ -2411,7 +2495,7 @@ function openTab(t){
     h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><img class="sicon" src="img/stat_${k}.webp" alt=""><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook() + (S.house ? decorList() : '');
   } else {
     h = `<header><h2>手帳與日記</h2><button class="close" type="button">返回</button></header>${S.house ? handbook() : ''}<ul class="log">` +
-      (S.log.length ? S.log.map(l => `<li><b>${!l.d ? '序章' : monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>' + yearsList() + tipsList();
+      (S.log.length ? S.log.map(l => `<li><b>${!l.d ? '序章' : monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>' + lettersList() + yearsList() + tipsList();
   }
   E.sheet.innerHTML = h; E.sheet.hidden = false; E.sheet.scrollTop = 0;
   bindClose();
@@ -2571,7 +2655,7 @@ async function loop(){
       S.day = 1; S.slot = 0; S.today = [];
     }
     const P = plan(S.day);
-    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } }
+    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } await anniversary(); if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } }
     while (S.slot < P.length){
       const k = P[S.slot]; S.today = S.slot === 0 ? [] : S.today; checkpoint(); hud();
       if (S.house && S.hp <= 2 && k !== 'rest') await tip('tired');
@@ -2623,7 +2707,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
