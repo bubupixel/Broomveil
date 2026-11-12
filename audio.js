@@ -1,13 +1,13 @@
 // ---------- sound: generated live, no audio files ----------
-// Oriental-magic score: guzheng-like plucks + dizi-like flute + bell shimmer over a soft drone,
-// all on a Chinese pentatonic scale. Three moods: prologue (sparse, homely), day, night.
+// Oriental-magic score. prologue & night: guzheng + dizi + bells on a pentatonic scale.
+// day: an original academy waltz in D minor — celesta-like bell melody, guzheng bass and glissandi, dizi B-section.
 const SND = (() => {
   let ctx = null, master, musicBus, sfxBus, verb, on = true, mood = 'prologue', timer = null;
   let nextT = 0, step = 0, phrase = [], lastSfx = {};
   try { on = localStorage.getItem('huachao-sound') !== 'off'; } catch (e) {}
   const MOODS = {
     prologue: {root: 62, scale: [0,2,4,7,9], bpm: 62, drone: .05, flute: .35, bell: .15, pluck: .9, bright: 2600},
-    day:      {root: 62, scale: [0,2,4,7,9], bpm: 76, drone: .06, flute: .45, bell: .35, pluck: 1.0, bright: 3400},
+    day:      {root: 62, scale: [0,3,5,7,10], bpm: 128, drone: .025, flute: .45, bell: .35, pluck: 1.0, bright: 3600, waltz: true},
     night:    {root: 59, scale: [0,3,5,7,10], bpm: 54, drone: .07, flute: .3,  bell: .6,  pluck: .7, bright: 1900},
   };
   const hz = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -75,9 +75,66 @@ const SND = (() => {
     for (let i = 0; i < 8; i++){ d += [-2,-1,-1,0,1,1,2].at(Math.floor(Math.random()*7)); d = Math.max(-1, Math.min(8, d)); p.push(Math.random() < .22 && i % 2 ? null : d); }
     p[7] = [0, 2, 5].at(Math.floor(Math.random()*3)); return p;
   }
+  // ---------- 學院圓舞曲：鋼片琴般的鈴音旋律＋古箏伴奏與刮奏，三拍子、D 小調（原創） ----------
+  function celesta(t, m, vel, dur = 1.3){
+    const f = hz(m), g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel, t + .003); g.gain.exponentialRampToValueAtTime(vel * .25, t + .25); g.gain.exponentialRampToValueAtTime(.0004, t + dur);
+    [[1, 1, 'sine'], [2, .22, 'sine'], [4.01, .07, 'sine'], [3, .05, 'triangle']].forEach(([mul, amp, type]) => { const o = ctx.createOscillator(), a = ctx.createGain(); o.type = type; o.frequency.value = f * mul; a.gain.value = amp; o.connect(a); a.connect(g); o.start(t); o.stop(t + dur + .02); });
+    g.connect(musicBus);
+  }
+  function pad(t, notes, dur, vel){
+    const g = ctx.createGain(), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100; lp.Q.value = .4;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel, t + dur * .35); g.gain.setValueAtTime(vel, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur + .4);
+    notes.forEach(m => [-7, 7].forEach(det => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = hz(m); o.detune.value = det; o.connect(lp); o.start(t); o.stop(t + dur + .5); }));
+    lp.connect(g); g.connect(musicBus);
+  }
+  function gliss(t, from, n, up, vel){  // 古箏刮奏：D 小調五聲音階快速掃弦
+    const P = [0, 3, 5, 7, 10]; let i = 0;
+    for (let k = 0; k < n; k++){ const d = up ? k : n - 1 - k, m = 62 + from * 0 + 12 * Math.floor(d / 5) + P[d % 5] + (from - 62);
+      pluck(t + k * .035, m, vel * (.6 + .4 * k / n), musicBus, 1.4); i++; }
+  }
+  const CH = {Dm:[62,65,69,50], Bb:[62,65,70,46], Gm:[62,67,70,43], A:[61,64,67,45], F:[60,65,69,41], C:[60,64,67,48]};
+  // 旋律以 [音高, 八分音符數] 記；0 為休止。每小節 6 個八分音符。
+  const SECT = [
+    {ch:['Dm','Bb','Gm','A','Dm','F','Gm','A'], lead:'cel', mel:[[77,1],[79,1],[81,2],[74,2], [77,1],[76,1],[74,2],[70,2], [79,1],[81,1],[82,2],[74,2], [73,2],[76,2],[81,2],
+      [81,1],[82,1],[81,1],[77,1],[74,2], [84,2],[81,1],[79,1],[77,2], [82,2],[79,2],[76,2], [73,3],[76,1],[69,2]]},
+    {ch:['Dm','Bb','Gm','A','Dm','F','Gm','A'], lead:'zheng', mel:[[65,1],[67,1],[69,2],[62,2], [65,1],[64,1],[62,2],[58,2], [67,1],[69,1],[70,2],[62,2], [61,2],[64,2],[69,2],
+      [69,1],[70,1],[69,1],[65,1],[62,2], [72,2],[69,1],[67,1],[65,2], [70,2],[67,2],[64,2], [61,3],[64,1],[57,2]]},
+    {ch:['F','C','Dm','Bb','F','C','Gm','A'], lead:'flute', mel:[[81,6], [79,4],[76,2], [77,6], [74,4],[77,2], [84,3],[81,3], [79,6], [82,4],[81,1],[79,1], [81,4],[76,2]]},
+    {ch:['Dm','Bb','Gm','A','Dm','F','Gm','Dm'], lead:'both', mel:[[77,1],[79,1],[81,2],[74,2], [77,1],[76,1],[74,2],[70,2], [79,1],[81,1],[82,2],[74,2], [73,2],[76,2],[81,2],
+      [81,1],[82,1],[81,1],[77,1],[74,2], [84,2],[81,1],[79,1],[77,2], [82,1],[81,1],[79,1],[76,1],[73,2], [74,6]]},
+  ];
+  let wStep = 0, wSec = 0, wEvents = null;
+  function sectEvents(sc){ const ev = {}; let pos = 0; for (const [m, len] of sc.mel){ ev[pos] = [m, len]; pos += len; } return ev; }
+  function scheduleWaltz(M){
+    const e8 = 60 / M.bpm / 2;   // 八分音符長度
+    while (nextT < ctx.currentTime + .35){
+      const pos = wStep % 48;
+      if (pos === 0){ if (wStep) wSec = (wSec + 1) % SECT.length; wEvents = sectEvents(SECT[wSec]); }
+      const sc = SECT[wSec], bar = Math.floor(pos / 6), inBar = pos % 6, chord = CH[sc.ch[bar]];
+      // 伴奏：第一拍古箏低音，第二、三拍輕輕的和弦（圓舞曲）
+      if (inBar === 0){ pluck(nextT, chord[3], .15, musicBus, 2.2); pad(nextT, chord.slice(0, 3).map(x => x - 12), e8 * 6, .006); }
+      if (inBar === 2 || inBar === 4) chord.slice(0, 3).forEach((m, i) => pluck(nextT + i * .012, m - 12 + (i ? 0 : 12), .045, musicBus, 1.1));
+      // 主旋律
+      const ev = wEvents[pos];
+      if (ev && ev[0]){ const [m, len] = ev, dur = len * e8;
+        if (sc.lead === 'cel' || sc.lead === 'both') celesta(nextT, m, .11, Math.max(1.1, dur * 1.6));
+        if (sc.lead === 'zheng'){ if (len >= 2 && Math.random() < .35) pluck(nextT - .06, m - 2, .05, musicBus, .5); pluck(nextT, m, .2, musicBus, Math.max(1.4, dur * 1.5)); }
+        if (sc.lead === 'both') pluck(nextT, m - 12, .1, musicBus, 1.6);
+        if (sc.lead === 'flute') flute(nextT, m - 12, dur * .98, .055);
+      }
+      // 長笛段：鈴音分解和弦點綴
+      if (sc.lead === 'flute' && inBar % 2 === 1) celesta(nextT, chord[(inBar >> 1) % 3] + 12, .045, .9);
+      // 古箏段：鈴音在第三拍輕敲高八度
+      if (sc.lead === 'zheng' && inBar === 4 && Math.random() < .6) celesta(nextT, chord[2] + 12, .04, 1);
+      // 段落尾：古箏五聲刮奏帶入下一段
+      if (pos === 46) gliss(nextT, wSec === 2 ? 50 : 62, 11, true, .07);
+      nextT += e8; wStep++;
+    }
+  }
   function schedule(){
     if (!ctx || ctx.state !== 'running') return;
     const M = MOODS[mood], beat = 60 / M.bpm;
+    if (M.waltz) return scheduleWaltz(M);
     while (nextT < ctx.currentTime + .35){
       const b = step % 8;
       if (b === 0) phrase = makePhrase();
@@ -99,6 +156,7 @@ const SND = (() => {
     if (!ctx) return; const t = ctx.currentTime;
     droneNodes.forEach(n => { n.g.gain.cancelScheduledValues(t); n.g.gain.setValueAtTime(n.g.gain.value, t); n.g.gain.linearRampToValueAtTime(0, t + 1.5); n.o.stop(t + 1.6); });
     droneNodes = []; setTimeout(() => ctx && startDrone(), 400); step = step - (step % 8);
+    if (MOODS[m].waltz){ wStep = 0; wSec = 0; nextT = Math.max(nextT, t + .6); }
   }
   function sfx(kind, arg){
     if (!ctx || !on) return; const t = ctx.currentTime + .01, M = MOODS.day;
