@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-224321';</script>
+<script>window.GAME_VERSION = '20261112-234246';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,11 +585,11 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-224321"></script>
-<script src="story.js?v=20261112-224321"></script>
+<script src="audio.js?v=20261112-234246"></script>
+<script src="story.js?v=20261112-234246"></script>
 <script>
 (() => {
-const {END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 // 白溯光在第三章之後才加入名單；C 是目前看得見的人
 const C_ALL = [...C12, BAIC];
 let C = C12.slice();
@@ -620,7 +620,7 @@ function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {
   v.rel ??= {}; v.relDay ??= {}; v.relAsk ??= {}; v.pairs ??= {}; v.pairDay ??= {}; v.letters ??= []; v.letterLast ??= 0;
   v.years ??= []; v.grad ??= {}; v.mentee ??= null; v.finals ??= {};
   v.comm ??= []; v.commDone ??= 0; v.commLast ??= {}; v.col.comm ??= {}; v.col.hue ??= {};
-  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; if ((v.suName || 0) < 2){ v.suName = 2; for (const l of (v.log || [])) if (l && typeof l.t === 'string') l.t = l.t.replace(/夢璃/g, '夢遲').replace(/林青禾/g, '林澈').replace(/柳縈/g, '柳餘音'); } refreshC(v); return v; }
+  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; v.tut ??= {on: (v.day || 0) <= 1 ? null : false, done:{}, log:{}}; if ((v.suName || 0) < 2){ v.suName = 2; for (const l of (v.log || [])) if (l && typeof l.t === 'string') l.t = l.t.replace(/夢璃/g, '夢遲').replace(/林青禾/g, '林澈').replace(/柳縈/g, '柳餘音'); } refreshC(v); return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -851,7 +851,7 @@ const RAIN = (() => {
 })();
 async function wxLine(){
   if (!S.wx || S.wx === 'sun' || S.wxSaid) return;
-  S.wxSaid = true; await say('', WX[S.wx].line(pick)); await tip('weather');
+  S.wxSaid = true; await say('', VARY.WX[S.wx] ? vary('wx' + S.wx, VARY.WX[S.wx]) : WX[S.wx].line(pick)); await tip('weather');
 }
 
 
@@ -1110,7 +1110,7 @@ function hud(){
   }
   E.money.innerHTML = `<img class="hi" src="img/ui_stone.webp" alt="靈石"><b>${S.money}</b>${S.house ? `<img class="hi" src="img/ui_hp.webp" alt="體力"><b class="${S.hp <= 2 ? 'low' : ''}">${S.hp}/${hpMax()}</b>` : ''}`;
   requestAnimationFrame(hudGap);
-  if (S.house){ E.quest.hidden = false; E.quest.innerHTML = ch3Active() ? `<b>四院花鑰</b><span>${keyGoal()}</span>` : ch4Active() ? `<b>玉蘭重開</b><span>${q4Goal()}</span>` : S.flags.ch1 && S.q2 >= 1 && !S.flags.ch2 ? `<b>鏡中來客</b><span>${QUESTS2[S.q2]}</span>` : S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
+  if (S.house){ E.quest.hidden = false; E.quest.innerHTML = tutToday() ? `<b>新生指引</b><span>${tutToday().goal}</span>` : ch3Active() ? `<b>四院花鑰</b><span>${keyGoal()}</span>` : ch4Active() ? `<b>玉蘭重開</b><span>${q4Goal()}</span>` : S.flags.ch1 && S.q2 >= 1 && !S.flags.ch2 ? `<b>鏡中來客</b><span>${QUESTS2[S.q2]}</span>` : S.flags.ch1 ? `<b>學院生活</b><span>${lifeGoal()}</span>` : `<b>無名花影</b><span>${QUESTS[S.quest]}</span>`; document.documentElement.style.setProperty('--house', HOUSES[S.house].color); }
   else E.quest.hidden = true;
 }
 
@@ -1137,6 +1137,20 @@ const weekday = d => (d - 1) % 7;
 // 曆法：每月 28 日，十個月一學年
 const monthOf = d => Math.ceil(d / 28), domOf = d => (d - 1) % 28 + 1;
 const yearOf = d => Math.floor((monthOf(d) - 1) / 10) + 1, mInYear = d => (monthOf(d) - 1) % 10 + 1;
+// 對白變化：同一組句子輪流出現，最近用過的先不重複
+const RECENT = {};
+function vary(key, arr){
+  if (!arr || !arr.length) return '';
+  const r = RECENT[key] || (RECENT[key] = []), left = arr.filter(x => !r.includes(x)), v = pick(left.length ? left : arr);
+  r.push(v); while (r.length > Math.max(1, Math.floor(arr.length * .7))) r.shift(); return v;
+}
+const seasonOf = d => { const m = mInYear(d); return m <= 3 ? '春' : m <= 5 ? '夏' : m <= 8 ? '秋' : '冬'; };
+function vp(kind){
+  const P = VARY.P[kind]; if (!P) return '';
+  const extra = [...(P[seasonOf(S.day)] || []), ...(S.wx && P[S.wx] || [])];
+  // 季節／天氣句子出現機會較高，平常句子墊底
+  return Math.random() < .4 && extra.length ? vary(kind + '+', extra) : vary(kind, [...P.any, ...extra]);
+}
 const dateLabel = d => monthOf(d) === 1 ? `一年級・第${cn(d)}日` : `${yearOf(d) > 1 ? cn(yearOf(d)) + '年級・' : ''}${cn(mInYear(d))}月${cn(domOf(d))}日`;
 const festName = d => mInYear(d) === 1 ? '花朝節' : LIFE.FESTS[(mInYear(d) - 2) % LIFE.FESTS.length].n;
 const festImg = d => `img/fest_${mInYear(d) === 1 ? 0 : (mInYear(d) - 2) % LIFE.FESTS.length + 1}.webp`;
@@ -1154,7 +1168,7 @@ function plan(d){
 // ---------- characters & events ----------
 async function meetIfNew(c){
   if (S.met[c.id]) return;
-  S.met[c.id] = true; S.aff[c.id] = S.aff[c.id] || 0;
+  S.met[c.id] = true; S.aff[c.id] = S.aff[c.id] || 0; tlog('met');
   await say(c.id, c.intro);
   note(`認識了${HOUSES[c.h].name}的${c.n}。`);
 }
@@ -1182,18 +1196,20 @@ async function meet(c, ctx, where){
   }
   if (was && await pactMoment(c)) return;
   if (ctx === 'lunch'){ const gl = S.grad[c.id] && YEAR.GRADUATE[c.id]; const R = BOND.REL[c.id], rl = S.rel[c.id];
-    await say(c.id, rl && R && Math.random() < .55 ? pick(rl === 'love' ? R.L : R.F) : gl && Math.random() < .5 ? pick(gl.lunch) : S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : pick(c.lunch), 'happy'); aff(c.id, 5, true); }
+    await say(c.id, rl && R && Math.random() < .55 ? pick(rl === 'love' ? R.L : R.F) : gl && Math.random() < .5 ? pick(gl.lunch) : S.flags.yulanOpen && POST.LUNCH4[c.id] && Math.random() < .45 ? pick(POST.LUNCH4[c.id]) : vary('ln' + c.id, [...c.lunch, ...(VARY.LUNCH[c.id] || [])]), 'happy'); aff(c.id, 5, true); }
   else if (ctx === 'date'){
-    if ((S.aff[c.id] || 0) >= 100){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); }
-    else await say(c.id, c.dateA[0], 'happy');
+    const D = VARY.DINE[c.id];
+    if (!D){ if ((S.aff[c.id] || 0) >= 100){ await say(c.id, c.dateA[1]); await say(c.id, c.dateB, 'happy'); } else await say(c.id, c.dateA[0], 'happy'); }
+    else if ((S.aff[c.id] || 0) >= 100){ await say(c.id, vary('dnb' + c.id, D.b)); await say(c.id, vary('dnc' + c.id, D.close), 'happy'); }
+    else await say(c.id, vary('dna' + c.id, D.a), 'happy');
     aff(c.id, 8, true); note(`和${c.n}共進晚膳。`);
     if (!FAST || Math.random() < .3){
       await tip('promise');
-      const pr = await choose('晚膳快結束了。', [{label:`約${c.n}明天一起吃午膳`, value:true, icon:'img/life_promise.webp'}, {label:'改天再說', value:false}]);
+      const pr = await choose(vary('dend', ['晚膳快結束了。','燈籠的火光暗了一點。晚膳快結束了。','湖邊的人漸漸散了。','碗筷都收得差不多了。']), [{label:`約${c.n}明天一起吃午膳`, value:true, icon:'img/life_promise.webp'}, {label:'改天再說', value:false}]);
       if (pr){ S.promise = {id:c.id, day:S.day + 1}; await say(c.id, pick(['……好。明天中午，我等你。','說好了。別忘了。','明天見。'])); }
     }
   }
-  else if (ctx === 'alt'){ await say('', `${c.n}也在${where}。`); await say(c.id, pick(c.lunch)); aff(c.id, 4, true); }
+  else if (ctx === 'alt'){ await say('', `${c.n}也在${where}。`); await say(c.id, vary('ln' + c.id, [...c.lunch, ...(VARY.LUNCH[c.id] || [])])); aff(c.id, 4, true); }
   else { await say(c.id, c.meet); aff(c.id, 4, true); }
   if (st && st.locked){
     const key = c.id + (S.ev[c.id] || 0);
@@ -1561,7 +1577,7 @@ async function giftMenu(c){
   for (const g of GOODS.GIFTS) if (S.items[g.id]) opts.unshift({label:g.n, sub:`剩 ${S.items[g.id]}${g.for === c.id ? '・✦ 正是為對方準備的' : ''}`, value:'gift:' + g.id, icon:`img/gift_${g.id}.webp`});
   if (!opts.length) return;
   opts.push({label:'不送了', value:null});
-  const g = await choose(`要送點什麼給${c.n}嗎？`, opts);
+  const g = await choose(vary('give', ['要送點什麼給{c}嗎？','要不要把東西拿給{c}？','{c}好像注意到你的包袱了。要送點什麼嗎？','要留點什麼給{c}嗎？']).replace('{c}', c.n), opts);
   if (!g) return;
   if (g.startsWith('gift:')){
     const gf = GIFT[g.slice(5)]; S.items[gf.id]--;
@@ -1571,10 +1587,10 @@ async function giftMenu(c){
     else { aff(c.id, 3, true); await say(c.id, '……送我的？謝謝你。'); }
     return;
   }
-  if (g === 'cake'){ S.cake--; aff(c.id, 8, true); hud(); await say(c.id, '……給我的？謝謝。我會好好吃完的。', 'happy'); return; }
+  if (g === 'cake'){ S.cake--; aff(c.id, 8, true); hud(); await say(c.id, vary('cake', VARY.CAKE), 'happy'); return; }
   S.cups[g]--;
-  if (REC[g].fans.includes(c.id)){ aff(c.id, 10, true); await say(c.id, `這是……${REC[g].n}？我最喜歡這個了。`, 'happy'); }
-  else { aff(c.id, 4, true); await say(c.id, '是你泡的茶？謝謝，我會慢慢喝。'); }
+  if (REC[g].fans.includes(c.id)){ aff(c.id, 10, true); await say(c.id, vary('fav', VARY.FAV).replace('{t}', REC[g].n), 'happy'); }
+  else { aff(c.id, 4, true); await say(c.id, VARY.TEA[c.id] ? vary('tea' + c.id, [...VARY.TEA[c.id], '是你泡的茶？謝謝，我會慢慢喝。']) : '是你泡的茶？謝謝，我會慢慢喝。'); }
 }
 
 
@@ -1870,7 +1886,7 @@ async function yulan(){
     opts.push({label:'敲響玉蘭鐘', sub:S.bellDay === S.day ? '今天已經敲過了' : '每天一次・體力 +1・風雅', value:'bell', disabled:S.bellDay === S.day, icon:'img/spell_x2.webp'});
     opts.push({label:'在院子裡走走', sub:canHp(2) ? '感知・體力 -2' : '體力不足', value:'look', disabled:!canHp(2)});
     opts.push({label:'離開', value:null});
-    const v = await choose('玉蘭院。要做什麼？', opts);
+    const v = await choose(vary('plyulan', VARY.PLACE.yulan), opts);
     if (!v){ await say('', '你走過石橋。回頭時，木蘭還在風裡輕輕搖著。'); return; }
     if (v === 'bell'){ S.bellDay = S.day; addHp(1); gain('feng', 1); SND.sfx('star'); await say('', pick(POST.BELL)); continue; }
     if (v === 'look'){ useHp(2); gain('gan', 2); await say('', pick(POST.LOOK)); return; }
@@ -2214,13 +2230,14 @@ async function opening(){
   for (const c of C.filter(c => c.h === h)){ show(c); await meetIfNew(c); aff(c.id, 5); }
 }
 async function cls(){
+  tlog('class');
   const w = weekday(S.day);
   let text, stat, scene, title;
   if (w === 1){ text = CLASS_TEXT.herb; stat = 'sheng'; scene = '鈴蘭藥圃'; title = '藥草學'; }
   else if (w === 3){ text = CLASS_TEXT.craft; stat = 'qiao'; scene = '課室'; title = '器物製作'; }
   else { const H = HOUSES[S.house]; text = CLASS_TEXT[S.house]; stat = H.stat; scene = H.name; title = H.cls; }
   setScene(scene); await sleep(300);
-  await say('', text);
+  await say('', VARY.CLASS[w === 1 ? 'herb' : w === 3 ? 'craft' : S.house] ? vary('cls' + w, VARY.CLASS[w === 1 ? 'herb' : w === 3 ? 'craft' : S.house]) : text);
   const tired = !canHp(3); useHp(3);
   if (tired) await say('', '你累得連手都抬不太起來，只能勉強跟上。（體力不足，今天的收穫減半）');
   const gk = w === 1 ? 'herb' : w === 3 ? 'craft' : S.house;
@@ -2263,7 +2280,7 @@ async function explore(prompt){
     return {label:p.n, sub: hot ? '✦ ' + desc : desc, hot, value:p.id, icon:p.icon || `img/loc_${p.id}.webp`};
   }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest', icon:'img/loc_dorm.webp'}]));
   if (pid === 'rest'){ setScene('宿舍・晨'); await sleep(300); addHp(3); await say('', pick(['你回到宿舍，泡了一壺茶，靠著窗小睡了一會兒。','你在床上躺了一下午。醒來時，覺得整個人輕了許多。'])); return; }
-  const p = PLACES.find(x => x.id === pid);
+  const p = PLACES.find(x => x.id === pid); tlog('explore');
   setScene(p.n); await sleep(300);
   if (p.id === 'herb' && S.q4 === 1){ useHp(2); await run(CH4.herb); return; }
   if (p.id === 'lib' && S.q4 === 4){ await run(CH4.lib); gain('bo', 2); return; }
@@ -2279,7 +2296,7 @@ async function explore(prompt){
   if (p.id === 'lib' && S.q2 === 4){ await run(CH2.lib); gain('bo', 2); return; }
   if (p.id === 'lib' && S.quest === 2){ S.met.lu = true; await run(MAIN.lib); gain('bo', 2); return; }
   if (p.id === 'lake' && presentAt('lake').length && !(S.quest === 1 && S.day >= 7)){
-    const lk = await choose('花月湖。要做什麼？', [...presentAt('lake').map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'沿著湖邊走走', sub:'風雅・體力 -1', value:'walk'}]);
+    const lk = await choose(vary('pllake', VARY.PLACE.lake), [...presentAt('lake').map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'沿著湖邊走走', sub:'風雅・體力 -1', value:'walk'}]);
     if (lk !== 'walk'){ useHp(2); gain('feng', 1); await meet(BY[lk], 'alt', '花月湖'); if (lk === 'bai') await giftMenu(BY.bai); return; }
   }
   if (p.id === 'lake'){
@@ -2299,8 +2316,8 @@ async function explore(prompt){
   const mats = (TEA.GATHER[p.id] || []).map(ingName).join('、');
   opts.push({label:'四處看看', sub: canHp(2) ? `${STATS[p.stat][0]}${S.stall.open && mats ? '・採' + mats : ''}・體力 -2` : '體力不足', value:'look', disabled:!canHp(2)});
   opts.push({label:'離開', value:null});
-  const id = await choose(`${p.n}。要做什麼？`, opts);
-  if (!id){ await say('', '你在附近走了走，就回去了。'); return; }
+  const id = await choose(VARY.PLACE[p.id] ? vary('pl' + p.id, VARY.PLACE[p.id]) : `${p.n}。要做什麼？`, opts);
+  if (!id){ await say('', vary('walk', VARY.WALK)); return; }
   useHp(2);
   if (typeof id === 'string' && id.startsWith('pair:')){ await pairScene(id.slice(5), p); return; }
   if (id === 'look'){ gather(p.id); if (hasFx('hue') && POST.HUE[p.id] && Math.random() < .3 && await hueMoment(p.id)) return; if (Math.random() < (S.wx === 'fog' && p.id === 'vine' ? .6 : .35) && await incident(p.id)) return; gain(p.stat, 2); await say('', pick(LIFE.LOOK[p.id] || [LOOK[p.id]])); return; }
@@ -2319,7 +2336,7 @@ async function market(justOpened){
       {label:'逛雜貨攤', sub:'禮物・宿舍佈置・書冊・家書', value:'goods', icon:'img/dec_goods.webp'},
       {label:'委託板', sub:S.comm.length ? `${S.comm.length} 張委託${S.comm.some(canDeliver) ? '・✦ 可以交付' : ''}` : '今天沒有新的委託', value:'board', hot:S.comm.some(canDeliver), icon:BOARD_IMG},
       {label:'離開市集', value:null}];
-    const v = await choose(justOpened ? '要不要現在就試試開攤？' : '百靈市集熱鬧非常。要做什麼？', opts);
+    const v = await choose(justOpened ? '要不要現在就試試開攤？' : vp('market'), opts);
     justOpened = false;
     if (v === 'goods'){ await goodsShop(); continue; }
     if (v === 'board'){ await board(); continue; }
@@ -2337,12 +2354,13 @@ async function lunch(){
   const prom = S.promise && S.promise.day === S.day && BY[S.promise.id];
   const pool = [...new Set([...(prom ? [prom] : []), ...hot.slice(0, 2), ...C.filter(c => c.id !== 'bai').sort(() => Math.random() - .5)])].slice(0, 3);
   const mt = menteeDue() && S.mentee;
-  const id = await choose('午膳時間。要和誰同桌？', [...(mt ? [{label:`新生・${mt.n}`, sub:'✦ 好像有事想問你', value:'mentee', hot:true, icon:`img/crest_${S.house}.webp`}] : []), ...pool.map(c => c === prom ? {...charOpt(c), sub:'✦ 約好了今天一起吃', hot:true} : charOpt(c)), {label:'一個人安靜吃飯', sub:'風雅 +2', value:null}]);
+  const id = await choose(vp('lunch'), [...(mt ? [{label:`新生・${mt.n}`, sub:'✦ 好像有事想問你', value:'mentee', hot:true, icon:`img/crest_${S.house}.webp`}] : []), ...pool.map(c => c === prom ? {...charOpt(c), sub:'✦ 約好了今天一起吃', hot:true} : charOpt(c)), {label:'一個人安靜吃飯', sub:'風雅 +2', value:null}]);
   if (prom){ S.promise = null;
     if (id === prom.id){ show(prom); await say(prom.id, pick(LIFE2.KEPT), 'happy'); aff(prom.id, 5); note(`守住了和${prom.n}的午膳之約。`); }
     else { aff(prom.id, -4); S.broken = prom.id; toast(`你忘了和${prom.n}的約定……`); } }
   if (id === 'mentee'){ await menteeEvent(); return; }
-  if (!id){ gain('feng', 2); await say('', pick(['你獨自看著窗外的花，慢慢吃完一頓飯。','你一邊吃，一邊在小本子上寫下今天想做的事。'])); return; }
+  if (id) tlog('lunch');
+  if (!id){ gain('feng', 2); await say('', vary('solo', VARY.SOLO_LUNCH)); return; }
   const c = BY[id];
   await meet(c, 'lunch');
   await giftMenu(c);
@@ -2350,12 +2368,12 @@ async function lunch(){
 async function dinner(){
   setScene('晚膳'); await sleep(300);
   const ok = C.filter(c => (S.aff[c.id] || 0) >= 40).sort((a, b) => (ready(b) - ready(a)) || ((S.aff[b.id] || 0) - (S.aff[a.id] || 0))).slice(0, 4);
-  const id = await choose(ok.length ? '傍晚的燈籠亮起來了。要邀請誰共進晚膳？' : '傍晚的燈籠亮起來了。（好感達到「熟絡」，就可以邀請對方晚膳）',
+  const id = await choose(ok.length ? vp('dinner') : '傍晚的燈籠亮起來了。（好感達到「熟絡」，就可以邀請對方晚膳）',
     [...ok.map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'和同院同學一起吃', sub:'同院好感・體力 +1', value:null}]);
   if (!id){
     const mates = C.filter(c => c.h === S.house && S.met[c.id]), m = mates.length && pick(mates); addHp(1);
-    await say('', pick([`${HOUSES[S.house].name}的長桌上很熱鬧，大家在聊下週的課。`, '長桌上擺滿了菜，同院的同學你一言我一語，笑聲沒停過。', '大家在爭論哪一位講師的課最難。你聽著，忍不住笑了。']));
-    if (m){ aff(m.id, 2, true); await say('', `${m.n}坐在你旁邊，順手替你添了一碗湯。`); }
+    await say('', vary('hdine', VARY.HOUSE_DINE).replace('{h}', HOUSES[S.house].name));
+    if (m){ aff(m.id, 2, true); await say('', vary('soup', VARY.SOUP).replace('{c}', m.n)); }
     return;
   }
   useHp(2);
@@ -2375,8 +2393,8 @@ async function free(){
     if (sx) opts.unshift({label:'自修咒術', sub:hpSub(2, `「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`), value:'study', disabled:!canHp(2), icon:S.decor.shelf ? 'img/dec_shelf.webp' : 'img/ui_scroll.webp'});
     if (S.decor.qin) opts.push({label:'撫琴', sub:'不耗體力・風雅・體力 +1', value:'qin', icon:'img/dec_qin.webp'});
     opts.push({label:'早點休息', sub:`今晚多恢復 ${3 + (S.decor.pillow ? 1 : 0)} 點體力`, value:'sleep', icon:S.decor.pillow ? 'img/dec_pillow.webp' : 'img/ui_hp.webp'});
-    const f = await choose('晚上的自由時間。要做什麼？', opts);
-    if (f === 'sleep'){ S.hpBonus = 3 + (S.decor.pillow ? 1 : 0); await say('', '你早早熄了燈。窗外的蟲聲，很快就把你送進夢裡。'); return; }
+    const f = await choose(vp('free'), opts); tlog('free');
+    if (f === 'sleep'){ S.hpBonus = 3 + (S.decor.pillow ? 1 : 0); await say('', vary('sleep', VARY.SLEEP)); return; }
     if (f === 'qin'){ addHp(1); gain('feng', 1); await say('', pick(['你在窗邊撫琴。琴聲很輕，像怕吵醒窗外的花。','你彈了一首外婆常哼的小調。彈著彈著，心就靜下來了。','你隨手撥了幾個音，竟然連成了一段好聽的旋律。'])); return; }
     if (f === 'study'){ useHp(2); await say('', pick(['你在燈下翻開術譜，一遍又一遍地練習手勢。','你對著窗外的月光，輕聲默念咒文。','宿舍裡很安靜。你閉上眼，把靈力在掌心繞了一圈又一圈。']));
       const r = await playGame(sk === 'herb' ? 'herb' : sk === 'craft' ? 'craft' : S.house, {title:'自修・' + sx.n, short:true, time:8000}); gain(spellStat(sx), 1); await practise(sk, r.score + (r.full ? 1 : 0) + (S.decor.shelf ? 1 : 0)); return; }
@@ -2459,7 +2477,7 @@ async function storyBeat(d, slot){
   }
   return false;
 }
-const SLOTS = {opening, class:cls, exam, outing:() => explore('今天休假。上午想去哪裡走走？'), lunch, explore:() => explore('下午沒有課。要去哪裡？'), festival, dinner, free, rest, yearend, newyear};
+const SLOTS = {opening, class:cls, exam, outing:() => explore(vp('outing')), lunch, explore:() => explore(vp('explore')), festival, dinner, free, rest, yearend, newyear};
 
 async function dayCard(d){
   const m = monthOf(d), dm = domOf(d);
@@ -2530,7 +2548,7 @@ function openTab(t){
   if (t === 'save') return saveSheet();
   if (t === 'tea') return teaSheet();
   let h = '';
-  if (t === 'people'){
+  if (t === 'people'){ tlog('people');
     h = `<header><h2><img class="hicon" src="img/ui_knot.webp" alt="">人物</h2><span class="sub">✦ 表示有話想說</span><button class="close" type="button">返回</button></header>`;
     h += C.map(c => {
       const m = S.met[c.id], v = S.aff[c.id] || 0, n = S.ev[c.id] || 0;
@@ -2606,6 +2624,35 @@ function describe(v){
 const when = t => { if (!t) return ''; const d = new Date(t), p = n => String(n).padStart(2, '0'); return `${d.getMonth() + 1}月${d.getDate()}日 ${p(d.getHours())}:${p(d.getMinutes())} 存檔`; };
 const toCode = raw => btoa(unescape(encodeURIComponent(raw)));
 const fromCode = code => decodeURIComponent(escape(atob(code.replace(/\s+/g, ''))));
+// 存檔碼：BV1. + {save, legacy}；舊格式（純存檔）照樣讀得到
+function makeCode(){ const raw = CK || readRaw(KEY); if (!raw) return ''; return 'BV1.' + toCode(JSON.stringify({save:raw, legacy:legacy()})); }
+function parseCode(txt){
+  txt = String(txt || '').trim().replace(/^.*?(BV1\.)/s, '$1');
+  let raw = '', lg = null;
+  if (txt.startsWith('BV1.')){ const b = JSON.parse(fromCode(txt.slice(4))); raw = b.save; lg = b.legacy; }
+  else raw = fromCode(txt);
+  const v = JSON.parse(raw); if (!valid(v)) throw new Error('bad');
+  return {raw, lg};
+}
+function restoreCode(txt){
+  let r; try { r = parseCode(txt); } catch (e) { return false; }
+  if (r.lg && typeof r.lg === 'object'){ const L = legacy(); L.ng = Math.max(L.ng, r.lg.ng || 0); Object.assign(L.endings, r.lg.endings || {}); saveLegacy(L); }
+  bootFrom(r.raw); return true;
+}
+function backupNag(){
+  if (FAST || !S.house || S.day < 14) return;
+  if (S.day - (S.expDay || 0) >= 28 && S.day - (S.expNag || 0) >= 7){ S.expNag = S.day; setTimeout(() => toast('提示：存檔只在這部手機上。可到「存」→「匯出存檔碼」備份一下。'), 2600); }
+}
+function markExport(){ if (S && S.day){ S.expDay = S.day; S.expNag = S.day; } }
+async function shareSave(code){
+  const name = `花朝靈院存檔_${(S.name || 'save')}_${S.day || 0}日.txt`;
+  try {
+    const file = new File([code], name, {type:'text/plain'});
+    if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'花朝靈院存檔'}); markExport(); toast('已儲存存檔檔案'); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([code], {type:'text/plain'})); a.download = name; document.body.appendChild(a); a.click(); a.remove(); markExport(); toast('已下載存檔檔案'); }
+  catch (e) { toast('這裡不能下載檔案，請改用「複製存檔碼」。'); }
+}
 function saveSheet(){
   SND.sfx('page');
   const auto = readSave(KEY);
@@ -2626,7 +2673,9 @@ function saveSheet(){
   else h += `<p class="note">存檔會記下「目前這個時段開始時」的進度。讀取後，會從那個時段的開頭繼續。</p>`;
   if (!storeOK) h += `<p class="note warn">這個瀏覽器不允許網頁儲存資料（例如私密瀏覽），進度無法保存。可以用下面的存檔碼備份。</p>`;
   h += `<div class="codebox"><h3>存檔碼</h3><p class="note" style="margin-top:0">存檔只保存在這部裝置的瀏覽器。要換手機或換瀏覽器，先在這裡匯出存檔碼，再到新裝置貼上。</p>
-    <div class="acts" style="justify-content:flex-start"><button type="button" class="act" data-act="export" ${CK || auto ? '' : 'disabled'}>匯出目前進度</button><button type="button" class="act" data-act="import">貼上存檔碼讀取</button></div>
+    <div class="acts" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="act main" data-act="export" ${CK || auto ? '' : 'disabled'}>匯出存檔碼</button><button type="button" class="act" data-act="file" ${CK || auto ? '' : 'disabled'}>儲存成檔案</button><button type="button" class="act" data-act="import">貼上存檔碼</button><button type="button" class="act" data-act="openfile">從檔案讀取</button></div>
+    ${S && S.day && S.expDay ? `<p class="note" style="margin:6px 0 0">上次備份：${S.expDay === S.day ? '今天' : `${S.day - S.expDay} 日前`}</p>` : ''}
+    <input type="file" id="savefile" accept=".txt,text/plain" hidden>
     <div id="codearea"></div></div>
     <div class="codebox prefs"><h3>設定</h3>
       <div class="pref"><span>文字速度</span><div class="seg2">${Object.entries(SPEEDS).map(([k, [, n]]) => `<button type="button" data-act="speed" data-k="${k}" class="${PREF.speed === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
@@ -2668,7 +2717,7 @@ function saveAct(b){
     if (!arm(b, '確定刪除？')) return;
     store(key, null); toast(`已刪除存檔${CN[k]}`); saveSheet();
   } else if (act === 'export'){
-    const code = toCode(CK || readRaw(KEY));
+    const code = makeCode(); markExport();
     $('codearea').innerHTML = `<textarea id="codeout" readonly aria-label="存檔碼">${code}</textarea><button type="button" class="act main" id="copycode">複製存檔碼</button>`;
     $('copycode').onclick = () => {
       const ta = $('codeout');
@@ -2678,11 +2727,15 @@ function saveAct(b){
   } else if (act === 'import'){
     $('codearea').innerHTML = `<textarea id="codein" aria-label="貼上存檔碼" placeholder="在這裡貼上存檔碼"></textarea><button type="button" class="act main" id="loadcode">讀取這個存檔碼</button><p class="note warn" id="codeerr"></p>`;
     $('loadcode').onclick = () => {
-      let v = null, raw = '';
-      try { raw = fromCode($('codein').value.trim()); v = JSON.parse(raw); } catch (e) {}
-      if (!valid(v)){ $('codeerr').textContent = '存檔碼不正確。請確認整段都有貼上。'; return; }
-      bootFrom(raw);
+      if (!restoreCode($('codein').value)) $('codeerr').textContent = '存檔碼不正確。請確認整段都有貼上。';
     };
+  } else if (act === 'file'){
+    shareSave(makeCode());
+  } else if (act === 'openfile'){
+    const inp = $('savefile'); inp.value = '';
+    inp.onchange = () => { const f = inp.files && inp.files[0]; if (!f) return; const rd = new FileReader();
+      rd.onload = () => { if (!restoreCode(rd.result)) toast('這個檔案不是花朝靈院的存檔。'); }; rd.onerror = () => toast('讀取檔案失敗。'); rd.readAsText(f); };
+    inp.click();
   }
 }
 document.querySelectorAll('.hud [data-tab]').forEach(b => b.onclick = () => openTab(b.dataset.tab));
@@ -2711,6 +2764,32 @@ sndBtn.onclick = () => sndBtn.setAttribute('aria-pressed', SND.toggle());
   })();
 })();
 
+// ---------- 新生週指引 ----------
+function tlog(k){ if (S.tut && S.tut.on && TUT.DAYS[S.day]) (S.tut.log[S.day] || (S.tut.log[S.day] = {}))[k] = 1; }
+const tutToday = () => S.tut && S.tut.on && TUT.DAYS[S.day] && !S.tut.done[S.day] ? TUT.DAYS[S.day] : null;
+function tutCheck(){
+  const T = tutToday(); if (!T) return;
+  const L = S.tut.log[S.day] || {};
+  if (L.stall === undefined && S.stall.sessions > (S.tut.s0 || 0)) L.stall = 1;
+  if (S.known.length > (S.tut.k0 || 0)) L.recipe = 1;
+  S.tut.log[S.day] = L;
+  if (T.need.every(k => L[k])){ S.tut.done[S.day] = 1; S.money += 10; hud(); toast(`${TUT.DONE}：${T.goal}・靈石 +10`, true); note(`新生指引：${T.goal}。`); }
+}
+async function tutMorning(){
+  if (FAST || !S.house) return;
+  if (S.day === 2 && S.tut && S.tut.on === null){
+    const L = legacy(), vet = S.ng || Object.keys(L.endings).length;
+    S.tut.on = vet ? !!(await choose(TUT.ASK[1], [{label:TUT.NO, value:0}, {label:TUT.YES, value:1}])) : true;
+  }
+  if (S.day === 8 && S.tut && S.tut.on && !S.tut.ended){ S.tut.ended = 1; await card(TUT.END[0], 2000); for (const t of TUT.END.slice(1)) await say('', t); return; }
+  const T = tutToday(); if (!T) return;
+  S.tut.s0 = S.stall.sessions || 0; if (S.day !== 7) S.tut.k0 = S.known.length;
+  hud(); setScene('宿舍・晨'); await sleep(200);
+  await say('', '窗邊落下一隻紙鶴，翅膀上寫著「新生輔導處」。');
+  for (const t of T.note) await say('npc:紙鶴', t);
+  hud();
+}
+
 // ---------- main ----------
 async function loop(){
   while (true){
@@ -2723,14 +2802,14 @@ async function loop(){
       S.day = 1; S.slot = 0; S.today = [];
     }
     const P = plan(S.day);
-    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } await anniversary(); if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } }
+    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } await anniversary(); if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } backupNag(); await tutMorning(); }
     while (S.slot < P.length){
       const k = P[S.slot]; S.today = S.slot === 0 ? [] : S.today; checkpoint(); hud();
       if (S.house && S.hp <= 2 && k !== 'rest') await tip('tired');
       if (S.house && k === 'lunch'){ setScene('膳堂'); await sleep(300); await tip('basics'); }
       const skip = await storyBeat(S.day, k);
       if (!skip) await SLOTS[k]();
-      S.slot++; hud();
+      tutCheck(); S.slot++; hud();
     }
     if (S.day >= LAST_DAY && !S.flags.ch1){ if (!await chapterEnd()) return; }
     if (FAST && S.day >= TEST_END){ window.__done = true; return; }
@@ -2759,6 +2838,15 @@ async function main(){
       if (!ok) continue;
     }
     S = migrate(fresh()); break;
+  }
+  if (!auto && !manual && !FAST){
+    // 新裝置：可以直接貼上舊裝置的存檔碼
+    while (true){
+      const v = await choose('花朝靈院', [{label:'開始入學', value:'new'}, {label:'從舊裝置繼續', sub:'貼上存檔碼或選擇存檔檔案', value:'code'}]);
+      if (v === 'new') break;
+      CK = null; saveSheet(); E.sheet.querySelector('[data-act="import"]').click(); E.sheet.querySelector('.codebox').scrollIntoView({block:'start'});
+      await new Promise(r => onSheetClose = r);
+    }
   }
   hud(); loop();
 }
