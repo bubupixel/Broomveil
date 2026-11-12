@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-234246';</script>
+<script>window.GAME_VERSION = '20261112-234518';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-234246"></script>
-<script src="story.js?v=20261112-234246"></script>
+<script src="audio.js?v=20261112-234518"></script>
+<script src="story.js?v=20261112-234518"></script>
 <script>
 (() => {
 const {TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -2643,6 +2643,7 @@ function backupNag(){
   if (FAST || !S.house || S.day < 14) return;
   if (S.day - (S.expDay || 0) >= 28 && S.day - (S.expNag || 0) >= 7){ S.expNag = S.day; setTimeout(() => toast('提示：存檔只在這部手機上。可到「存」→「匯出存檔碼」備份一下。'), 2600); }
 }
+const CAN_FILE = /github\.io$/.test(location.hostname) || location.protocol === 'file:';
 function markExport(){ if (S && S.day){ S.expDay = S.day; S.expNag = S.day; } }
 async function shareSave(code){
   const name = `花朝靈院存檔_${(S.name || 'save')}_${S.day || 0}日.txt`;
@@ -2673,7 +2674,7 @@ function saveSheet(){
   else h += `<p class="note">存檔會記下「目前這個時段開始時」的進度。讀取後，會從那個時段的開頭繼續。</p>`;
   if (!storeOK) h += `<p class="note warn">這個瀏覽器不允許網頁儲存資料（例如私密瀏覽），進度無法保存。可以用下面的存檔碼備份。</p>`;
   h += `<div class="codebox"><h3>存檔碼</h3><p class="note" style="margin-top:0">存檔只保存在這部裝置的瀏覽器。要換手機或換瀏覽器，先在這裡匯出存檔碼，再到新裝置貼上。</p>
-    <div class="acts" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="act main" data-act="export" ${CK || auto ? '' : 'disabled'}>匯出存檔碼</button><button type="button" class="act" data-act="file" ${CK || auto ? '' : 'disabled'}>儲存成檔案</button><button type="button" class="act" data-act="import">貼上存檔碼</button><button type="button" class="act" data-act="openfile">從檔案讀取</button></div>
+    <div class="acts" style="justify-content:flex-start;flex-wrap:wrap"><button type="button" class="act main" data-act="export" ${CK || auto ? '' : 'disabled'}>匯出存檔碼</button>${CAN_FILE ? `<button type="button" class="act" data-act="file" ${CK || auto ? '' : 'disabled'}>儲存成檔案</button>` : ''}<button type="button" class="act" data-act="import">貼上存檔碼</button><button type="button" class="act" data-act="openfile">從檔案讀取</button></div>
     ${S && S.day && S.expDay ? `<p class="note" style="margin:6px 0 0">上次備份：${S.expDay === S.day ? '今天' : `${S.day - S.expDay} 日前`}</p>` : ''}
     <input type="file" id="savefile" accept=".txt,text/plain" hidden>
     <div id="codearea"></div></div>
