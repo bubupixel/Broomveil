@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-184459';</script>
+<script>window.GAME_VERSION = '20261112-193211';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-184459"></script>
-<script src="story.js?v=20261112-184459"></script>
+<script src="audio.js?v=20261112-193211"></script>
+<script src="story.js?v=20261112-193211"></script>
 <script>
 (() => {
 const {END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -711,7 +711,8 @@ const E = {app:$('app'),bgA:$('bgA'),bgB:$('bgB'),backdrop:$('backdrop'),portrai
   quest:$('quest'),place:$('place'),scrim:$('scrim'),choices:$('choices'),box:$('box'),speaker:$('speaker'),line:$('line'),more:$('more'),
   sheet:$('sheet'),card:$('card'),toast:$('toast')};
 const ava = n => `img/a${String(n).padStart(2,'0')}.jpg`;
-const fmt = t => String(t).replace(/\{n\}/g, S.name).replace(/\{弟妹\}/g, S.gender === 'm' ? '學弟' : '學妹');
+const menteeG = () => { const m = S.mentee && Object.values(YEAR.MENTEE).find(x => x.n === S.mentee.n); return m && m.g === 'm' ? '他' : '她'; };
+const fmt = t => String(t).replace(/\{n\}/g, S.name).replace(/\{弟妹\}/g, S.gender === 'm' ? '學弟' : '學妹').replace(/\{學長姊\}/g, S.gender === 'm' ? '學長' : '學姊').replace(/\{ta\}/g, menteeG());
 const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house + (g === 'fc' ? '_2' : '') : g + '0'}.jpg`}; };
@@ -2508,10 +2509,9 @@ async function chapterEnd(){
   S.flags.ch1 = true; note('第一章「無名花影」完。學院的日子還在繼續。');
   if (FAST) return true;
   while (true){
-    const v = await choose('接下來——', [{label:'繼續學院生活', sub:'保留所有進度，迎接第二個月', value:'go'},{label:'翻看人物與日記', value:'look'},{label:'重新入學', sub:'從序章重新開始', value:'new'}]);
+    const v = await choose('接下來——', [{label:'繼續學院生活', sub:'保留所有進度，迎接第二個月', value:'go'},{label:'翻看人物與日記', value:'look'}]);
     if (v === 'go') return true;
-    if (v === 'look'){ openTab('people'); await new Promise(r => onSheetClose = r); continue; }
-    S = fresh(); CK = null; store(KEY, null); main(); return false;
+    openTab('people'); await new Promise(r => onSheetClose = r);
   }
 }
 
