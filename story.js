@@ -107,19 +107,19 @@ const GRAN = {id:'gran',n:'外婆',h:'yu',cut:'img/c14.webp'};
 
 // 表情差分：出好圖之後在這裡登記，例如 FACES.pei = {smile:'img/pei_smile.webp', shy:'img/pei_shy.webp', angry:…, sad:…, surprised:…}
 const FACES = {
-  pei:{laugh:'img/c01_smile.webp', shy:'img/c01_shy.webp', angry:'img/c01_angry.webp', sad:'img/c01_sad.webp'},
-  qin:{laugh:'img/c02_smile.webp', shy:'img/c02_shy.webp', angry:'img/c02_angry.webp', sad:'img/c02_sad.webp'},
-  tang:{laugh:'img/c03_smile.webp', smile:'img/c03_smile.webp', shy:'img/c03_shy.webp', angry:'img/c03_angry.webp', sad:'img/c03_sad.webp'},
-  jiang:{laugh:'img/c04_smile.webp', shy:'img/c04_shy.webp', angry:'img/c04_angry.webp', sad:'img/c04_sad.webp'},
-  lu:{laugh:'img/c05_smile.webp', shy:'img/c05_shy.webp', angry:'img/c05_angry.webp', sad:'img/c05_sad.webp'},
-  wen:{laugh:'img/c06_smile.webp', smile:'img/c06_smile.webp', shy:'img/c06_shy.webp', angry:'img/c06_angry.webp', sad:'img/c06_sad.webp'},
-  lin:{laugh:'img/c07_smile.webp', shy:'img/c07_shy.webp', angry:'img/c07_angry.webp', sad:'img/c07_sad.webp'},
-  ye:{laugh:'img/c08_smile.webp', shy:'img/c08_shy.webp', angry:'img/c08_angry.webp', sad:'img/c08_sad.webp'},
-  ruan:{laugh:'img/c09_smile.webp', smile:'img/c09_smile.webp', shy:'img/c09_shy.webp', angry:'img/c09_angry.webp', sad:'img/c09_sad.webp'},
-  su:{laugh:'img/c10_smile.webp', shy:'img/c10_shy.webp', angry:'img/c10_angry.webp', sad:'img/c10_sad.webp'},
-  liu:{laugh:'img/c11_smile.webp', shy:'img/c11_shy.webp', angry:'img/c11_angry.webp', sad:'img/c11_sad.webp'},
-  ji:{laugh:'img/c12_smile.webp', shy:'img/c12_shy.webp', angry:'img/c12_angry.webp', sad:'img/c12_sad.webp'},
-  bai:{laugh:'img/c13_smile.webp', smile:'img/c13_smile.webp', shy:'img/c13_shy.webp', sad:'img/c13_sad.webp', surprised:'img/c13_surprised.webp'},
+  pei:{laugh:'img/c01_smile.webp', shy:'img/c01_shy.webp', angry:'img/c01_angry.webp', sad:'img/c01_sad.webp',calm:'img/c01_calm.webp'},
+  qin:{laugh:'img/c02_smile.webp', shy:'img/c02_shy.webp', angry:'img/c02_angry.webp', sad:'img/c02_sad.webp',calm:'img/c02_calm.webp'},
+  tang:{laugh:'img/c03_smile.webp', smile:'img/c03_smile.webp', shy:'img/c03_shy.webp', angry:'img/c03_angry.webp', sad:'img/c03_sad.webp',calm:'img/c03_calm.webp'},
+  jiang:{laugh:'img/c04_smile.webp', shy:'img/c04_shy.webp', angry:'img/c04_angry.webp', sad:'img/c04_sad.webp',calm:'img/c04_calm.webp'},
+  lu:{laugh:'img/c05_smile.webp', shy:'img/c05_shy.webp', angry:'img/c05_angry.webp', sad:'img/c05_sad.webp',calm:'img/c05_calm.webp'},
+  wen:{laugh:'img/c06_smile.webp', smile:'img/c06_smile.webp', shy:'img/c06_shy.webp', angry:'img/c06_angry.webp', sad:'img/c06_sad.webp',calm:'img/c06_calm.webp'},
+  lin:{laugh:'img/c07_smile.webp', shy:'img/c07_shy.webp', angry:'img/c07_angry.webp', sad:'img/c07_sad.webp',calm:'img/c07_calm.webp'},
+  ye:{laugh:'img/c08_smile.webp', shy:'img/c08_shy.webp', angry:'img/c08_angry.webp', sad:'img/c08_sad.webp',calm:'img/c08_calm.webp'},
+  ruan:{laugh:'img/c09_smile.webp', smile:'img/c09_smile.webp', shy:'img/c09_shy.webp', angry:'img/c09_angry.webp', sad:'img/c09_sad.webp',calm:'img/c09_calm.webp'},
+  su:{laugh:'img/c10_smile.webp', shy:'img/c10_shy.webp', angry:'img/c10_angry.webp', sad:'img/c10_sad.webp',calm:'img/c10_calm.webp'},
+  liu:{laugh:'img/c11_smile.webp', shy:'img/c11_shy.webp', angry:'img/c11_angry.webp', sad:'img/c11_sad.webp',calm:'img/c11_calm.webp'},
+  ji:{laugh:'img/c12_smile.webp', shy:'img/c12_shy.webp', angry:'img/c12_angry.webp', sad:'img/c12_sad.webp',calm:'img/c12_calm.webp'},
+  bai:{laugh:'img/c13_smile.webp', smile:'img/c13_smile.webp', shy:'img/c13_shy.webp', sad:'img/c13_sad.webp',calm:'img/c13_calm.webp', surprised:'img/c13_surprised.webp'},
 };
 
 // ---------- 羈絆事件：每人四段，好感達標後在午膳、探索或晚膳時觸發 ----------
