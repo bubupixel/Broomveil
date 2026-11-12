@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-101033';</script>
+<script>window.GAME_VERSION = '20261112-134520';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,11 +585,11 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-101033"></script>
-<script src="story.js?v=20261112-101033"></script>
+<script src="audio.js?v=20261112-134520"></script>
+<script src="story.js?v=20261112-134520"></script>
 <script>
 (() => {
-const {BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 // 白溯光在第三章之後才加入名單；C 是目前看得見的人
 const C_ALL = [...C12, BAIC];
 let C = C12.slice();
@@ -1100,7 +1100,7 @@ function hud(){
   if (!S.house){ yr.textContent = S.day ? '一年級' : ''; E.date.textContent = S.day ? '第一日' : '入學前'; E.slot.textContent = S.day ? '入學' : '序章'; wc.hidden = true; }
   else {
     const d = S.day;
-    yr.textContent = cn(yearOf(d)) + '年級';
+    yr.textContent = S.flags.graduated ? '研修生' : cn(yearOf(d)) + '年級';
     E.date.textContent = monthOf(d) === 1 ? `第${cn(d)}日` : `${cn(mInYear(d))}月${cn(domOf(d))}日`;
     const sk = P[Math.min(S.slot, P.length - 1)];
     E.slot.textContent = `週${WEEK[(d - 1) % 7]}・${sk === 'festival' ? festName(d) : SLOT_NAME[sk]}`;
@@ -1118,7 +1118,7 @@ function lifeGoal(){
   const g = [], dm = domOf(S.day);
   if (dm < 14) g.push(`<img class="qi" src="${festImg(S.day)}" alt="">再過 ${14 - dm} 日就是「${festName(S.day)}」`);
   else if (dm < 25) g.push(mInYear(S.day) === 10 ? `再過 ${25 - dm} 日是期末大考` : `再過 ${25 - dm} 日是本月月考`);
-  else if (mInYear(S.day) === 10 && dm < 28) g.push(`再過 ${28 - dm} 日是年終祭・${cn(yearOf(S.day))}年級就要結束了`);
+  else if (mInYear(S.day) === 10 && dm < 28) g.push(yearOf(S.day) === 3 && !S.flags.graduated ? `再過 ${28 - dm} 日是畢業典禮` : `再過 ${28 - dm} 日是年終祭・${cn(yearOf(S.day))}年級就要結束了`);
   else g.push(`<img class="qi" src="${festImg(S.day + 28)}" alt="">下個月的節慶是「${festName(S.day + 28)}」`);
   const sx = S.house && curSpell(S.house);
   if (sx) g.push(`<img class="qi" src="img/spell_${sx.id}.webp" alt="">術譜：「${sx.n}」熟練 ${S.mag[sx.id] || 0}/${sx.need}`);
@@ -2006,6 +2006,60 @@ async function pairScene(k, p){
   note(BOND.PAIR_NOTE.replace('{p}', p.n).replace('{a}', BY[a].n).replace('{b}', BY[b].n));
 }
 
+// ---------- 畢業與結局 ----------
+const LEGACY = 'huachao-legacy';
+function legacy(){ try { const v = JSON.parse(readRaw(LEGACY) || '{}'); return {ng:v.ng || 0, endings:v.endings && typeof v.endings === 'object' ? v.endings : {}}; } catch (e) { return {ng:0, endings:{}}; } }
+function saveLegacy(L){ store(LEGACY, JSON.stringify(L)); }
+const fillC = (t, c) => t.replace(/\{c\}/g, c ? c.n : '');
+async function graduation(){
+  setScene('花朝正殿'); await sleep(300);
+  await card(`<img class="crestimg" src="img/ui_medal.webp" alt=""><span class="small">花朝靈院第二十五屆</span><span class="big">畢業典禮</span>`, 2600);
+  for (const x of END.CERE) Array.isArray(x) ? await say(x[0], x[1]) : await say('', x);
+  if (S.mentee) await say(END.MENTEE[0].replace('{m}', S.mentee.n), END.MENTEE[1]);
+  setScene('花月湖');
+  for (const x of END.GRAN) Array.isArray(x) ? await say(x[0], x[1]) : await say('', x);
+  // 關係結局
+  const lover = Object.keys(S.rel).find(k => S.rel[k] === 'love' && BY[k] && END.LOVE[k]);
+  const fr = C.filter(c => S.rel[c.id] === 'friend').sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0))[0];
+  let relKey, relT, seq, who = null;
+  if (lover){ relKey = 'L:' + lover; relT = `${BY[lover].n}・${END.LOVE[lover].t}`; seq = END.LOVE[lover].s; who = BY[lover]; }
+  else if (fr){ relKey = 'F'; relT = `${fr.n}・${END.FRIEND.t}`; seq = END.FRIEND.s.map(([w, t]) => [w === '{c}' ? fr.id : w, t]); who = fr; }
+  else { relKey = 'S'; relT = END.SOLO.t; seq = END.SOLO.s; }
+  const cg = who && (CG['cg_end_' + who.id] || CG['cg_' + who.id]);
+  if (cg) setScene('花月湖', cg); else setScene('花月湖');
+  await sleep(500);
+  for (const [w, t] of seq){ if (w && !cg) show(BY[w]); await say(w, fillC(t, who)); }
+  show(null);
+  // 出路
+  const top = STAT_ORDER.slice().sort((a, b) => S.stats[b] - S.stats[a])[0];
+  const ck = (S.stall.rep || 0) >= 700 ? 'tea' : S.spells.includes('x6') ? 'yulan' : top, car = END.CAREER[ck];
+  SND.sfx('magic');
+  await card(`<span class="small">結局</span><span class="big">${relT}</span><span class="small">${car.t}</span><div class="sum">${car.d}</div>`, 0);
+  const L = legacy(); L.endings[relKey] = L.endings[relKey] || S.day; L.endings['C:' + ck] = L.endings['C:' + ck] || S.day; saveLegacy(L);
+  S.endings = {rel:relKey, career:ck}; note(`畢業了。結局：${relT}／${car.t}。`);
+  await card(`<span class="big">${END.FIN.split('・')[0]}</span><span class="small">${END.FIN.split('・')[1]}</span>`, 2600);
+  const v = FAST ? 'stay' : await choose('然後——', [{label:END.STAY, sub:'研修生・所有進度保留', value:'stay'}, {label:END.NG, sub:END.NG_DESC, value:'ng'}]);
+  if (v === 'ng'){ startNG(); await new Promise(() => {}); }
+  S.flags.graduated = true; hud();
+  await say('', '你換下了畢業袍。明天開始，你是靈院的研修生。花茶攤、玉蘭院、還有大家，都還在。');
+}
+function startNG(){
+  const nv = fresh(), L = legacy();
+  nv.name = S.name; nv.gender = S.gender; nv.ng = (S.ng || 0) + 1;
+  nv.known = S.known.slice(); nv.decor = {...(S.decor || {})}; nv.col = JSON.parse(JSON.stringify(S.col || {}));
+  nv.cgKeep = [...new Set([...(S.cgKeep || []), ...[...C12, BAIC].filter(c => (S.ev[c.id] || 0) > (c.id === 'bai' ? 7 : 3)).map(c => c.id)])];
+  nv.money = 50 + Math.floor((S.money || 0) * .2);
+  for (const k of STAT_ORDER) nv.stats[k] = 8;
+  L.ng = Math.max(L.ng, nv.ng); saveLegacy(L);
+  bootFrom(JSON.stringify(nv));
+}
+function endingsList(){
+  const L = legacy(), ks = Object.keys(L.endings);
+  if (!ks.length) return '';
+  const name = k => k === 'S' ? END.SOLO.t : k === 'F' ? END.FRIEND.t : k.startsWith('L:') ? `${BY[k.slice(2)] ? BY[k.slice(2)].n : ''}・${END.LOVE[k.slice(2)].t}` : k.startsWith('C:') && END.CAREER[k.slice(2)] ? END.CAREER[k.slice(2)].t : k;
+  return `<h3>結局一覽</h3><p class="yr-p">已達成 ${ks.length} 個${L.ng ? `・已重新入學 ${L.ng} 次` : ''}</p><ul class="yr-n">${ks.map(k => `<li>${name(k)}</li>`).join('')}</ul>`;
+}
+
 // ---------- 學年循環 ----------
 function yearSnap(y){
   const top = C.filter(c => S.met[c.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 3).map(c => [c.id, S.aff[c.id] || 0]);
@@ -2073,11 +2127,13 @@ async function yearend(){
   SND.sfx('page');
   if (!FAST) await panel(`${yearHTML(sn)}<button type="button" class="act" data-x="ok" style="width:100%;margin-top:10px">翻到下一頁</button>`,
     (el, done) => { el.querySelector('[data-x=ok]').onclick = () => { SND.sfx('tap'); done(); }; });
-  await say('', `${cn(y)}年級，結束了。明天起，你就是${cn(y + 1)}年級的學生。`);
+  if (y === 3 && !S.flags.graduated){ await graduation(); return; }
+  await say('', S.flags.graduated ? `又一年過去了。靈院的花，還在開。` : `${cn(y)}年級，結束了。明天起，你就是${cn(y + 1)}年級的學生。`);
 }
 async function newyear(){
   const y = yearOf(S.day);
   setScene('花朝正殿'); await sleep(300);
+  if (S.flags.graduated){ await card(`<img class="crestimg" src="img/crest_${S.house}.webp" alt=""><span class="small">新學年</span><span class="big">研修生</span>`, 2400); await say('', '新的學年開始了。花徑上又是一群新生。你站在茶攤前，給他們每人倒了一杯茶。'); gain(HOUSES[S.house].stat, 2); return; }
   await card(`<img class="crestimg" src="img/crest_${S.house}.webp" alt=""><span class="small">新學年</span><span class="big">${cn(y)}年級</span>`, 2400);
   for (const t of YEAR.NEW) await say('', t);
   const M = YEAR.MENTEE[S.house];
@@ -2102,7 +2158,7 @@ async function menteeEvent(){
 function handbook(){
   const nInc = Object.values(LIFE.INCIDENTS).reduce((a, l) => a + l.length, 0);
   const myLines = S.house ? [...MAGIC.HOUSE[S.house], ...MAGIC.SHARED.herb, ...MAGIC.SHARED.craft, ...(S.flags.yuBook ? MAGIC.SHARED.yu : [])] : [];
-  const cgGot = C12.filter(c => (S.ev[c.id] || 0) >= 4 && CG['cg_' + c.id]).length + ((S.ev.bai || 0) >= 8 ? 1 : 0);
+  const keep = S.cgKeep || [], cgGot = [...C12, BAIC].filter(c => keep.includes(c.id) || (S.ev[c.id] || 0) > (c.id === 'bai' ? 7 : 3)).filter(c => CG['cg_' + c.id]).length;
   const evs = Object.values(S.ev).reduce((a, b) => a + b, 0);
   const items = [
     ['花茶配方', 'img/tea_four.webp', S.known.length, TEA.RECIPES.length],
@@ -2115,6 +2171,7 @@ function handbook(){
     ['校園小事', 'img/loc_vine.webp', Object.keys(S.col.inc).length, nInc],
     ['節慶', 'img/fest_0.webp', Object.keys(S.col.fest).length, LIFE.FESTS.length + 1],
     ['四院花鑰', 'img/key_fei.webp', KEY_HOUSES.filter(h => S.keys[h]).length, 4],
+    ['結局', 'img/ui_medal.webp', Object.keys(legacy().endings).length, Object.keys(END.LOVE).length + 2 + Object.keys(END.CAREER).length],
     ['角色之間', 'img/hud_people.webp', Object.keys(S.col.pair || {}).length, Object.keys(BOND.PAIRS).length * 2],
     ['書信', 'img/dec_parcel.webp', S.letters.length, Object.values(BOND.REL).reduce((a, r) => a + r.letters.length, 0)],
     ...(S.stall.open ? [['茶攤委託', BOARD_IMG, Object.keys(S.col.comm).length, POST.COMM.length]] : []),
@@ -2483,7 +2540,7 @@ function openTab(t){
         ${m ? (ready(c) ? '<span class="tag">有話想說</span>' : '') : '<span class="tag">—</span>'}</div>`;
     }).join('');
     if (!S.flags.baiFree) h += `<div class="person unknown" style="--c:${HOUSES.yu.color}"><img src="${ava(13)}" alt=""><div><div class="nm">${S.flags.baiName ? '白溯光' : '？？？'}</div><div class="meta"><img class="mcrest" src="img/crest_yu.webp" alt="">玉蘭院・${S.flags.baiName ? '院師・在鏡子的另一邊' : S.quest >= 2 ? '曾在花月湖出現' : '尚無線索'}</div></div><span class="tag">封印</span></div>`;
-    const GAL = [...C12, BAIC], cgAt = c => c.id === 'bai' ? 7 : 3, hasCg = c => (S.ev[c.id] || 0) > cgAt(c) && CG['cg_' + c.id];
+    const GAL = [...C12, BAIC], cgAt = c => c.id === 'bai' ? 7 : 3, hasCg = c => ((S.ev[c.id] || 0) > cgAt(c) || (S.cgKeep || []).includes(c.id)) && CG['cg_' + c.id];
     const got = GAL.filter(hasCg);
     h += `<h3>回憶</h3><p class="sub" style="margin:0;font-size:13px;color:var(--ink-soft)">完成第四段羈絆事件後解鎖（白溯光為最後一段）。已收集 ${got.length} / ${GAL.length}</p><div class="gallery">` +
       GAL.map(c => hasCg(c)
@@ -2495,7 +2552,7 @@ function openTab(t){
     h += STAT_ORDER.map(k => `<div class="stat" style="--c:var(--house)"><img class="sicon" src="img/stat_${k}.webp" alt=""><span class="k">${STATS[k][0]}<small>${STATS[k][1]}</small></span><div class="bar"><i style="width:${S.stats[k]}%"></i></div><span class="v">${S.stats[k]}</span></div>`).join('') + spellBook() + (S.house ? decorList() : '');
   } else {
     h = `<header><h2>手帳與日記</h2><button class="close" type="button">返回</button></header>${S.house ? handbook() : ''}<ul class="log">` +
-      (S.log.length ? S.log.map(l => `<li><b>${!l.d ? '序章' : monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>' + lettersList() + yearsList() + tipsList();
+      (S.log.length ? S.log.map(l => `<li><b>${!l.d ? '序章' : monthOf(l.d) === 1 ? '第' + cn(l.d) + '日' : `${cn(mInYear(l.d))}月${cn(domOf(l.d))}日`}</b>${l.t}</li>`).join('') : '<li>還沒有記事。</li>') + '</ul>' + endingsList() + lettersList() + yearsList() + tipsList();
   }
   E.sheet.innerHTML = h; E.sheet.hidden = false; E.sheet.scrollTop = 0;
   bindClose();
@@ -2650,7 +2707,8 @@ async function loop(){
     if (S.day === 0){
       setScene('雲溪鎮'); hud();
       if (!S.name) await askName();
-      await run(PROLOGUE);
+      if (S.ng){ for (const t of END.NG_OPEN) await say('', t); const sk = await choose(`第${cn(S.ng + 1)}次入學。`, [{label:END.NG_SKIP[0], value:0}, {label:END.NG_SKIP[1], value:1}]); await run(sk ? PROLOGUE.slice(72) : PROLOGUE); }
+      else await run(PROLOGUE);
       await card('<span class="big">無名花影</span><span class="small">第一章</span>', 2400);
       S.day = 1; S.slot = 0; S.today = [];
     }
@@ -2707,7 +2765,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {graduation:() => graduation(), legacy:() => legacy(), pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
