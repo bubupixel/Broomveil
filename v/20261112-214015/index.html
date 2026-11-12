@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261112-213736';</script>
+<script>window.GAME_VERSION = '20261112-214015';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261112-213736"></script>
-<script src="story.js?v=20261112-213736"></script>
+<script src="audio.js?v=20261112-214015"></script>
+<script src="story.js?v=20261112-214015"></script>
 <script>
 (() => {
 const {END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -605,7 +605,7 @@ const WEEK = ['一','二','三','四','五','六','日'];
 const CN = ['〇','一','二','三','四','五','六','七','八','九','十'];
 const cn = n => n <= 10 ? CN[n] : n < 20 ? '十' + (n % 10 ? CN[n % 10] : '') : CN[Math.floor(n / 10)] + '十' + (n % 10 ? CN[n % 10] : '');
 // 劇本表情 → 差分圖：laugh 開心大笑、smile 微笑、shy 害羞、angry 生氣皺眉（嚴肅也用）、sad 傷心低落、angry 生氣、sad 傷心、surprised 驚訝
-const FACE_ALIAS = {smug:'smile',happy:'laugh',annoyed:'angry',cold:'angry',serious:'angry',panic:'shy'};
+const FACE_ALIAS = {smug:'smile',happy:'laugh',annoyed:'angry',cold:'calm',serious:'calm',surprised:'surprise',panic:'shy'};
 const AFF_MAX = 200;
 const STAGES = [[0,'相識'],[30,'熟絡'],[60,'好友'],[90,'知己'],[120,'心動'],[150,'傾心'],[180,'羈絆']];
 const stageOf = v => { let s = '相識'; for (const [t, n] of STAGES) if (v >= t) s = n; return s; };
