@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261113-204353';</script>
+<script>window.GAME_VERSION = '20261113-205406';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261113-204353"></script>
-<script src="story.js?v=20261113-204353"></script>
+<script src="audio.js?v=20261113-205406"></script>
+<script src="story.js?v=20261113-205406"></script>
 <script>
 (() => {
 const {ARCS,ARC_LINES,VARY2,FACE_TAGS,TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -1075,6 +1075,7 @@ async function run(seq, ctx = {}){
         case '#quest': setQuest(st[1]); break;
         case '#note': note(cfmt(st[1], ctx)); break;
         case '#if': if (S.flags[st[1]]) await run(st[2], ctx); else if (st[3]) await run(st[3], ctx); break;
+        case '#ifhouse': if (S.house === st[1]) await run(st[2], ctx); else if (st[3]) await run(st[3], ctx); break;
         case '#line': { const L = ARC_LINES[st[1]], c = ctx.c; if (L && c && L[c.id]) await say(c.id, L[c.id]); break; }
         case '#partner': await arcPartner(st[1], ctx); break;
         case '#flag': S.flags[st[1]] = true; break;
@@ -2508,7 +2509,7 @@ async function storyBeat(d, slot){
   }
   return false;
 }
-const SLOTS = {opening, class:cls, exam, outing:() => explore(vp('outing')), lunch, explore:() => explore(vp('explore')), festival, dinner, free, rest, yearend, newyear};
+const SLOTS = {opening, class:cls, exam, outing:() => explore(vp('outing')), lunch, explore:() => explore(vp('explore')), festival: async () => { await festival(); await arcAt('festival'); }, dinner, free, rest, yearend, newyear};
 
 async function dayCard(d){
   const m = monthOf(d), dm = domOf(d);
@@ -2798,7 +2799,7 @@ sndBtn.onclick = () => sndBtn.setAttribute('aria-pressed', SND.toggle());
 
 // ---------- 小支線 ----------
 const ARC_IF = {rain:() => S.wx === 'rain', stall:() => S.stall.open, m8:() => mInYear(S.day) === 8 && domOf(S.day) <= 12,
-  m8late:() => mInYear(S.day) > 8 || (mInYear(S.day) === 8 && domOf(S.day) >= 20), late:() => domOf(S.day) >= 26, noch4:() => !S.q4 && !S.flags.ch4done};
+  m8late:() => mInYear(S.day) > 8 || (mInYear(S.day) === 8 && domOf(S.day) >= 20), late:() => domOf(S.day) >= 26, fest:() => domOf(S.day) === 14, noch4:() => !S.q4 && !S.flags.ch4done};
 async function arcPartner(prompt, ctx){
   const pool = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 30 && (c.id !== 'bai' || S.flags.baiFree)).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
   const v = await choose(prompt, [...pool.map(c => charOpt(c)), {label:'一個人參加', value:''}]);
