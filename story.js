@@ -1585,6 +1585,7 @@ const CG = {
   cg_ch4_chess:'img/cg_16.jpg',
   cg_end_grad:'img/cg_end_grad.jpg',
   cg_tourn:'img/cg_tourn.jpg',
+  cg_trip:'img/cg_trip.jpg',
   cg_end_pei:'img/cg_end_pei.jpg',
   cg_end_qin:'img/cg_end_qin.jpg',
   cg_end_tang:'img/cg_end_tang.jpg',
@@ -3778,7 +3779,7 @@ const ARCS = [
       ['','山路越走越窄。轉過最後一個彎，眼前忽然一片開闊——整座山谷開滿了花，一直開到天邊。'],
       ['#if','tournSolo',[['','你一個人站在山谷邊，看了很久。風從花海上吹過來，帶著一點甜味。']],[['#show','G'],['#line','TRIP_WALK']]],
       ['#gain','feng',2],
-      ['#scene','花月湖・夜'],
+      ['#cg','後山・夜','cg_trip'],
       ['','入夜，大家在山谷的湖邊升起營火。有人彈琴，有人唱歌，有人偷偷哭了。'],
       ['#if','tournSolo',[['','你坐在營火邊，看著火光一跳一跳。三年的事，一件一件浮上來。']],[['','{g}坐到你旁邊，兩個人看著火，很久都沒有說話。'],['#show','G'],['#line','TRIP_FIRE'],
         ['#choice','{g}看著你。',[

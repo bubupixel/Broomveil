@@ -251,5 +251,5 @@ const SND = (() => {
   }
   return {sfx, setMood, toggle, ambient, motif, isOn: () => on};
 })();
-const NIGHT_SCENES = new Set(['夜','宿舍','宿舍・夜','花月湖・夜','花朝節・夜','觀星閣','鳶尾院','夢境']);
+const NIGHT_SCENES = new Set(['夜','宿舍','宿舍・夜','花月湖・夜','後山・夜','花朝節・夜','觀星閣','鳶尾院','夢境']);
 const PROLOGUE_SCENES = new Set(['雲溪鎮','茶館','外婆的院子','花徑']);
