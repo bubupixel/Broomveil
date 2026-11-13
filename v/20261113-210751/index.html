@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261113-210013';</script>
+<script>window.GAME_VERSION = '20261113-210751';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261113-210013"></script>
-<script src="story.js?v=20261113-210013"></script>
+<script src="audio.js?v=20261113-210751"></script>
+<script src="story.js?v=20261113-210751"></script>
 <script>
 (() => {
 const {ARCS,ARC_LINES,VARY2,FACE_TAGS,TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -1058,7 +1058,7 @@ function aff(id, v, daily){
 function note(t){ S.log.unshift({d:S.day, t:fmt(t)}); if (S.log.length > 80) S.log.pop(); }
 function setQuest(n){ S.quest = n; hud(); E.quest.classList.remove('flash'); void E.quest.offsetWidth; E.quest.classList.add('flash'); toast('主線更新・無名花影', true); }
 
-const cfmt = (t, ctx) => String(t).replace(/\{g\}/g, ctx.c ? ctx.c.n : '').replace(/\{place\}/g, ctx.place || '');
+const cfmt = (t, ctx) => String(t).replace(/\{m\}/g, S.mentee && S.mentee.n ? S.mentee.n : '學弟妹').replace(/\{g\}/g, ctx.c ? ctx.c.n : '').replace(/\{place\}/g, ctx.place || '');
 async function run(seq, ctx = {}){
   for (const st of seq){
     const op = st[0];
@@ -2799,7 +2799,7 @@ sndBtn.onclick = () => sndBtn.setAttribute('aria-pressed', SND.toggle());
 
 // ---------- 小支線 ----------
 const ARC_IF = {rain:() => S.wx === 'rain', stall:() => S.stall.open, m8:() => mInYear(S.day) === 8 && domOf(S.day) <= 12,
-  m8late:() => mInYear(S.day) > 8 || (mInYear(S.day) === 8 && domOf(S.day) >= 20), late:() => domOf(S.day) >= 26, fest:() => domOf(S.day) === 14, noch4:() => !S.q4 && !S.flags.ch4done};
+  m8late:() => mInYear(S.day) > 8 || (mInYear(S.day) === 8 && domOf(S.day) >= 20), late:() => domOf(S.day) >= 26, m9:() => mInYear(S.day) === 9 && domOf(S.day) <= 12, m9late:() => mInYear(S.day) > 9 || (mInYear(S.day) === 9 && domOf(S.day) >= 20), mentee:() => !!(S.mentee && S.mentee.n), baiFree:() => !!S.flags.baiFree, fest:() => domOf(S.day) === 14, noch4:() => !S.q4 && !S.flags.ch4done};
 async function arcPartner(prompt, ctx){
   const pool = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 30 && (c.id !== 'bai' || S.flags.baiFree)).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
   const v = await choose(prompt, [...pool.map(c => charOpt(c)), {label:'一個人參加', value:''}]);
@@ -2811,6 +2811,7 @@ async function arcAt(at, place){
     const st = S.arc[A.id] || (S.arc[A.id] = {s:0, d:0});
     if (st.s >= A.steps.length || S.day < A.from) continue;
     if (A.needMet && !S.met[A.needMet]) continue;
+    if (A.after3 && !(S.flags.ch3done && S.day >= (S.ch3Day || 0) + 5)) continue;
     const P = A.steps[st.s];
     const where = P.at.startsWith('place:') ? P.at.slice(6) : null;
     if (!(P.at === at || (at === 'place' && (P.at === 'place' || where === place)))) continue;
@@ -2822,7 +2823,7 @@ async function arcAt(at, place){
     const ctx = {c: st.p ? BY[st.p] : undefined};
     if (st.p && HAUNT[st.p]){ const pl = PLACES.find(x => x.id === HAUNT[st.p][0]); ctx.place = pl ? pl.n : ''; }
     S.arcDay = S.day;
-    if (!st.s) toast(`小故事・${A.title}`, true);
+    if (!st.s) toast(`小故事・${cfmt(A.title, {})}`, true);
     await run(P.seq, ctx);
     if (A.partner && st.s === 0) st.p = ctx.partner || '';
     st.s++; st.d = S.day; show(null); hud();
