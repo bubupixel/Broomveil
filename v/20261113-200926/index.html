@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261113-182723';</script>
+<script>window.GAME_VERSION = '20261113-200926';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,8 +585,8 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261113-182723"></script>
-<script src="story.js?v=20261113-182723"></script>
+<script src="audio.js?v=20261113-200926"></script>
+<script src="story.js?v=20261113-200926"></script>
 <script>
 (() => {
 const {VARY2,FACE_TAGS,TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
@@ -620,7 +620,7 @@ function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {
   v.rel ??= {}; v.relDay ??= {}; v.relAsk ??= {}; v.pairs ??= {}; v.pairDay ??= {}; v.letters ??= []; v.letterLast ??= 0;
   v.years ??= []; v.grad ??= {}; v.mentee ??= null; v.finals ??= {};
   v.comm ??= []; v.commDone ??= 0; v.commLast ??= {}; v.col.comm ??= {}; v.col.hue ??= {};
-  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; v.tut ??= {on: (v.day || 0) <= 1 ? null : false, done:{}, log:{}}; if ((v.suName || 0) < 2){ v.suName = 2; for (const l of (v.log || [])) if (l && typeof l.t === 'string') l.t = l.t.replace(/夢璃/g, '夢遲').replace(/林青禾/g, '林澈').replace(/柳縈/g, '柳餘音'); } refreshC(v); return v; }
+  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; v.keyPace ??= v.flags && v.flags.ch3 ? 'old' : 'new'; v.tut ??= {on: (v.day || 0) <= 1 ? null : false, done:{}, log:{}}; if ((v.suName || 0) < 2){ v.suName = 2; for (const l of (v.log || [])) if (l && typeof l.t === 'string') l.t = l.t.replace(/夢璃/g, '夢遲').replace(/林青禾/g, '林澈').replace(/柳縈/g, '柳餘音'); } refreshC(v); return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -712,7 +712,10 @@ const E = {app:$('app'),bgA:$('bgA'),bgB:$('bgB'),backdrop:$('backdrop'),portrai
   sheet:$('sheet'),card:$('card'),toast:$('toast')};
 const ava = n => n >= 1 && n <= 13 ? `img/a${String(n).padStart(2,'0')}_2.webp` : `img/a${String(n).padStart(2,'0')}.jpg`;
 const menteeG = () => { const m = S.mentee && Object.values(YEAR.MENTEE).find(x => x.n === S.mentee.n); return m && m.g === 'm' ? '他' : '她'; };
-const fmt = t => String(t).replace(/顧長庚/g, m => S.flags && (S.flags.ch3done || S.flags.guBack) ? m : '那位同屆的學長').replace(/長庚/g, m => S.flags && (S.flags.ch3done || S.flags.guBack) ? m : '他').replace(/\{n\}/g, S.name).replace(/\{弟妹\}/g, S.gender === 'm' ? '學弟' : '學妹').replace(/\{學長姊\}/g, S.gender === 'm' ? '學長' : '學姊').replace(/\{ta\}/g, menteeG());
+// 顧長庚失蹤了多久：入學前一年，加上到現在（回來之後就定格）
+function goneYears(){ const d = S.flags && S.flags.guBack ? (S.guDay || S.day) : S.day, y = 1 + Math.max(0, d - 1) / 280;
+  return y < 1.4 ? '一年' : y < 1.8 ? '一年多' : y < 2.3 ? '兩年' : y < 2.8 ? '兩年多' : '快三年'; }
+const fmt = t => String(t).replace(/顧長庚/g, m => S.flags && (S.flags.ch3done || S.flags.guBack) ? m : '那位同屆的學長').replace(/長庚/g, m => S.flags && (S.flags.ch3done || S.flags.guBack) ? m : '他').replace(/\{gy\}/g, () => goneYears()).replace(/\{n\}/g, S.name).replace(/\{弟妹\}/g, S.gender === 'm' ? '學弟' : '學妹').replace(/\{學長姊\}/g, S.gender === 'm' ? '學長' : '學姊').replace(/\{ta\}/g, menteeG());
 const sleep = ms => new Promise(r => setTimeout(r, FAST ? 0 : ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const pc = () => { const g = S.gender === 'f' ? 'fc' : 'mc'; return {id:'me', n:S.name, h:S.house || 'yu', src:`img/${S.house ? g + '_' + S.house + (g === 'fc' ? '_2' : '') : g + '0'}.jpg`}; };
@@ -1121,6 +1124,8 @@ function hud(){
 // 第一章之後，任務列輪流提示長期目標
 function lifeGoal(){
   const g = [], dm = domOf(S.day);
+  if (S.flags.ch2 && !S.flags.ch3) g.push(`<img class="qi" src="img/key_fei.webp" alt="">四院花鑰在沉睡・二年級的第一個新月會醒來`);
+  if (S.flags.ch3done && !S.q4 && !S.flags.ch4done) g.push(`<img class="qi" src="img/crest_yu.webp" alt="">鏡中之門打開了・白溯光在花月湖等你`);
   if (dm < 14) g.push(`<img class="qi" src="${festImg(S.day)}" alt="">再過 ${14 - dm} 日就是「${festName(S.day)}」`);
   else if (dm < 25) g.push(mInYear(S.day) === 10 ? `再過 ${25 - dm} 日是期末大考` : `再過 ${25 - dm} 日是本月月考`);
   else if (mInYear(S.day) === 10 && dm < 28) g.push(yearOf(S.day) === 3 && !S.flags.graduated ? `再過 ${28 - dm} 日是畢業典禮` : `再過 ${28 - dm} 日是年終祭・${cn(yearOf(S.day))}年級就要結束了`);
@@ -1782,11 +1787,15 @@ const KEY_HOUSES = ['fei','yuan','ling','zi'];
 const KEYPLACE = {arena:'fei', star:'yuan', herb:'ling', vine:'zi'};
 const PLACE_OF_KEY = {fei:'arena', yuan:'star', ling:'herb', zi:'vine'};
 const keyGuide = h => C.filter(c => c.h === h && S.met[c.id]).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0))[0];
+// 主線節奏：第三章在二年級、第四章在三年級；花鑰每把相隔約兩個月才醒
+const CH3_FROM = 284, CH4_FROM = 566, KEY_GAP = 49;
+const nextKeyDay = () => { const n = KEY_HOUSES.filter(h => S.keys[h]).length; return n ? (S.keyDay || 0) + KEY_GAP : CH3_FROM; };
 function keyNeeds(h){
-  const g = keyGuide(h), needs = [];
+  const g = keyGuide(h), needs = [], nk = S.keyPace === 'new' ? nextKeyDay() : 0;
+  if (nk > S.day) needs.push(`等到${dateLabel(nk)}，花鑰才會醒來`);
   if (!g || (S.aff[g.id] || 0) < 90) needs.push(`一位${HOUSES[h].name}的知己（好感 90）`);
   if (h === S.house){ const t3 = MAGIC.HOUSE[h][2]; if (!S.spells.includes(t3.id)) needs.push(`習得術譜第三層「${t3.n}」`); }
-  else if (S.stats[HOUSES[h].stat] < 30) needs.push(`${STATS[HOUSES[h].stat][0]}達到 30`);
+  else if (S.stats[HOUSES[h].stat] < (S.keyPace === 'new' ? 40 : 30)) needs.push(`${STATS[HOUSES[h].stat][0]}達到 ${S.keyPace === 'new' ? 40 : 30}`);
   return needs;
 }
 const ch3Active = () => S.flags.ch3 && !S.flags.ch3done;
@@ -1805,7 +1814,7 @@ async function keyTrial(h){
   const r = await playGame(h, {title:K.game});
   if (r.full || r.score >= 3){
     await run(K.win, {c:g});
-    S.keys[h] = true; aff(g.id, 6); gain(HOUSES[h].stat, 2);
+    S.keys[h] = true; S.keyDay = S.day; aff(g.id, 6); gain(HOUSES[h].stat, 2);
     await card(`<img class="crestimg" src="img/key_${h}.webp" alt=""><span class="small">四院花鑰・${cn(KEY_HOUSES.filter(x => S.keys[x]).length)}／四</span><span class="big">${K.n}</span>`, 2600);
     note(`和${g.n}一起，在${K.place}取得了「${K.n}」。`);
   } else await run(K.fail, {c:g});
@@ -2467,9 +2476,9 @@ async function storyBeat(d, slot){
   if (d === 5 && slot === 'class'){ await run(MAIN.history); return true; }
   if (d === 22 && slot === 'class') await run(MAIN.letter);
   if (S.flags.ch1 && d > 28){
-    if (S.flags.ch2 && !S.flags.ch3 && slot === 'rest' && d >= (S.ch2Day || 0) + 4){ await run(CH3.open); S.flags.ch3 = true; hud(); await tip('keys'); }
-    else if (ch3Active() && slot === 'rest' && KEY_HOUSES.every(h => S.keys[h])){ S.flags.guBack = true; await run(CH3.finale); await ch3End(); }
-    else if (S.flags.ch3done && !S.q4 && slot === 'rest' && d >= (S.ch3Day || d) + 5){ await run(CH4.open); }
+    if (S.flags.ch2 && !S.flags.ch3 && slot === 'rest' && d >= Math.max((S.ch2Day || 0) + 4, CH3_FROM)){ await run(CH3.open); S.flags.ch3 = true; hud(); await tip('keys'); }
+    else if (ch3Active() && slot === 'rest' && KEY_HOUSES.every(h => S.keys[h])){ S.flags.guBack = true; S.guDay = S.day; await run(CH3.finale); await ch3End(); }
+    else if (S.flags.ch3done && !S.q4 && slot === 'rest' && d >= Math.max((S.ch3Day || d) + 5, CH4_FROM)){ await run(CH4.open); }
     else if (S.q4 === 3 && slot === 'rest' && d >= S.q4Day + 1){ await run(CH4.gu); }
     else if (S.q4 === 5 && slot === 'class' && d >= S.q4Day + 4){ await run(CH4.letter); }
     else if (S.q4 === 6 && slot === 'rest' && d >= S.q4Day + 2 && !ch4Needs().length){ await run(CH4.finale); await ch4End(); }
@@ -2877,7 +2886,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {graduation:() => graduation(), legacy:() => legacy(), pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {graduation:() => graduation(), legacy:() => legacy(), pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, fmt, keyNeeds, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
