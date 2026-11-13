@@ -1584,6 +1584,7 @@ const CG = {
   cg_ch4_bell:'img/cg_15.jpg',
   cg_ch4_chess:'img/cg_16.jpg',
   cg_end_grad:'img/cg_end_grad.jpg',
+  cg_tourn:'img/cg_tourn.jpg',
   cg_end_pei:'img/cg_end_pei.jpg',
   cg_end_qin:'img/cg_end_qin.jpg',
   cg_end_tang:'img/cg_end_tang.jpg',
@@ -3440,7 +3441,7 @@ const ARCS = [
       ['','試煉大會當天。看台坐滿了人，四院的院旗在風裡獵獵作響。'],
       ['#ifmet','pei',[['pei','你也來了？哼，別在第一輪就被淘汰。@laugh']]],
       ['#if','tournSolo',[['','裁判喊出你的名字。只有你一個人走上場。看台上，好像有人在為你加油。']],[['#show','G'],['G','走吧。@calm']]],
-      ['#game','own','四院試煉大會',[['#flag','tournWin'],['','最後一擊落下，看台爆出一陣歡呼。你們贏了。'],['#cg','試煉大會','cg_tourn'],['#if','tournSolo',[['','你一個人站在場中，聽著歡呼聲，覺得有點不真實。']],[['#line','TOURN_WIN']]],['#money',80],['#gain','ling',2]],
+      ['#game','own','四院試煉大會',[['#flag','tournWin'],['','最後一擊落下，看台爆出一陣歡呼。你們贏了。'],['#cg','試煉大會','cg_tourn'],['','主持大會的學長高舉著賽程卷軸，朝看台大聲宣布了你們的名字。'],['#if','tournSolo',[['','你一個人站在場中，聽著歡呼聲，覺得有點不真實。']],[['#line','TOURN_WIN']]],['#money',80],['#gain','ling',2]],
         [['','你們輸在最後一輪。只差一點點。'],['#if','tournSolo',[['','你一個人坐在場邊，看著別人領獎，卻不覺得難過。你已經盡力了。']],[['#line','TOURN_LOSE']]],['#gain','ling',1]]],
       ['#note','參加了四院試煉大會。']]},
     {at:'lunch', gap:14, seq:[
