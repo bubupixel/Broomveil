@@ -17,7 +17,7 @@ body{touch-action:manipulation;overscroll-behavior:none}
   padding:9px 18px;font:15px "LXGW WenKai TC","Kaiti TC",serif;letter-spacing:.12em;color:#fbf2df;cursor:pointer;
   background:rgba(22,15,11,.92);border:1px solid #ecd7a2;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.45);white-space:nowrap}
 </style>
-<script>window.GAME_VERSION = '20261113-200926';</script>
+<script>window.GAME_VERSION = '20261113-204353';</script>
 <title>花朝靈院</title>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
@@ -585,11 +585,11 @@ html.lowfx .item.in{animation:itemIn 1.2s ease-out forwards}
     <div class="sp-tip" id="sptip"></div>
   </div>
 </div>
-<script src="audio.js?v=20261113-200926"></script>
-<script src="story.js?v=20261113-200926"></script>
+<script src="audio.js?v=20261113-204353"></script>
+<script src="story.js?v=20261113-204353"></script>
 <script>
 (() => {
-const {VARY2,FACE_TAGS,TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
+const {ARCS,ARC_LINES,VARY2,FACE_TAGS,TUT,VARY,END,BOND,YEAR,POST,QUESTS4,CH4,TIPS:GUIDE,CH3,BAIC,EV_BAI,GOODS,SORT,QUESTS2,CH2,LIFE2,LIFE,MAGIC,TEA,HOUSES,STATS,STAT_ORDER,C:C12,BAI,GRAN,FACES,EV,QUESTS,MAIN,PROLOGUE,PLACES,LOOK,FREE,CLASS_TEXT,SCENE_IMG,SCENE_FALLBACK,CG} = window.STORY;
 // 白溯光在第三章之後才加入名單；C 是目前看得見的人
 const C_ALL = [...C12, BAIC];
 let C = C12.slice();
@@ -620,7 +620,7 @@ function migrate(v){ if (!v) return v; v.hp ??= 10; v.hpBonus ??= 0; v.inv ??= {
   v.rel ??= {}; v.relDay ??= {}; v.relAsk ??= {}; v.pairs ??= {}; v.pairDay ??= {}; v.letters ??= []; v.letterLast ??= 0;
   v.years ??= []; v.grad ??= {}; v.mentee ??= null; v.finals ??= {};
   v.comm ??= []; v.commDone ??= 0; v.commLast ??= {}; v.col.comm ??= {}; v.col.hue ??= {};
-  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; v.keyPace ??= v.flags && v.flags.ch3 ? 'old' : 'new'; v.tut ??= {on: (v.day || 0) <= 1 ? null : false, done:{}, log:{}}; if ((v.suName || 0) < 2){ v.suName = 2; for (const l of (v.log || [])) if (l && typeof l.t === 'string') l.t = l.t.replace(/夢璃/g, '夢遲').replace(/林青禾/g, '林澈').replace(/柳縈/g, '柳餘音'); } refreshC(v); return v; }
+  v.q4 ??= 0; v.q4Day ??= 0; if (v.flags && v.flags.ch3done && v.ch3Day == null) v.ch3Day = v.day; v.purged ??= 0; v.blight ??= null; v.arc ??= {}; v.arcDay ??= 0; v.keyPace ??= v.flags && v.flags.ch3 ? 'old' : 'new'; v.tut ??= {on: (v.day || 0) <= 1 ? null : false, done:{}, log:{}}; if ((v.suName || 0) < 2){ v.suName = 2; for (const l of (v.log || [])) if (l && typeof l.t === 'string') l.t = l.t.replace(/夢璃/g, '夢遲').replace(/林青禾/g, '林澈').replace(/柳縈/g, '柳餘音'); } refreshC(v); return v; }
 let S = fresh();
 // 存檔：每個時段開始時記下一個「檢查點」並自動存檔；手動存檔與存檔碼都使用這個檢查點，讀取後會從該時段開頭繼續。
 let CK = null, storeOK = true;
@@ -1058,13 +1058,14 @@ function aff(id, v, daily){
 function note(t){ S.log.unshift({d:S.day, t:fmt(t)}); if (S.log.length > 80) S.log.pop(); }
 function setQuest(n){ S.quest = n; hud(); E.quest.classList.remove('flash'); void E.quest.offsetWidth; E.quest.classList.add('flash'); toast('主線更新・無名花影', true); }
 
+const cfmt = (t, ctx) => String(t).replace(/\{g\}/g, ctx.c ? ctx.c.n : '').replace(/\{place\}/g, ctx.place || '');
 async function run(seq, ctx = {}){
   for (const st of seq){
     const op = st[0];
     if (typeof op === 'string' && op[0] === '#'){
       switch (op){
         case '#scene': setScene(st[1], null, st[2]); await sleep(350); break;
-        case '#show': show(st[1] === 'me' ? pc() : who(st[1]), {mystery: !!st[2] && !S.flags.baiName}); await sleep(250); break;
+        case '#show': show(st[1] === 'me' ? pc() : st[1] === 'G' && ctx.c ? ctx.c : who(st[1]), {mystery: !!st[2] && !S.flags.baiName}); await sleep(250); break;
         case '#quest2': S.q2 = st[1]; hud(); E.quest.classList.remove('flash'); void E.quest.offsetWidth; E.quest.classList.add('flash'); toast('主線更新・鏡中來客', true); break;
         case '#card': await card(`<span class="big">${st[1]}</span><span class="small">${st[2] || ''}</span>`, 2400); break;
         case '#reveal': S.flags.baiName = true; show(null); await sleep(200); show(who('bai')); await sleep(400); toast('白衣人・白溯光', true); break;
@@ -1072,7 +1073,10 @@ async function run(seq, ctx = {}){
         case '#item': { const el = $('item'); if (st[1]){ el.src = st[1]; el.hidden = false; el.className = 'item'; void el.offsetWidth; el.classList.add('in'); SND.sfx('magic'); await sleep(FAST ? 0 : 900); } else if (!el.hidden){ el.className = 'item out'; await sleep(FAST ? 0 : 500); el.hidden = true; } break; }
         case '#cg': if (CG[st[2]]){ setScene(st[1], CG[st[2]]); await sleep(600); } break;
         case '#quest': setQuest(st[1]); break;
-        case '#note': note(st[1]); break;
+        case '#note': note(cfmt(st[1], ctx)); break;
+        case '#if': if (S.flags[st[1]]) await run(st[2], ctx); else if (st[3]) await run(st[3], ctx); break;
+        case '#line': { const L = ARC_LINES[st[1]], c = ctx.c; if (L && c && L[c.id]) await say(c.id, L[c.id]); break; }
+        case '#partner': await arcPartner(st[1], ctx); break;
         case '#flag': S.flags[st[1]] = true; break;
         case '#gain': gain(st[1], st[2]); break;
         case '#aff': aff(st[1], st[2]); break;
@@ -1085,7 +1089,7 @@ async function run(seq, ctx = {}){
         case '#money': S.money = Math.max(0, S.money + st[1]); hud(); toast(`靈石 ${st[1] > 0 ? '+' : ''}${st[1]}`); break;
         case '#ing': gainIng(st[1], st[2]); toast(`得到 ${ingName(st[1])} ×${st[2]}`); break;
         case '#choice': {
-          const o = await choose(st[1], st[2].map(x => ({label:x.t, value:x})));
+          const o = await choose(cfmt(st[1], ctx), st[2].map(x => ({label:cfmt(x.t, ctx), value:x})));
           if (o.aff != null){ const sc = v => Math.max(1, Math.round(v * .6)); if (Array.isArray(o.aff)) aff(o.aff[0], sc(o.aff[1])); else if (ctx.c) aff(ctx.c.id, sc(o.aff)); }
           if (o.gain) gain(o.gain[0], o.gain[1]);
           if (o.flag) S.flags[o.flag] = true;
@@ -1093,7 +1097,7 @@ async function run(seq, ctx = {}){
           break;
         }
       }
-    } else await say(op === 'G' && ctx.c ? ctx.c.id : op, ctx.c ? String(st[1]).replace(/\{g\}/g, ctx.c.n) : st[1], st[2]);
+    } else await say(op === 'G' && ctx.c ? ctx.c.id : op, cfmt(st[1], ctx), st[2]);
   }
 }
 
@@ -2303,7 +2307,8 @@ async function explore(prompt){
   }).concat([{label:'回宿舍休息', sub:'體力 +3', value:'rest', icon:'img/loc_dorm.webp'}]));
   if (pid === 'rest'){ setScene('宿舍・晨'); await sleep(300); addHp(3); await say('', vary('rest', VARY2.SCENE.REST)); return; }
   const p = PLACES.find(x => x.id === pid); tlog('explore');
-  setScene(p.n); await sleep(300);
+  setScene(p.n);
+  await sleep(300);
   if (p.id === 'herb' && S.q4 === 1){ useHp(2); await run(CH4.herb); return; }
   if (p.id === 'lib' && S.q4 === 4){ await run(CH4.lib); gain('bo', 2); return; }
   if (await blightAt(p.id)) return;
@@ -2317,6 +2322,7 @@ async function explore(prompt){
   if (p.id === 'star' && S.q2 === 2){ await run(CH2.star); gain('bo', 2); return; }
   if (p.id === 'lib' && S.q2 === 4){ await run(CH2.lib); gain('bo', 2); return; }
   if (p.id === 'lib' && S.quest === 2){ S.met.lu = true; await run(MAIN.lib); gain('bo', 2); return; }
+  if (await arcAt('place', pid)){ useHp(2); return; }
   if (p.id === 'lake' && presentAt('lake').length && !(S.quest === 1 && S.day >= 7)){
     const lk = await choose(vary('pllake', VARY.PLACE.lake), [...presentAt('lake').map(c => Object.assign(charOpt(c), canHp(2) ? {} : {disabled:true, sub:'體力不足'})), {label:'沿著湖邊走走', sub:'風雅・體力 -1', value:'walk'}]);
     if (lk !== 'walk'){ useHp(2); gain('feng', 1); await meet(BY[lk], 'alt', '花月湖'); if (lk === 'bai') await giftMenu(BY.bai); return; }
@@ -2349,6 +2355,7 @@ async function explore(prompt){
 async function market(justOpened){
   setScene('百靈市集'); await sleep(200);
   if (!S.stall.open){ await openStall(); justOpened = true; }
+  else await arcAt('market');
   while (true){
     if (!cgOn) show(HUAPO);
     const opts = [
@@ -2371,6 +2378,7 @@ async function market(justOpened){
 async function lunch(){
   setScene('膳堂'); await sleep(300);
   addHp(2);
+  if (await arcAt('lunch')) return;
   const met = C.filter(c => S.met[c.id] && c.id !== 'bai');
   const hot = met.filter(ready).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0));
   const prom = S.promise && S.promise.day === S.day && BY[S.promise.id];
@@ -2405,6 +2413,7 @@ async function dinner(){
 async function free(){
   setScene('宿舍・夜'); await sleep(300);
   await letterNight();
+  if (await arcAt('free')) return;
   while (true){
     const opts = FREE.map(x => ({label:x.n, sub:hpSub(2, `${STATS[x.k][0]}${x.money ? `・靈石 +${x.money}` : ''}`), value:x, disabled:!canHp(2), icon:`img/stat_${x.k}.webp`}));
     if (S.stall.open){
@@ -2787,6 +2796,40 @@ sndBtn.onclick = () => sndBtn.setAttribute('aria-pressed', SND.toggle());
   })();
 })();
 
+// ---------- 小支線 ----------
+const ARC_IF = {rain:() => S.wx === 'rain', stall:() => S.stall.open, m8:() => mInYear(S.day) === 8 && domOf(S.day) <= 12,
+  m8late:() => mInYear(S.day) > 8 || (mInYear(S.day) === 8 && domOf(S.day) >= 20), late:() => domOf(S.day) >= 26, noch4:() => !S.q4 && !S.flags.ch4done};
+async function arcPartner(prompt, ctx){
+  const pool = C.filter(c => S.met[c.id] && (S.aff[c.id] || 0) >= 30 && (c.id !== 'bai' || S.flags.baiFree)).sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0)).slice(0, 5);
+  const v = await choose(prompt, [...pool.map(c => charOpt(c)), {label:'一個人參加', value:''}]);
+  if (v){ ctx.c = BY[v]; ctx.partner = v; } else { S.flags.tournSolo = true; ctx.partner = ''; }
+}
+async function arcAt(at, place){
+  if (!S.house || !S.flags.ch2 || S.arcDay === S.day || (S.tut && S.tut.on && S.day <= 8)) return false;
+  for (const A of ARCS){
+    const st = S.arc[A.id] || (S.arc[A.id] = {s:0, d:0});
+    if (st.s >= A.steps.length || S.day < A.from) continue;
+    if (A.needMet && !S.met[A.needMet]) continue;
+    const P = A.steps[st.s];
+    const where = P.at.startsWith('place:') ? P.at.slice(6) : null;
+    if (!(P.at === at || (at === 'place' && (P.at === 'place' || where === place)))) continue;
+    if (st.s && S.day - st.d < (P.gap ?? A.gap)) continue;
+    if (P.if && !ARC_IF[P.if]()) continue;
+    if (P.need && !S.flags[P.need]){ st.s = A.steps.length; continue; }
+    if (A.sender && !st.p){ const top = C.filter(c => S.met[c.id] && c.id !== 'bai').sort((a, b) => (S.aff[b.id] || 0) - (S.aff[a.id] || 0))[0]; if (!top) continue; st.p = top.id; }
+    if (A.partner && st.s && !st.p) S.flags.tournSolo = true;
+    const ctx = {c: st.p ? BY[st.p] : undefined};
+    if (st.p && HAUNT[st.p]){ const pl = PLACES.find(x => x.id === HAUNT[st.p][0]); ctx.place = pl ? pl.n : ''; }
+    S.arcDay = S.day;
+    if (!st.s) toast(`小故事・${A.title}`, true);
+    await run(P.seq, ctx);
+    if (A.partner && st.s === 0) st.p = ctx.partner || '';
+    st.s++; st.d = S.day; show(null); hud();
+    return true;
+  }
+  return false;
+}
+
 // ---------- 新生週指引 ----------
 function tlog(k){ if (S.tut && S.tut.on && TUT.DAYS[S.day]) (S.tut.log[S.day] || (S.tut.log[S.day] = {}))[k] = 1; }
 const tutToday = () => S.tut && S.tut.on && TUT.DAYS[S.day] && !S.tut.done[S.day] ? TUT.DAYS[S.day] : null;
@@ -2825,7 +2868,7 @@ async function loop(){
       S.day = 1; S.slot = 0; S.today = [];
     }
     const P = plan(S.day);
-    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } await anniversary(); if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } backupNag(); await tutMorning(); }
+    if (S.slot === 0){ S.today = []; pickWeather(); spawnBlight(); spawnComm(); checkpoint(); backupDay(); await dayCard(S.day); if (birthdayToday()) await tip('birthday'); if (S.blightGone){ await say('', PLACE_N[S.blightGone] + CH4.PURGE_GONE); S.blightGone = null; } if (S.commLate){ S.commLate = false; toast(POST.COMM_LATE); } await anniversary(); if (S.commNew){ S.commNew = false; toast('百靈市集的委託板上，多了一張新的紙條'); } backupNag(); await tutMorning(); await arcAt('morning'); }
     while (S.slot < P.length){
       const k = P[S.slot]; S.today = S.slot === 0 ? [] : S.today; checkpoint(); hud();
       if (S.house && S.hp <= 2 && k !== 'rest') await tip('tired');
@@ -2886,7 +2929,7 @@ document.addEventListener('pointerdown', e => {
 }, true);
 window.__S = () => S;
 if (FAST) window.__D = () => ({C:C.map(c => c.id), lake:presentAt('lake').map(c => c.id), where:whereIs(BY.bai), ready:ready(BY.bai), ev:evState(BY.bai)});
-if (location.hash === '#shot') window.__T = {graduation:() => graduation(), legacy:() => legacy(), pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, fmt, keyNeeds, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
+if (location.hash === '#shot') window.__T = {graduation:() => graduation(), legacy:() => legacy(), pact:c => pactMoment(BY[c]), letter:() => { S.letterLast = -99; return letterNight(); }, pair:(k, p) => { useHp(2); return pairScene(k, PLACES.find(x => x.id === p)); }, yearend:() => yearend(), newyear:() => newyear(), menteeEvent:() => menteeEvent(), yulan:() => yulan(), board:() => board(), market:() => market(), setS:o => { S = migrate(o); hud(); }, arcAt, fmt, keyNeeds, setScene, hud, runStall, market, openTab, learnSpell, SPELL, serve, teaSheet, monthFest, dayCard, incident, run, opening, explore, free, practise, playGame, applyWx, keyTrial, assets, goodsShop, giftMenu: c => giftMenu(c)};
 // ---------- loading screen ----------
 const imgURL = k => k.includes('/') ? k : `img/${k}.jpg`;
 function assets(){
